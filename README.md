@@ -11,6 +11,8 @@ Fiat Fiorino'daki Android 7.1 / Rockchip PX3 veya PX5 teyp için Android Auto al
 5. USB kullanımı için telefonun veri kablosunu teybin USB Host portuna bağlayın, USB erişim iznini verin. Bazı portlar yalnızca şarj sağlar.
 6. Ayarlar → **Fiorino ayarları** altında anons, mikrofon, kalite ve DPI ayarlarını yapın.
 
+![Kablosuz bağlantı adımları](docs/screenshots/06-wireless-steps.png)
+
 ## Bu sürümdeki eklemeler
 
 - İlk çalıştırmada 480p / 30 FPS / H.264, Türkçe dil ve kontak/ekran uyanışında otomatik başlatma.
