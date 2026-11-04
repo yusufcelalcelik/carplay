@@ -131,7 +131,7 @@ class SettingsFragment : Fragment() {
     // Wireless items here only appear in Basic when the user connects wirelessly (see filterSettings).
     private val basicSettingIds = setOf(
         // General
-        "autoOptimize", "connectionMode", "appLanguage", "listenForUsbDevices",
+        "fiorino", "autoOptimize", "connectionMode", "appLanguage", "listenForUsbDevices",
         // Wireless (shown in Basic only when WiFi is among the selected connection modes).
         // The hotspot entries come along with the transport choice: they only render once Hotspot
         // is picked, and on a device that will not let an app read its hotspot configuration the

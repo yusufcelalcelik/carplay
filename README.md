@@ -66,3 +66,12 @@ Uygulama kimliği `com.yusufcelik.fiorinoheadunit`. APK hem armeabi-v7a hem arm6
 - https://headunit.andrerinas.com/guides/wireless/
 - https://headunit.andrerinas.com/guides/settings/
 - https://developer.android.com/media/optimize/audio-focus
+
+## Ekran görüntüleri
+
+1024×600 yerel Android 11 emülatöründen alınmıştır. Android Auto telefon yansıtması ve gerçek araç bağlantısı bu görsellerde açık değildir.
+
+![Ana ekran](docs/screenshots/01-home.png)
+![Ses ve hız ayarları](docs/screenshots/02-sound-speed.png)
+![Bluetooth eşleştirme](docs/screenshots/04-bluetooth.png)
+![Görüntü ayarları](docs/screenshots/05-display.png)
