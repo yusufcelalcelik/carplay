@@ -109,3 +109,7 @@ Uygulama kimliği `com.yusufcelik.fiorinoheadunit`. APK hem armeabi-v7a hem arm6
 ![Ses ve hız ayarları](docs/screenshots/02-sound-speed.png)
 ![Bluetooth eşleştirme](docs/screenshots/04-bluetooth.png)
 ![Görüntü ayarları](docs/screenshots/05-display.png)
+
+## CarPlay deneme modülü
+
+Yerel `carplay-lab` prototipi ve `carplay-engine` alıcı motoru eklendi. Ana Android Auto APK'sı ayrı kalır. **Henüz gerçek iPhone CarPlay bağlantısı doğrulanmadı; genel kaynak APK aksesuar kimliği içermez.** Kurulum, yerel derleme, doğrulama ve kalan işler [CarPlay Lab notlarında](docs/CARPLAY-LAB.md) açıklanır.
