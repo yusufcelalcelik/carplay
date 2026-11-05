@@ -97,3 +97,11 @@ Referans DiPlay 0.2.22 APK'sı resmi release SHA256 listesiyle doğrulanarak yal
 Yerel `:app:assemblePublicGithubRelease`, `:app:assembleGithubDebug`, `:carplay-lab:assemblePublicRelease` başarılı. Ana uygulama 4.806, ortak CarPlay UI 6 test geçti. Yeni testler, iPhone servis kayıtlarının kullanıcı AA pinini geçersiz kılmasını, aksesuar/telefon UUID ayrımını ve ortak seçiciden gelen telefonun eski Lab favorisine üstünlüğünü kapsar. Emülatörde ortak seçici → yeni telefon → CarPlay akışı ana paket içindeki private Activity'ye açıldı; gerçek Note 9'da da aynı Activity ve sistem görünürlük penceresi gözlendi. Tam CarPlay görüntü/ses ve PX3 donanımı doğrulanmadı.
 
 Herkese açık ana APK yalnızca `:app:assemblePublicGithubRelease` ile hazırlanır; bu görev yerel kimlik ortam girdisini reddeder ve APK içinde `assets/offline-mfi/` bulunmadığını denetler. Özel kimlikli APK genel `dist` veya Releases alanına konulmaz. Bu sürüm, seçilmiş iPhone için kimlik bulunmazsa sebebi gösterip medya başlatmayı reddeder.
+
+## Fiziksel yerel doğrulama adımı
+
+1.4.0-local-auth-test Note 9'a kullanıcı tarafından kuruldu. Yerel kimlik dosyalarının yapısal ön kontrolü geçti; sonraki engel gerçek Bluetooth adresinin uygulamadan gizlenmesi oldu. Bu aşamada iPhone MFi kabulü henüz denenmedi.
+
+Yalnızca `-local-auth-test` sürüm adında, ana Activity'nin `fiorinoLocalHostBluetoothMac` girdisi gerçek alıcı adresini `carplay-lab` özel tercihlerine aktarabilir. Genel ön izleme/debug sürümleri bu girdiyi kabul etmez. Tam unicast MAC biçimi zorunludur; 02:00 yer tutucusu, sıfır, broadcast ve multicast adresleri reddedilir. Girdi işlendikten sonra Intent'ten silinir; hiçbir kimlik anahtarı bu yoldan alınmaz. İki hedefli test sürüm kısıtını ve adres doğrulamasını kapsar.
+
+Adres tahmin edilmez: bağlı alıcıda ADB `settings get secure bluetooth_address` sonucundan alınır ve yerel test APK'sına `MainActivity` üzerinden aktarılır. CarPlay ekranının eski örneği kapatılıp yeniden açılır; adres ekran oluşturulurken okunur. Bluetooth adresi gizli kalan normal kullanıcı kurulumu için kalıcı kurulum arayüzü hâlâ gereklidir. Özel test APK'ları GitHub'a yüklenmez.

@@ -1180,6 +1180,13 @@ class MainActivity : BaseActivity() {
 
     private fun handleLaunchIntent(intent: Intent?) {
         if (intent == null) return
+        com.andrerinas.openheadunit.fiorino.LocalCarPlaySetup.hostAddress(
+            com.andrerinas.openheadunit.BuildConfig.VERSION_NAME,
+            intent.getStringExtra(com.andrerinas.openheadunit.fiorino.LocalCarPlaySetup.HOST_ADDRESS_EXTRA)
+        )?.let { address ->
+            getSharedPreferences("carplay-lab", MODE_PRIVATE).edit().putString("host-bt-mac", address).apply()
+        }
+        intent.removeExtra(com.andrerinas.openheadunit.fiorino.LocalCarPlaySetup.HOST_ADDRESS_EXTRA)
         // A deliberate launcher open asks; boot/Bluetooth launches keep their saved auto-connect path.
         if (intent.action == Intent.ACTION_MAIN && intent.hasCategory(Intent.CATEGORY_LAUNCHER) &&
             !intent.hasExtra(EXTRA_LAUNCH_SOURCE) && !App.provide(this).commManager.isConnected) {
