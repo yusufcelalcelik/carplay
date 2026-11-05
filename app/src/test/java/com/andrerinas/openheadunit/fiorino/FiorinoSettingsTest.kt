@@ -73,4 +73,41 @@ class FiorinoSettingsTest {
         assertFalse(settings.autoStartOnBoot)
     }
 
+    @Test fun `explicit Native setup cannot be reverted to the developer server by legacy flags`() {
+        val prefs = context.getSharedPreferences(Settings.PREFS_NAME, 0)
+        prefs.edit().putBoolean("wifi-launcher-mode", false).commit()
+        val settings = Settings(context)
+        settings.configureNativeReceiver("AA:BB:CC:DD:EE:01")
+        repeat(3) {
+            assertEquals(com.andrerinas.openheadunit.connection.wifi.WifiLauncherMode.NATIVE, settings.wifiConnectionMode)
+        }
+        assertFalse(prefs.contains("wifi-launcher-mode"))
+        assertFalse(prefs.contains("native-aa-wireless"))
+    }
+
+    @Test fun `an existing canonical mode wins over stale legacy values`() {
+        val prefs = context.getSharedPreferences(Settings.PREFS_NAME, 0)
+        prefs.edit().putInt("wifi-connection-mode", 3).putBoolean("wifi-launcher-mode", false).commit()
+        assertEquals(com.andrerinas.openheadunit.connection.wifi.WifiLauncherMode.NATIVE, Settings(context).wifiConnectionMode)
+        prefs.edit().putInt("wifi-connection-mode", 1).putBoolean("native-aa-wireless", true).commit()
+        assertEquals(com.andrerinas.openheadunit.connection.wifi.WifiLauncherMode.AUTO, Settings(context).wifiConnectionMode)
+    }
+
+    @Test fun `legacy modes migrate once and remain stable`() {
+        val prefs = context.getSharedPreferences(Settings.PREFS_NAME, 0)
+        for (helper in listOf(false, true)) {
+            prefs.edit().clear().putBoolean("wifi-launcher-mode", helper).commit()
+            val expected = if (helper) com.andrerinas.openheadunit.connection.wifi.WifiLauncherMode.HELPER
+                else com.andrerinas.openheadunit.connection.wifi.WifiLauncherMode.AUTO
+            val settings = Settings(context)
+            repeat(2) { assertEquals(expected, settings.wifiConnectionMode) }
+            assertFalse(prefs.contains("wifi-launcher-mode"))
+        }
+        prefs.edit().clear().putBoolean("wifi-launcher-mode", false).putBoolean("native-aa-wireless", true).commit()
+        val settings = Settings(context)
+        repeat(2) {
+            assertEquals(com.andrerinas.openheadunit.connection.wifi.WifiLauncherMode.NATIVE, settings.wifiConnectionMode)
+        }
+    }
+
 }

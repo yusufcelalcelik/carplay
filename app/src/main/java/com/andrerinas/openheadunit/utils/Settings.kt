@@ -1253,21 +1253,30 @@ class Settings(private val context: Context) {
     // 0 = Manual, 1 = Auto (Headunit Server), 2 = Helper (Wifi Launcher), 3 = Native AA
     var wifiConnectionMode: WifiLauncherMode
         get() {
-            // Migration: Check if old helper boolean exists
-            if (prefs.contains("wifi-launcher-mode")) {
-                val old = prefs.getBoolean("wifi-launcher-mode", false)
-                val newMode = if (old) 2 else 1
-                prefs.edit().putInt("wifi-connection-mode", newMode).remove("wifi-launcher-mode").apply()
-                return WifiLauncherMode.byIdOrDefault(newMode)
+            // A saved mode is authoritative. Legacy flags must not undo an explicit selection.
+            if (prefs.contains("wifi-connection-mode")) {
+                return WifiLauncherMode.byIdOrDefault(prefs.getInt("wifi-connection-mode", -1))
             }
-            // Migration: Check if native-aa-wireless was true
-            if (prefs.getBoolean("native-aa-wireless", false)) {
-                prefs.edit().putInt("wifi-connection-mode", 3).remove("native-aa-wireless").apply()
-                return WifiLauncherMode.NATIVE
+            val migrated = when {
+                prefs.getBoolean("native-aa-wireless", false) -> WifiLauncherMode.NATIVE
+                prefs.contains("wifi-launcher-mode") -> {
+                    if (prefs.getBoolean("wifi-launcher-mode", false)) WifiLauncherMode.HELPER
+                    else WifiLauncherMode.AUTO
+                }
+                else -> null
             }
-            return WifiLauncherMode.byIdOrDefault(prefs.getInt("wifi-connection-mode", -1))
+            if (migrated != null) {
+                wifiConnectionMode = migrated
+                return migrated
+            }
+            return WifiLauncherMode.DEFAULT
         }
-        set(value) { prefs.edit().putInt("wifi-connection-mode", value.id).apply() }
+        set(value) {
+            prefs.edit().putInt("wifi-connection-mode", value.id)
+                .remove("wifi-launcher-mode")
+                .remove("native-aa-wireless")
+                .apply()
+        }
 
     var videoCodec: String
         get() = prefs.getString("video-codec", "Auto")!!

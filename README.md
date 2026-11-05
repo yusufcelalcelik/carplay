@@ -24,6 +24,12 @@ Native profil açılışta ve uykudan dönüşte bağlantıyı hazırlar, kopma 
 - Otomatik görüntü kalitesi yeterli uzunluktaki kablosuz oturum sonunda kare kaybı ve render atlamalarını değerlendirir. %5 ve üzeri kayıpta sonraki bağlantı 480p olur. En fazla %1 kayıplı üç oturum sonunda 720p denenir. Manuel seçim otomatiği kapatır. Protokol doğrudan video bitrate kontrolü sunmaz. Kalite değişimi mevcut oturumu kesmez.
 - DPI hazır değerleri, özel DPI ve mevcut gelişmiş görüntü ayarları.
 
+## 1.3.1 — Native seçiminin korunması
+
+Eski bağlantı bayrakları yeni Native seçimini Headunit Sunucusu moduna geri çevirebiliyordu. Kaydedilmiş bağlantı modu artık önceliklidir. Yeni seçim yapıldığında eski bayraklar birlikte temizlenir. Eski kayıtlar bir kez taşınır ve seçim sonraki okumalarda sabit kalır.
+
+Bu güncellemeden sonra Native kullanım için **Otomatik Native alıcıyı etkinleştir** seçeneğini tekrar uygulayın. Native bağlantı telefondaki geliştirici Headunit sunucusunu gerektirmez. Telefon-teyp Bluetooth başlangıç iletişimi ve Wi-Fi ağı cihazda ayrıca doğrulanmalıdır.
+
 ## 1.3 — Standart ayar menüsü ve Native alıcı profili
 
 Fiorino ve telefon bağlantısı ekranları, uygulamanın diğer ayar sayfalarıyla aynı liste, kategori başlığı, anahtar, kaydırıcı ve seçim pencerelerini kullanır. Uygulamanın dil ve tema altyapısı bu ekranlarda da uygulanır.
