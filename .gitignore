@@ -86,3 +86,5 @@ dev-note8.ps1
 .kotlin/
 key.properties
 *.jkc
+
+*.keystore

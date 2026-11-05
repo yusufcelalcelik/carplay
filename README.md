@@ -1,131 +1,89 @@
 # Fiorino Auto
 
-Fiat Fiorino'daki Android 7.1 / Rockchip PX3 veya PX5 teyp için Android Auto alıcısı. Open Headunit'in `ae74788d8312dd7a735775ddc21370f1741a7af1` sürümünden türetilmiştir. AGPL-3.0 lisansı ve önceki yazarların telif bildirimleri korunmuştur. Önceki proje belgeleri [README_UPSTREAM.md](README_UPSTREAM.md) dosyasındadır.
+**Android baş üniteleri için tek uygulamada Android Auto ve deneysel CarPlay alıcısı.**
 
-## Android Auto ve CarPlay — 1.4.4 kaynak durumu
+[![Sürüm](https://img.shields.io/badge/s%C3%BCr%C3%BCm-1.4.4_preview-orange)](https://github.com/yusufcelalcelik/carplay/releases/tag/v1.4.4-preview)
+[![Lisans](https://img.shields.io/badge/lisans-AGPL--3.0-blue)](LICENSE)
+[![Derleme](https://img.shields.io/badge/derleme-yerel_Gradle-green)](docs/BUILDING.md)
 
-Tek APK iki alıcıyı içerir. Ortak **Hangi telefona bağlanmak istiyorsun?** seçicisi Android/iPhone tercihini kaydeder. CarPlay otomatik bağlantısı etkinleştirildikten sonra uygulama açılışı doğrudan kayıtlı iPhone'a gider. **Telefon değiştir / Cihazları yönet** ile seçim ve kayıt yönetimi açılır.
+Fiorino Auto, Fiat Fiorino'daki Android 7.1 tabanlı multimedya için geliştiriliyor. Telefon seçimi, kablosuz bağlantı, ses/mikrofon ayarları ve ekran ölçeklendirmesini tek uygulamada toplar. Android Auto ve CarPlay aynı anda iki görüntü açmaz; seçilen telefonun alıcısı bağlantıyı sahiplenir.
 
-Yerel deneysel doğrulama girdili cihaz testinde gerçek iPhone14ProMax ile CarPlay kontrol oturumu, video ve Haritalar arayüzü açıldı. Genel APK aksesuar kimliği içermez; yeni teybe yalnız genel APK kurmak CarPlay'i hazırlamaz. **Alıcı adresi** gerektiğinde teybin kendi Bluetooth adresini bir kez kaydeder; sonraki bağlantılarda tekrar girilmez. Ayrıntılar [CarPlay kurulum ve test notlarında](docs/CARPLAY-LAB.md).
+**Proje önizleme aşamasındadır.** Gerçek iPhone ile CarPlay kontrol ve görüntü bağlantısı Note 9 üzerinde doğrulandı. Hedef araçtaki PX3/PX5 platformu henüz cihaz bilgisiyle kesinleştirilmedi; gerçek teyp, kontak döngüsü ve görüşme sesi testleri bekliyor.
 
-CarPlay foreground hizmeti ekranın arkasında bağlantıyı sahiplenir; kayıtlı iPhone için boot/Bluetooth/uyanış tetikleri ve sınırlı geri çekilmeyle tekrar bağlantı vardır. Modern Android'in arka plan UI/mikrofon kuralları geçerlidir. Gerçek Android7.1/PX3 kontak döngüsü hâlâ test bekler. Otomatik profil en çok800×480 / 30FPS H.264 tuvalini ekran oranına uyarlar. Tam ekranda uygulama kenar payları kaldırılır.
+[APK sürümleri](https://github.com/yusufcelalcelik/carplay/releases) · [Kurulum](docs/GETTING-STARTED.md) · [Yerel derleme](docs/BUILDING.md) · [Sorun bildir](https://github.com/yusufcelalcelik/carplay/issues)
 
-**Cihazları yönet**, uygulamanın telefon tercihlerini/CarPlay yetkilendirmelerini sıfırlama ve sistem Bluetooth eşleşmelerine geçiş sunar. Sıfırlama teybin adresini, görüntü/ses ayarlarını ve alıcı donanım kimliğini korur. AA yazıları için **DPI → Dev (260)** seçeneği eklenmiştir; sonraki AA oturumunda uygulanır.
+## Hangi APK?
 
-[Güncel belgeler, geliştirici forumları ve özellik doğrulama matrisi](docs/FEATURE-COMPATIBILITY-2026.md): CarPlay Ultra'nın tüm araç/gösterge işlevlerinin desteklendiği iddia edilmez. Siri/Gemini ile fiziksel teyp sesini artırma, gerçek arama/mikrofon kalitesi ve PX3 donanım testi henüz uçtan uca doğrulanmadı.
+| Paket | Kullanım | CarPlay durumu |
+| --- | --- | --- |
+| Genel `fiorino-auto-…-preview.apk` | GitHub Releases; Android Auto ve ortak arayüz | Aksesuar kimliği içermez; yeni cihaza kurulması tek başına CarPlay'i hazır etmez. |
+| `…-local-carplay-test.apk` | Ayrı hazırlanan yerel deney | Geçerli yerel kurulum girdisiyle test edilir; genel release'e yüklenmez. |
 
-## Kurulum
+CarPlay'in keşif listesinde görünmesi, eşleşmesi ve görüntü oturumu açması farklı aşamalardır. Geçersiz/eksik yerel kimlikte uygulama medya bağlantısını başlatmaz. Testte çalışan bir kimlik, Apple onaylı bir ürün olduğumuz anlamına gelmez. [CarPlay kurulum ve provizyon açıklaması](docs/GETTING-STARTED.md#carplay).
 
-1. APK'yı teybe yükleyin. Telefonda Android Auto bulunmalı. Mikrofon, Bluetooth/konum ve otomatik başlatma izinlerini verin.
-2. **Ayarlar → Fiorino ayarları → Native Android Auto kurulumu** ekranında **Otomatik Native alıcıyı etkinleştir** seçeneğine dokunun.
-3. **Kablosuz Android Auto eşleştir** seçeneğini açın. Bu işlem ayarlar açıkken de Native alıcıyı üç dakika dinlemede tutar. Telefonda Android Auto → Kablosuz araç bağla ekranından teybi arayın ve sistem eşleştirmesini iki cihazda onaylayın. Bu menüde listelenme gerçek araçta henüz doğrulanmadı. OEM modülü Android'e görünmüyorsa ilk eşleştirmeyi teybin fabrika Bluetooth uygulamasından yapın.
-4. Uygulamada **Eşleşen telefonu seç** satırından telefonunuzu kaydedin.
-5. Kurulum bitince ayarlardan çıkın. Telefonda Android Auto izinlerini onaylayın. Wi-Fi açık kalsın. Bluetooth kaydında **Telefon aramaları açık, Medya sesi kapalı** olsun.
+## Özellikler
 
-Native profil açılışta ve uykudan dönüşte bağlantıyı hazırlar, kopma sonrasında alıcıyı dinlemede tutar. İlk eşleştirme ve sistem izinleri kullanıcı onayı gerektirir. USB Host portunda veri kablosuyla kullanım da korunur.
+- **Ortak telefon seçimi:** Android/iPhone tercihini hatırlar; kayıtlı iPhone için doğrudan CarPlay açılışı sunar.
+- **Kablosuz Android Auto ve USB:** Native AA başlangıcı ve mevcut kablolu alıcı yolu; Self Mode ayrıca bulunur.
+- **CarPlay oturum hizmeti:** Ekranın yaşam döngüsünden bağımsız bağlantı; açılış, Bluetooth ve uyanış tetikleri; kopma sonrası 2–60 saniye aralıklarla yeniden deneme.
+- **Ekrana uyum:** CarPlay için en çok 800×480 / 30 FPS tuval, ekran oranına göre boyutlandırma, tam ekran ve çentik düzenlemesi. AA için hazır/özel DPI; 260 DPI seçeneği dahil.
+- **Telefon kayıtları:** Uygulama tercihlerini ve CarPlay yetkilendirmelerini sıfırlama; sistem Bluetooth eşleşmelerine geçiş.
+- **AA ses ayarları:** Navigasyon/asistan sırasında medya kısma, otomatik mikrofon kaynağı ve örnekleme hızı seçimi, alıcının Android medya seviyesine GPS hızına göre ayar.
+- **2,4 GHz teyp profili:** AA için 480p / 30 FPS / H.264; CarPlay alıcısında 2,4 GHz kanal 6. Gerçek radyo/sürücü uyumu cihazda doğrulanır.
 
-![Kablosuz bağlantı adımları](docs/screenshots/06-wireless-steps.png)
+Telefon uygulamalarının sunduğu özellikler ve araç donanımı gerektiren işlevler ayrıdır. **CarPlay Ultra'nın bütün gösterge/araç işlevleri desteklenmiş sayılmaz.** Siri/Gemini ile fiziksel teyp sesini artırma henüz uygulanmış/doğrulanmış değildir. [Ayrıntılı özellik ve doğrulama matrisi](docs/FEATURE-COMPATIBILITY-2026.md).
 
-## 1.3.2 bağlantı ve ekran ayarları
+## Uyumluluk ve test durumu
 
-**Ayarlar → Fiorino ayarları → Kablosuz bağlantı profili** bölümünde yalnızca 2,4 GHz destekleyen PX3 teyp için **2,4 GHz araç — 480p / 30 FPS** seçin. Bu işlem hem Wi-Fi Direct hem hotspot bandını 2,4 GHz seçer, H.264 ve AAC kullanır, otomatik 720p yükseltmesini kapatır. Mevcut oturumun Wi-Fi ağı değiştirilmez. Android 7.1 üretici sürücüsü kanal/bant isteğini dikkate almayabilir; gerçek bant araç üzerinde kontrol edilmelidir. **Otomatik** destek varsa 5 GHz dener ve platformun yedek bağlantısını korur. **5 GHz** yalnızca bunu destekleyen cihaz içindir.
+| Bileşen | Durum |
+| --- | --- |
+| Android Auto alıcısı | Android 5.0+ / API 21; ARM32 ve ARM64 |
+| CarPlay alıcısı | Android 7.0+ / API 24; ARM32 ve ARM64 |
+| Hedef teyp | Android 7.1, Rockchip olasılığı; tam MCU/kart tespiti ve araç testi bekliyor |
+| Masa başı test | Redmi Note 9 alıcı, Redmi Note 12 Android gönderici, gerçek iPhone 14 Pro Max |
+| 1.4.4 doğrulaması | 4.811 ana uygulama + 16 ortak CarPlay testi; yerel build |
 
-Küçük yazılar için **Arayüz boyutu / DPI → Büyük (190)** veya **Çok büyük (220)** seçin. 480p'de Android Auto yerleşim sınırı DPI'yı aşağı çekebilir. **Seçtiğim DPI boyutunu uygula** anahtarı bu sınırı kaldırır. Daha az içerik veya farklı menü düzeni oluşabilir. Değişiklikler sonraki bağlantıda uygulanır.
+Bu sayılar **5 Kasım 2026 tarihli 1.4.4 koşumuna** aittir; sürekli CI rozeti veya bütün donanımlar için uyumluluk garantisi değildir. Tekil CarPlay bağlantı ölçümleri [test notlarında](docs/CARPLAY-LAB.md) bulunur.
 
-Uyandırma öncesi Bluetooth cihaz taraması durdurulur. Bu, tarama açıkken RFCOMM kurulumunun radyo zamanını paylaşmasını azaltmayı amaçlar. Deneme süreleri loga yazılır. Dayanak: [Android Bluetooth bağlantı belgesi](https://developer.android.com/develop/connectivity/bluetooth/connect-bluetooth-devices). Bu değişiklik ölçülmüş bir toplam bağlantı süresi garantisi değildir.
+Google'ın standart kablosuz AA koşullarında telefonun 5 GHz desteği bulunur. Buradaki 2,4 GHz teyp profili özel bir uyumluluk denemesidir. Modern Android, arka plandan ekran açma ve mikrofon erişimini sınırlar. [Kurulum ve sorun giderme](docs/GETTING-STARTED.md).
 
-Canlı veya kurulmakta olan yansıtma sırasında geçici boş Wi-Fi Direct grup yanıtı ağı yeniden oluşturmaz. Otomatik Wi-Fi kurtarma, hazırlık sonrasında da oturum durumunu tekrar kontrol eder. Donanım/parazit kaynaklı kopmalar için PX3 üzerinde test gerekir.
+## Hızlı başlangıç
 
-## Bu sürümdeki eklemeler
+1. [Bu deponun Releases sayfasından](https://github.com/yusufcelalcelik/carplay/releases) uygun APK'yı seçin; genel ve yerel CarPlay paketlerinin farkını yukarıdan kontrol edin.
+2. Alıcıya kurun; Bluetooth, Wi-Fi/konum ve kullanacağınız mikrofon izinlerini verin.
+3. Uygulamadaki telefon seçicisinden **Yeni telefon eşleştir** ile Android Auto veya CarPlay akışını açın; telefonun gösterdiği onayları tamamlayın.
+4. Kayıtlı telefonu seçin. CarPlay otomatik bağlantısını açtıysanız sonraki uygulama açılışları kayıtlı iPhone'a gider. **Telefon değiştir** ile yeniden seçim yapılır.
 
-- İlk çalıştırmada 480p / 30 FPS / H.264, Türkçe dil ve kontak/ekran uyanışında otomatik başlatma.
-- Dinamik ses odağı modunda ortak çıkış ve gerçek çalınan navigasyon/asistan sesine göre medya kısma. Başlangıç seviyesi %30, kullanıcı tarafından %0–100 ayarlanabilir. Android sistem ses düğmesinin seviyesi değiştirilmez.
-- Kullanılmayan navigasyon kanalı müziği kısmaz. Bitiş bildirimi kaybolsa da ses tamponu boşalınca kısma kalkar. Yeni oturum kendi ses durumuyla başlar. Diğer uygulamaların veya OEM donanımının uyguladığı ses kısması bu denetimin dışındadır.
-- Otomatik mikrofon, açılabilen VOICE_COMMUNICATION, MIC, DEFAULT veya VOICE_RECOGNITION kaynağını dener. 16 kHz açılamıyorsa 48 kHz kayıt denenir ve Android Auto'nun 16 kHz formatına dönüştürülür. Sessizlik giriş değiştirmek için tek başına yeterli değildir. Elle giriş ve örnekleme hızı ayarı korunur.
-- Kısa mikrofon testi ses dosyası kaydetmeden tepe seviyesini gösterir. Bluetooth SCO ve HFP görüşme mikrofonu gerçek görüşmeyle ayrıca denenmelidir.
-- Otomatik görüntü kalitesi yeterli uzunluktaki kablosuz oturum sonunda kare kaybı ve render atlamalarını değerlendirir. %5 ve üzeri kayıpta sonraki bağlantı 480p olur. En fazla %1 kayıplı üç oturum sonunda 720p denenir. Manuel seçim otomatiği kapatır. Protokol doğrudan video bitrate kontrolü sunmaz. Kalite değişimi mevcut oturumu kesmez.
-- DPI hazır değerleri, özel DPI ve mevcut gelişmiş görüntü ayarları.
+[Android Auto, CarPlay, USB, DPI ve arama sesi adımları →](docs/GETTING-STARTED.md)
 
-## 1.3.1 — Native seçiminin korunması
+## Arayüz
 
-Eski bağlantı bayrakları yeni Native seçimini Headunit Sunucusu moduna geri çevirebiliyordu. Kaydedilmiş bağlantı modu artık önceliklidir. Yeni seçim yapıldığında eski bayraklar birlikte temizlenir. Eski kayıtlar bir kez taşınır ve seçim sonraki okumalarda sabit kalır.
+Aşağıdaki görüntüler yerel 1024×600 Android emülatöründeki uygulama arayüzüne aittir; gerçek telefon projeksiyonu veya araç testi göstermez. Eski ekran görüntülerinde son sürümdeki menü eklemelerinin tamamı görünmeyebilir.
 
-Bu güncellemeden sonra Native kullanım için **Otomatik Native alıcıyı etkinleştir** seçeneğini tekrar uygulayın. Native bağlantı telefondaki geliştirici Headunit sunucusunu gerektirmez. Telefon-teyp Bluetooth başlangıç iletişimi ve Wi-Fi ağı cihazda ayrıca doğrulanmalıdır.
+<p>
+  <img src="docs/screenshots/01-home.png" alt="Fiorino Auto ana ekranı" width="640" />
+  <img src="docs/screenshots/07-general-settings.png" alt="Genel ayarlar ekranı" width="640" />
+</p>
 
-## 1.3 — Standart ayar menüsü ve Native alıcı profili
+## Geliştirme
 
-Fiorino ve telefon bağlantısı ekranları, uygulamanın diğer ayar sayfalarıyla aynı liste, kategori başlığı, anahtar, kaydırıcı ve seçim pencerelerini kullanır. Uygulamanın dil ve tema altyapısı bu ekranlarda da uygulanır.
-
-Native kurulum seçeneği Native AA, açılışta/uyanışta başlatma ve arka planda yeniden bağlantıyı birlikte ayarlar. Bağlantı kopunca alıcının kapanmasını ve otomatik Bağımsız Mod başlamasını kapatır. Seçilen telefon ve mevcut mikrofon, ses ve DPI tercihleri korunur. Kayıtlı telefon Bluetooth üzerinden başlangıç iletişimini kurar, Android Auto görüntüsü ve sesi Wi-Fi üzerinden taşınır. Teybin Bluetooth modülü ve gerçek Android Auto el sıkışması araçta doğrulanmalıdır.
-
-Yerel derleme ve 4.795 test geçti. Native profilin tekrar uygulanması, kayıtlı telefonu koruması, ses/görüntü ayarlarını koruması ve geçersiz adresi ayarlara dokunmadan reddetmesi Android 7.1 ortamında test edildi.
-
-## 1.2 — Ana ekranla uyumlu ayarlar
-
-Fiorino ayarları ve telefon eşleştirme ekranları koyu lacivert zemin, yuvarlatılmış kartlar, turuncu vurgular ve büyük dokunma alanlarıyla yenilendi. Ses, Hız, Mikrofon, Bağlantı, Görüntü ve Cihaz bölümleri soldaki menüden açılır. Genel ayarlar ekranı da koyu temada gösterilir. Seçim pencereleri aynı temayı kullanır. Mevcut ayarlar korunur.
-
-Görünür yerel emülatörde arayüz kontrol edildi. 4.793 mevcut test ve Android 7.1 üzerinde menü yazılarının sığmasını ve kontrol geri çağrılarını doğrulayan iki yeni arayüz testi geçti. Güncel ekran görüntüleri aşağıdadır.
-
-## 1.1 — Hıza göre teyp sesi ve uygulamadan eşleştirme
-
-Hıza göre ses ayarı yalnızca teybin Android medya sesine uygulanır. Telefonun ses ayarını değiştiren Wi-Fi veya AVRCP komutu gönderilmez. Teybin canlı GPS hızı kullanılır. 90 km/sa hızda varsayılan artış üç kademedir, 0–6 arasında seçilebilir. Geçiş iki saniyede en fazla bir kademedir. GPS verisi beş saniyeden eskiyse ek ses kaldırılır. Elle sessize alma korunur ve ses düğmesiyle yapılan değişiklik yeni temel seviye kabul edilir. Görüşme sırasında ses yönetimi bekler. OEM amplifikatörü Android medya seviyesini kullanmıyorsa fiziksel ana ses ayrıca cihazda incelenmelidir.
-
-Fiorino ayarları → Telefon eşleştirme ve arka plan bağlantısı ekranında teyp 180 saniye görünür yapılabilir. Telefonun Bluetooth aramasından teybi seçip sistem eşleştirmesini onaylayın. Ardından uygulamadan eşleşen telefonu seçin. Telefon, Native AA ve açılış/uyanış sonrası otomatik bağlantı için kaydedilir. Ayrı OEM Bluetooth modülü Android'e açılmıyorsa ilk eşleştirme fabrika uygulamasından yapılır. Desteklenen OEM eşleşme kayıtları seçim ekranına dahil edilir.
-
-Telefonun Bluetooth kaydında **Telefon aramaları açık**, **Medya sesi kapalı** olsun. Android Auto medya aktarımı Wi-Fi üzerinden yapılırken Bluetooth medya ses eşitlemesi böylece devre dışı kalır. Teybin Bluetooth modülünün davranışı fiziksel araçta doğrulanmalıdır.
-
-Çözünürlük bağlantı devam ederken değişmez. Otomatik kalite, bir oturumun ölçümlerini sonraki bağlantıda kullanır. DPI ve manuel çözünürlük değişiklikleri de yeniden bağlantıda uygulanır.
-
-Derlemeler yerel Gradle/Android SDK ile yapılır. Bulut derleme kurulmamıştır. Depoda otomatik GitHub Actions derleme iş akışı bulunmaz.
-
-## Arama sesi
-
-Hedef, aramaların araç hoparlörleri ve araç mikrofonundan yapılmasıdır. Bunun için telefon-teyp HFP bağlantısı gerekir. Önce Android Auto kapalıyken teybin Bluetooth uygulamasında gelen/giden arama deneyin. Sonra Android Auto açıkken tekrar deneyin. Teybin OEM modülü görüşme mikrofonunu Android uygulamalarına açmayabilir. Asistan mikrofon ayarı HFP görüşmesinin mikrofonunu değiştirmez.
-
-## Araçta doğrulama
-
-- Telefon kilitliyken beş tam açılış ve beş uykudan dönüş. Her seferinde bağlanma süresini kontrol edin.
-- Rota başlamadan bağlantı kurun. Müzik normal ses düzeyinde başlamalı.
-- Tek ve peş peşe navigasyon anonsları. Sonrasında ses eski seviyesine dönmeli.
-- Anons sırasında ses düğmesini çevirin. Yeni kullanıcı seviyesi korunmalı.
-- Anons sırasında çağrı alın. Karşılıklı sesi ve arama sonrasında müziği kontrol edin.
-- Anons sırasında bağlantıyı kesin, yeniden bağlanın. Kısık ses taşınmamalı.
-- 30 dakika navigasyon ve müzik. Dokunma, ses kesintisi, sıcaklık ve yeniden bağlantı davranışını kontrol edin.
-
-Gerçek teyp ve telefon üzerinde bu kontroller henüz yapılmadı. APK bir önizleme sürümüdür. CarPlay henüz uygulanmadı. Bağlantı ve oturum ayrımı kaynak projedeki transport yapısında korunur, CarPlay için ayrı protokol/donanım incelemesi gerekir.
-
-## Derleme
-
-JDK 21, Android SDK 36, CMake 3.22.1 ve Android NDK gerekir. Bu çalışma NDK 28.2.13676358 ile derlenmiştir. SDK yolunu `ANDROID_HOME` ile belirtin.
+JDK 21, SDK 36, NDK 28.2.13676358 ve CMake 3.22.1 ile **yerelde** derlenir. Bulut derleme veya GitHub Actions iş akışı kullanılmaz.
 
 ```sh
-./gradlew :app:assembleGithubDebug :app:testGithubDebugUnitTest -PfiorinoNdkVersion=28.2.13676358
-./gradlew :app:assembleGithubRelease -PfiorinoNdkVersion=28.2.13676358
+./gradlew :app:assembleGithubDebug \
+  -PfiorinoNdkVersion=28.2.13676358 --console=plain
 ```
 
-Uygulama kimliği `com.yusufcelik.fiorinoheadunit`. APK hem armeabi-v7a hem arm64-v8a içerir. İmzalı release için git tarafından dışlanan `key.properties` dosyasında storeFile, storePassword, keyAlias ve keyPassword alanlarını tanımlayın. Güncellemeler için aynı imza anahtarını saklayın. Anahtarlar depoya eklenmemelidir.
+[Derleme, test ve imzalama](docs/BUILDING.md) · [Katkı rehberi](CONTRIBUTING.md) · [Değişiklik geçmişi](CHANGELOG.md) · [Yol haritası](ROADMAP.md)
 
-## Kaynaklar
+## Donanım ve direksiyon tuşları
 
-- https://github.com/andreknieriem/open-headunit
-- https://headunit.andrerinas.com/guides/wireless/
-- https://headunit.andrerinas.com/guides/settings/
-- https://developer.android.com/media/optimize/audio-focus
+Android uygulaması yalnızca kendisine ulaşan tuş olaylarını işleyebilir. Dirençli KEY girişleri ile araç CAN hattı aynı şey değildir. 2017 Pop araçta sonradan takılmış Premium direksiyonun kablolama ve sinyal yolu ayrıca kontrol edilmelidir. [Fotoğrafa dayalı donanım incelemesi ve birlikte debug planı](docs/HARDWARE-AND-STEERING.md).
 
-## Ekran görüntüleri
+## Lisans ve kaynaklar
 
-1024×600 yerel Android 11 emülatöründen alınmıştır. Android Auto telefon yansıtması ve gerçek araç bağlantısı bu görsellerde açık değildir.
+Fiorino Auto, [Open Headunit](https://github.com/andreknieriem/open-headunit) kaynaklarından türetilmiştir; ana projenin [AGPL-3.0 lisansı](LICENSE) ve önceki yazarların bildirimleri korunur. CarPlay motoru [DiPlay](https://github.com/shihabal3amri/DiPlay) kaynaklarından alınmıştır; [motorun GPL-3.0 lisansı ve kaynak kaydı](carplay-engine/UPSTREAM.md) ayrıdır. Kaynak kod lisansı, üçüncü taraf aksesuar kimliklerinin dağıtım yetkisi olarak yorumlanmaz.
 
-![Ana ekran](docs/screenshots/01-home.png)
-![Genel ayarlar](docs/screenshots/07-general-settings.png)
-![Ses ve hız ayarları](docs/screenshots/02-sound-speed.png)
-![Bluetooth eşleştirme](docs/screenshots/04-bluetooth.png)
-![Görüntü ayarları](docs/screenshots/05-display.png)
+[Upstream README](README_UPSTREAM.md) · [Upstream değişiklik geçmişi](CHANGELOG_UPSTREAM.md) · [Veri işleme açıklaması](PRIVACY.md)
 
-## CarPlay deneme modülü
-
-Yerel `carplay-lab` prototipi ve `carplay-engine` alıcı motoru eklendi. Ana Android Auto APK'sı ayrı kalır. **Henüz gerçek iPhone CarPlay bağlantısı doğrulanmadı; genel kaynak APK aksesuar kimliği içermez.** Kurulum, yerel derleme, doğrulama ve kalan işler [CarPlay Lab notlarında](docs/CARPLAY-LAB.md) açıklanır.
-
-## 1.3.3 Native Android Auto eşleştirme penceresi
-
-Ayarlar ekranındaki normal bağlantı bekletmesi, açıkça başlatılmış üç dakikalık eşleştirme penceresi boyunca Native AA servis kaydını kapatmaz. Sistem görünürlük onayından sonra süre yenilenir; ret/geri çıkış/süre sonu normal ayar davranışını geri getirir. Eski ekranın kapanışı yeni ekranın penceresini kapatamaz. Aktif/kurulan oturum, pencere kapandığında kesilmez. Bu, keşif için gerekli alıcı dinlemesini düzeltir; Android Auto araç listesi üzerinde fiziksel doğrulamanın yerine geçmez.
+Android Auto, CarPlay ve ilgili ürün adları sahiplerinin markalarıdır. Bu depo Apple, Google veya Fiat'ın resmî bir ürünü değildir.

@@ -1,0 +1,43 @@
+name: Hata bildirimi
+description: Bağlantı, görüntü, ses veya cihaz uyumluluğu sorunu
+body:
+  - type: dropdown
+    id: area
+    attributes:
+      label: İlgili alan
+      options:
+        - Android Auto
+        - CarPlay
+        - Telefon seçimi / otomatik bağlantı
+        - Görüntü / dokunma
+        - Ses / mikrofon / arama
+        - Donanım / direksiyon tuşları
+        - Diğer
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Fiorino Auto sürümü ve paket tipi
+      placeholder: 1.4.4-fiorino-preview, genel kimliksiz APK
+    validations:
+      required: true
+  - type: textarea
+    id: hardware
+    attributes:
+      label: Alıcı ve telefon
+      description: Teyp modeli, Android/MCU sürümü; telefon modeli ve işletim sistemi. Serial, MAC ve parola eklemeyin.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Tekrarlama adımları ve beklenen / gerçekleşen sonuç
+      description: USB/Wi-Fi, bant/profil ve hangi bağlantı aşamasında kaldığını belirtin.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Gerekli kısa log veya ekran görüntüsü
+      description: Kişisel ekran içeriğini ve ağ sırlarını çıkarın. Aksesuar kimliği, özel anahtar veya özel test APK'sı yüklemeyin.

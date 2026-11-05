@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Kurulum ve sorun giderme
+    url: https://github.com/yusufcelalcelik/carplay/blob/main/docs/GETTING-STARTED.md
+    about: Önce paket farklarını ve bağlantı adımlarını kontrol edin.
+  - name: Genel APK sürümleri
+    url: https://github.com/yusufcelalcelik/carplay/releases
+    about: Genel APK ve SHA256 dosyaları.

@@ -1,0 +1,21 @@
+name: Özellik isteği
+description: Bir kullanım ihtiyacını ve beklenen davranışı anlatın
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Hangi ihtiyacı çözmek istiyorsunuz?
+    validations:
+      required: true
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Beklenen davranış
+      description: Telefon uygulaması, alıcı ve araç donanımı taraflarını mümkünse ayırın.
+    validations:
+      required: true
+  - type: textarea
+    id: setup
+    attributes:
+      label: Hedef cihaz ve doğrulama olanağı
+      description: Model/Android/MCU, Android Auto veya CarPlay ve elinizdeki gerçek test düzeni.
