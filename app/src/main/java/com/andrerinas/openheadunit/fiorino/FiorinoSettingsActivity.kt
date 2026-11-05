@@ -97,9 +97,10 @@ class FiorinoSettingsActivity : VehiclePreferencesActivity() {
         })
         items.add(SettingItem.SettingEntry("density", R.string.fiorino_density,
             if (settings.dpiPixelDensity == 0) "Otomatik" else "${settings.dpiPixelDensity} DPI") {
-            MaterialAlertDialogBuilder(this).setItems(arrayOf("Otomatik", "Küçük — 140 DPI", "Orta — 160 DPI", "Büyük — 190 DPI", "Çok büyük — 220 DPI", "Özel")) { _, index ->
-                if (index < 5) {
-                    settings.dpiPixelDensity = intArrayOf(0, 140, 160, 190, 220)[index]
+            MaterialAlertDialogBuilder(this).setItems(arrayOf("Otomatik", "Küçük — 140 DPI", "Orta — 160 DPI", "Büyük — 190 DPI", "Çok büyük — 220 DPI", "Dev — 260 DPI", "Özel")) { _, index ->
+                if (index < 6) {
+                    settings.dpiPixelDensity = intArrayOf(0, 140, 160, 190, 220, 260)[index]
+                    if (index == 5) settings.dpiFloorOverride = true
                     updatePreferences()
                 } else customDpi()
             }.show()

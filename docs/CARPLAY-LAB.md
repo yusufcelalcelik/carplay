@@ -2,17 +2,21 @@
 
 ## Durum
 
-**1.4.0-preview:** Android Auto ve deneysel CarPlay artık tek ana APK içindedir (`com.yusufcelik.fiorinoheadunit`). `carplay-ui` ortak Android arayüzünü, `carplay-engine` protokol motorunu içerir. `carplay-lab` yalnızca geliştirme için ayrı giriş noktasıdır; ana uygulamanın çalışması için kurulması gerekmez. CarPlay Android 7.0+ gerektirir; Android Auto'nun minSDK 21 desteği korunur. Eski platformda CarPlay sınıfı yüklenmeden sürüm denetimi yapılır.
+**1.4.3 kaynak durumu:** Android Auto ve CarPlay tek ana APK içindedir (`com.yusufcelik.fiorinoheadunit`). `carplay-ui` ortak arayüzü ve CarPlay foreground hizmetini, `carplay-engine` protokol motorunu içerir. Lab yalnız ayrı geliştirme girişidir. CarPlay Android 7.0+, AA minSDK21; PX3/Android7.1 donanım testi henüz yapılmadı.
 
-Elle uygulama simgesinden açılış ve Wi-Fi düğmesi ortak **Hangi telefona bağlanmak istiyorsun?** seçicisini açar. Aktif Android Auto oturumunda kısa dokunma görüntüye döner; Wi-Fi düğmesine uzun basma telefon değiştirme seçicisini açar. Kayıtlı telefonun türü bilinmiyorsa Android/iPhone sorulur, MAC adresine göre hatırlanır. iPhone iAP2/CarPlay servis kaydı, yanlışlıkla kayıtlı AA tercihi olsa bile AA uyandırma adaylarından çıkarılır; tamamlanmış AA oturumu kanıtı korunur. İsimden işletim sistemi tahmin edilmez.
+**Gerçek CarPlay kontrol ve görüntü bağlantısı doğrulandı.** Yerel deneysel kimlikli 1.4.0 testinde iPhone14ProMax kontrol oturumu ve çizilen video karesi verdi; Siri etkinleştirildikten sonra Haritalar açıldı. 1.4.1'de foreground hizmeti ve tam ekran gerçek Note9'da açıldı: kontrol 7.145ms, ilk kare 7.878ms. Bunlar tekil bağlantı ölçümleridir. Genel kaynak APK bu yerel kimlik girdisini içermez; yeni cihaza genel APK kurmak tek başına CarPlay hazırlamaz. Başarılı yerel deney Apple onaylı ürün veya kimlik dağıtım yetkisi anlamına gelmez.
 
-CarPlay seçimi AA yeniden bağlanmasını durdurur, USB denemesini iptal eder ve önceki Wi-Fi Direct grubunun kapanmasını en fazla altı saniye bekler; kapanmıyorsa ikinci alıcı başlatılmaz. Android Auto yeniden seçildiğinde kendi otomatik bağlantı ayarları kullanılır. CarPlay hâlâ ön planda çalışan bir prototiptir; CarPlay otomatik açılış/arka plan hizmeti tamamlanmadı. İki protokol aynı anda yansıtma yapmaz.
+Ortak seçici Android/iPhone türünü MAC adresine göre kaydeder. **Kayıtlı CarPlay otomatik bağlantısı etkinse** uygulama simgesinden açılış doğrudan kayıtlı iPhone ekranına döner; her seferinde telefon sorulmaz. İlk kurulumda ve **Telefon değiştir** düğmesinde ortak seçici kullanılır. Android Auto seçilince CarPlay hizmeti ve eski ağ temizliği bitmeden AA başlamaz. USB/Self seçimi de CarPlay'i bırakır.
 
-Note 9 üzerinde 1.4.0/versionCode129 kurulum ve aynı ana paket içinden CarPlay keşif/görünürlük ekranına geçiş doğrulandı. Önceki 0.1.2 Lab testinde gerçek iPhone 14 Pro Max'in araç listesinde görünme ve Bluetooth eşleşmesi kullanıcıyla doğrulandı. Bu sonuçlar medya oturumu kabulü değildir.
+`CarPlaySessionService` Activity'den bağımsız kontrol/medya sahibidir. Ekran arkaya gidince yalnız video yüzeyi ayrılır. Boot/unlock/Bluetooth ve çalışan hizmette ekran uyanışı tetikleri kayıtlı iPhone'u kullanır. Hata sonrası 2/5/10/20/40/60sn aralıkla yeniden denenir; bağlı/kurulmakta olan oturum sırf Bluetooth veya ekran uyandı diye yenilenmez. Durdur düğmesi otomatik denemeyi bekletir. Modern Android arka plan UI/mikrofon kısıtları geçerlidir; API29+ bildirimden ekranı açmak gerekebilir. Android7.1'de kontrol oturumu geldiğinde CarPlay ekranı açılabilir. Gerçek kontak döngüsü ve tekrarlı kopma testi bekler.
+
+1.4.2'de ekran profili kullanılabilir yatay boyuttan hesaplanır; en çok800×480, 16'nın katları. Örneğin 2340×1080 test telefonu için800×368. Bu sabit800×480 oranının geniş ekrandaki yan boşluklarını azaltır. 30FPS/H.264 ve 2,4GHz kanal6 korunur. Ana SurfaceView ve dokunma koordinatları aynı oranı kullanır. Ekran geometrisi oturum başlangıcında seçilir; canlı oturumda rastgele yeniden görüşülmez.
+
+Alıcı MAC adresi API'den gizlenirse CarPlay ekranındaki **Alıcı adresi** satırına teybin gerçek Bluetooth adresi bir kez kaydedilir; telefonun adresi kullanılmaz. Adres her bağlantıda yeniden girilmez. Yerel test sürümü ayrıca aşağıdaki ADB kurulum girdisini destekler.
 
 DiPlay'ın `615b32ce0b40cd0b99ce94ba23a512001553684f` sürümündeki `shared/` motoru `carplay-engine` içine alındı. iAP2 Bluetooth başlangıcı, Wi-Fi Direct, AirPlay kontrolü, video/ses ve dokunma motoru bağlandı. Kaynak/lisans bilgisi [UPSTREAM.md](../carplay-engine/UPSTREAM.md) dosyasındadır. Ayrı lisanslı BYD HUD görselleri alınmadı. Upstream demo Android Auto servisi manifestten çıkarıldı.
 
-**Henüz iPhone ile CarPlay oturumu doğrulanmadı.** Bu ekran çalışan CarPlay görüntüsü değildir. Kaynak APK hiçbir aksesuar kimliği içermez. Kimlik yoksa veya geçersizse yansıtma/ağ kurulumu başlatılmaz; kullanıcıya neden bildirilir. Yerel anahtarın sertifikasıyla eşleşmesi, iPhone'un onu kabul ettiğini kanıtlamaz.
+Aşağıdaki 0.1.0 Lab ekran görüntüsü tarihsel prototiptir; yeni cihaz kanıtı yukarıdadır. Kaynak APK hiçbir aksesuar kimliği içermez. Kimlik yoksa veya geçersizse yansıtma/ağ kurulumu başlatılmaz; kullanıcıya neden bildirilir. Yerel anahtarın sertifikasıyla eşleşmesi, iPhone'un onu kabul ettiğini kanıtlamaz.
 
 ![Yerel emülatörde gerçek prototip ekranı; CarPlay oturumu açık değil](screenshots/08-carplay-lab.png)
 
@@ -105,3 +109,15 @@ Herkese açık ana APK yalnızca `:app:assemblePublicGithubRelease` ile hazırla
 Yalnızca `-local-auth-test` sürüm adında, ana Activity'nin `fiorinoLocalHostBluetoothMac` girdisi gerçek alıcı adresini `carplay-lab` özel tercihlerine aktarabilir. Genel ön izleme/debug sürümleri bu girdiyi kabul etmez. Tam unicast MAC biçimi zorunludur; 02:00 yer tutucusu, sıfır, broadcast ve multicast adresleri reddedilir. Girdi işlendikten sonra Intent'ten silinir; hiçbir kimlik anahtarı bu yoldan alınmaz. İki hedefli test sürüm kısıtını ve adres doğrulamasını kapsar.
 
 Adres tahmin edilmez: bağlı alıcıda ADB `settings get secure bluetooth_address` sonucundan alınır ve yerel test APK'sına `MainActivity` üzerinden aktarılır. CarPlay ekranının eski örneği kapatılıp yeniden açılır; adres ekran oluşturulurken okunur. Bluetooth adresi gizli kalan normal kullanıcı kurulumu için kalıcı kurulum arayüzü hâlâ gereklidir. Özel test APK'ları GitHub'a yüklenmez.
+
+## Kalan kapsam
+
+Güncel belge ve forum karşılaştırması: [Özellik matrisi](FEATURE-COMPATIBILITY-2026.md). Siri/Gemini'nin doğal dil ses komutunun fiziksel teybin ses seviyesine aktarılması henüz uçtan uca doğrulanmadı. Mevcut Android ses denetimi alıcının STREAM_MUSIC seviyesini kullanır; bu her OEM teybin MCU/analog amplifikatör seviyesine eşit olmayabilir. Gerçek arama/mikrofon/ses testi ve PX3 kontrolü bekler. Klima ve araç kumandaları kullanıcı kapsamı dışındadır.
+
+## 1.4.2–1.4.3 ekran ve kayıt yönetimi
+
+1.4.2 gerçek Note9'da kuruldu, CarPlay kontrol ve görüntü yeniden açıldı. Bu denemede ilk kare14.451ms idi; 1.4.1'deki7.878ms ile birlikte bağlantı süresinin koşullara göre değiştiğini gösterir. Görüntü oranı genişledi fakat kalan uygulama kenar payları ekran görüntüsünde görüldü.
+
+1.4.3 kaynakta tam ekranda kenar payları sıfırlanır; API28+ kısa kenar kamera alanında çizime izin verilir. Tuval/surface oranındaki en çok%2 codec-blok yuvarlaması görüntü ve normalize dokunma beraber ölçeklenerek doldurulur; gerçekten farklı ekran oranı zorla kırpılmaz. Dikdörtgen ana ekran için iPhone corner-mask özelliği ilan edilir. Bu son değişikliklerin fiziksel testi sürümün cihaz kaydıyla ayrıca doğrulanır.
+
+Cihaz yönetimi onaydan sonra önce AA ve CarPlay'i durdurur, ardından uygulamadaki Android telefon seçimlerini ve AirPlay eşleşmelerini siler. Alıcı MAC/ekran/ses ayarları ve offline-mfi alıcı provizyonu korunur. Sistem Bluetooth bond'ları sessizce topluca silinmez; sistem eşleşme yönetimine ayrı geçiş vardır. iPhone'daki kayıt gerektiğinde telefonun CarPlay ayarlarından unutulabilir.

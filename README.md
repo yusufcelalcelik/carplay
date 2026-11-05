@@ -2,13 +2,17 @@
 
 Fiat Fiorino'daki Android 7.1 / Rockchip PX3 veya PX5 teyp için Android Auto alıcısı. Open Headunit'in `ae74788d8312dd7a735775ddc21370f1741a7af1` sürümünden türetilmiştir. AGPL-3.0 lisansı ve önceki yazarların telif bildirimleri korunmuştur. Önceki proje belgeleri [README_UPSTREAM.md](README_UPSTREAM.md) dosyasındadır.
 
-## Tek uygulamada telefon seçimi — 1.4.0-preview
+## Android Auto ve CarPlay — 1.4.3 kaynak durumu
 
-Ana APK Android Auto ve deneysel CarPlay arayüzünü birlikte içerir; ayrı Lab kurulumu gerekmez. Uygulama simgesinden elle açılışta veya **Wi-Fi** düğmesinde **Hangi telefona bağlanmak istiyorsun?** sorulur. Kayıtlı telefonu seçin; türü bilinmiyorsa Android/iPhone seçimi bir kez kaydedilir. **Yeni telefon eşleştir** ilgili keşif ekranını açar. Aktif Android Auto görüntüsünde telefon değiştirmek için Wi-Fi düğmesine uzun basın.
+Tek APK iki alıcıyı içerir. Ortak **Hangi telefona bağlanmak istiyorsun?** seçicisi Android/iPhone tercihini kaydeder. CarPlay otomatik bağlantısı etkinleştirildikten sonra uygulama açılışı doğrudan kayıtlı iPhone'a gider. **Telefon değiştir / Cihazları yönet** ile seçim ve kayıt yönetimi açılır.
 
-CarPlay için Android 7.0+ gerekir. iPhone'un araç listesinde görünmesi ve Bluetooth eşleşmesi gerçek cihazda doğrulandı; **CarPlay görüntü/ses oturumu henüz doğrulanmadı**. Genel APK aksesuar kimliği içermez; kimlik yokken bağlantıyı başlatmaz. CarPlay şimdilik ön planda çalışır, otomatik arka plan bağlantısı tamamlanmadı. [Deneme ve derleme notları](docs/CARPLAY-LAB.md).
+Yerel deneysel doğrulama girdili cihaz testinde gerçek iPhone14ProMax ile CarPlay kontrol oturumu, video ve Haritalar arayüzü açıldı. Genel APK aksesuar kimliği içermez; yeni teybe yalnız genel APK kurmak CarPlay'i hazırlamaz. **Alıcı adresi** gerektiğinde teybin kendi Bluetooth adresini bir kez kaydeder; sonraki bağlantılarda tekrar girilmez. Ayrıntılar [CarPlay kurulum ve test notlarında](docs/CARPLAY-LAB.md).
 
-Yerel birleşik sürüm: 4.806 ana uygulama ve 6 CarPlay UI testi başarılı. Note 9 üzerinde 1.4.0 kurulumu ve ana paket içinden CarPlay keşif ekranının açılması doğrulandı.
+CarPlay foreground hizmeti ekranın arkasında bağlantıyı sahiplenir; kayıtlı iPhone için boot/Bluetooth/uyanış tetikleri ve sınırlı geri çekilmeyle tekrar bağlantı vardır. Modern Android'in arka plan UI/mikrofon kuralları geçerlidir. Gerçek Android7.1/PX3 kontak döngüsü hâlâ test bekler. Otomatik profil en çok800×480 / 30FPS H.264 tuvalini ekran oranına uyarlar. Tam ekranda uygulama kenar payları kaldırılır.
+
+**Cihazları yönet**, uygulamanın telefon tercihlerini/CarPlay yetkilendirmelerini sıfırlama ve sistem Bluetooth eşleşmelerine geçiş sunar. Sıfırlama teybin adresini, görüntü/ses ayarlarını ve alıcı donanım kimliğini korur. AA yazıları için **DPI → Dev (260)** seçeneği eklenmiştir; sonraki AA oturumunda uygulanır.
+
+[Güncel belgeler, geliştirici forumları ve özellik doğrulama matrisi](docs/FEATURE-COMPATIBILITY-2026.md): CarPlay Ultra'nın tüm araç/gösterge işlevlerinin desteklendiği iddia edilmez. Siri/Gemini ile fiziksel teyp sesini artırma, gerçek arama/mikrofon kalitesi ve PX3 donanım testi henüz uçtan uca doğrulanmadı.
 
 ## Kurulum
 

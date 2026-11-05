@@ -1825,6 +1825,14 @@ class HomeFragment : Fragment() {
     }
 
     private fun onSelfModeClicked() {
+        if (commManager.isConnected) { openProjection(); return }
+        viewLifecycleOwner.lifecycleScope.launch {
+            if (!com.andrerinas.openheadunit.fiorino.ProjectionPhonePicker.releaseCarPlay(requireContext())) return@launch
+            com.andrerinas.openheadunit.fiorino.ProjectionPhonePicker.selectAndroidAuto(requireContext())
+            onSelfModeClickedReady()
+        }
+    }
+    private fun onSelfModeClickedReady() {
         if (showsBringUp(HomePrimaryPolicy.Connection.SELF)) return
         if (commManager.isConnected) {
             openProjection()
@@ -1853,6 +1861,14 @@ class HomeFragment : Fragment() {
     }
 
     private fun onUsbClicked() {
+        if (commManager.isConnected) { openProjection(); return }
+        viewLifecycleOwner.lifecycleScope.launch {
+            if (!com.andrerinas.openheadunit.fiorino.ProjectionPhonePicker.releaseCarPlay(requireContext())) return@launch
+            com.andrerinas.openheadunit.fiorino.ProjectionPhonePicker.selectAndroidAuto(requireContext())
+            onUsbClickedReady()
+        }
+    }
+    private fun onUsbClickedReady() {
         if (showsBringUp(HomePrimaryPolicy.Connection.USB)) return
         // Already connected to Android Auto - just show projection
         if (commManager.isConnected) {

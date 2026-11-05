@@ -3656,13 +3656,18 @@ class AapService : Service() {
     }
 
     /** Explicit receiver handoff; sticky stops prevent reconnect jobs from reclaiming its radio. */
-    internal fun prepareForCarPlay() {
+    internal val carPlayOwnsReceiver: Boolean
+        get() = com.andrerinas.openheadunit.fiorino.ProjectionPhonePicker.carPlaySelected(this)
+
+    internal fun prepareForCarPlay(): Boolean {
+        val heldWifi = wifiLauncherManager.sharedServices.wifiDirectManager != null
         commManager.cancelPendingSettingsRestart()
         wirelessRearmPendingForSettings = false
         usbCheckPendingForSettings = false
         bluetoothLaunchPendingForSettings = false
         wifiLauncherManager.stopForUser()
         usbLauncherManager.stopForUser()
+        return heldWifi
     }
 
     internal fun stopWirelessForCommand(fromSettings: Boolean) {

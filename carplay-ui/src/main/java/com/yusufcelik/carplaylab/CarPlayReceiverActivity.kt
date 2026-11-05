@@ -20,10 +20,9 @@ import com.shilapi.xcertplay.mfi.LocalMfiAuthenticationClient
 import com.shilapi.xcertplay.orchestration.*
 import com.shilapi.xcertplay.transport.Iap2IdentificationConfig
 import java.io.File
-import java.util.concurrent.atomic.AtomicBoolean
 
 /** Foreground-only receiver experiment. Background/boot ownership is intentionally not claimed. */
-open class CarPlayReceiverActivity : Activity(), SurfaceHolder.Callback {
+open class CarPlayReceiverActivity : Activity(), SurfaceHolder.Callback, CarPlaySessionService.Observer {
     private lateinit var status: TextView
     private lateinit var startButton: Button
     private lateinit var video: SurfaceView
@@ -33,16 +32,29 @@ open class CarPlayReceiverActivity : Activity(), SurfaceHolder.Callback {
     private var discoveryConsentPending = false
     private val handler = android.os.Handler(android.os.Looper.getMainLooper())
     private val discoveryExpiry = Runnable { stopDiscovery(); report("CarPlay keşif penceresi sona erdi.") }
-    private val closing = AtomicBoolean(false)
     private val prefs by lazy { getSharedPreferences("carplay-lab", MODE_PRIVATE) }
     private var peer: String? = null
     private var hostBluetoothMac: String? = null
-    private val identity by lazy { loadIdentity() }
+    private val chrome = mutableListOf<View>()
+    private var fullscreen = false
+    private var hadVideo = false
+    private lateinit var rootLayout: LinearLayout
+    private var displayProfile = CarPlayDisplayProfile.DEFAULT
     private val adapter get() = getSystemService(BluetoothManager::class.java)?.adapter
 
     override fun onCreate(state: Bundle?) {
         super.onCreate(state)
-        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or WindowManager.LayoutParams.FLAG_FULLSCREEN)
+        if (Build.VERSION.SDK_INT >= 28) window.attributes = window.attributes.apply {
+            layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+        }
+        window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+        displayProfile = CarPlaySessionService.displayProfile() ?: run {
+            val metrics = android.util.DisplayMetrics()
+            @Suppress("DEPRECATION")
+            windowManager.defaultDisplay.getRealMetrics(metrics)
+            CarPlayDisplayProfile.fromBounds(metrics.widthPixels, metrics.heightPixels)
+        }
         peer = intent.getStringExtra("selectedPhoneMac")?.takeIf(::validMac) ?: prefs.getString("iphone", null)
         peer?.let { prefs.edit().putString("iphone", it).apply() }
         hostBluetoothMac = intent.getStringExtra("hostBluetoothMac")?.takeIf(::validMac)
@@ -56,25 +68,45 @@ open class CarPlayReceiverActivity : Activity(), SurfaceHolder.Callback {
             setPadding(dp(16), dp(10), dp(16), dp(10))
             setBackgroundColor(Color.rgb(12, 18, 31))
         }
+        rootLayout = root
         root.addView(TextView(this).apply {
             text = "Fiorino • Kablosuz CarPlay (deneysel)"
             textSize = 22f; setTextColor(Color.WHITE)
         })
+        chrome += root.getChildAt(0)
         val buttons = LinearLayout(this)
         fun button(label: String, action: () -> Unit): Button = Button(this).apply {
             text = label; setOnClickListener { action() }
             buttons.addView(this, LinearLayout.LayoutParams(0, dp(56), 1f))
         }
         button("CarPlay keşif testi") { startDiscovery() }
-        button("Kayıtlı iPhone seç") { choosePhone() }
+        button("Telefon değiştir") {
+            val main = if (packageName == "com.yusufcelik.fiorinoheadunit") packageManager.getLaunchIntentForPackage(packageName) else null
+            if (main != null) startActivity(main.putExtra("show_driver_selector", true)) else choosePhone()
+        }
         startButton = button("CarPlay başlat") { startReceiver() }
+        button("Cihazları yönet") {
+            val main = packageManager.getLaunchIntentForPackage(packageName)
+            if (packageName == "com.yusufcelik.fiorinoheadunit" && main != null)
+                startActivity(main.putExtra("manage_saved_phones", true))
+            else report("Telefon eşleşmelerini Android Bluetooth ayarlarından yönetebilirsin.")
+        }
+        button("Alıcı adresi") { configureHostAddress() }
         button("Durdur") { stopDiscovery(); stopReceiver() }
         root.addView(buttons)
+        chrome += buttons
         status = TextView(this).apply {
             setTextColor(Color.rgb(190, 207, 233)); textSize = 16f
             text = "İlk eşleştirmeyi iPhone’da onayla. Wi-Fi ve Bluetooth açık kalmalı.\nYerel aksesuar kimliği doğrulanmadan CarPlay bağlantısı başlatılmaz."
         }
         root.addView(status)
+        chrome += status
+        val auto = CheckBox(this).apply {
+            text = "Kayıtlı iPhone’a otomatik bağlan"; setTextColor(Color.WHITE)
+            isChecked = prefs.getBoolean("auto-connect", true)
+            setOnCheckedChangeListener { _, checked -> prefs.edit().putBoolean("auto-connect", checked).apply() }
+        }
+        root.addView(auto); chrome += auto
         video = SurfaceView(this).apply {
             holder.addCallback(this@CarPlayReceiverActivity)
             setOnTouchListener { _, e ->
@@ -88,13 +120,13 @@ open class CarPlayReceiverActivity : Activity(), SurfaceHolder.Callback {
                 true
             }
         }
-        // Surface and touch coordinates share an 800:480 viewport; never stretch the touch map.
+        // The negotiated canvas and touch viewport always share an aspect ratio.
         val viewport = object : android.widget.FrameLayout(this) {
             override fun onMeasure(w: Int, h: Int) {
                 super.onMeasure(w, h)
-                val width = minOf(measuredWidth, measuredHeight * 800 / 480)
-                video.measure(View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY),
-                    View.MeasureSpec.makeMeasureSpec(width * 480 / 800, View.MeasureSpec.EXACTLY))
+                val size = CarPlayViewportPolicy.size(measuredWidth, measuredHeight, displayProfile, fullscreen)
+                video.measure(View.MeasureSpec.makeMeasureSpec(size.first, View.MeasureSpec.EXACTLY),
+                    View.MeasureSpec.makeMeasureSpec(size.second, View.MeasureSpec.EXACTLY))
             }
             override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
                 val x = (width - video.measuredWidth) / 2
@@ -104,15 +136,28 @@ open class CarPlayReceiverActivity : Activity(), SurfaceHolder.Callback {
         }
         viewport.addView(video)
         root.addView(viewport, LinearLayout.LayoutParams(-1, 0, 1f))
-        setContentView(root)
-        if (intent.getBooleanExtra("startReceiver", false)) root.post { startReceiver() }
+        val frame = FrameLayout(this).apply { addView(root) }
+        val menu = Button(this).apply {
+            text = "☰"
+            setOnClickListener { setProjectionFullscreen(!fullscreen) }
+        }
+        frame.addView(menu, FrameLayout.LayoutParams(dp(56), dp(44), Gravity.TOP or Gravity.END))
+        setContentView(frame)
+        if (intent.getBooleanExtra("startReceiver", false)) root.post {
+            if (!CarPlaySessionService.isRunning()) {
+                displayProfile = CarPlayDisplayProfile.fromBounds(window.decorView.width, window.decorView.height)
+                prefs.edit().putInt("display-width", displayProfile.width).putInt("display-height", displayProfile.height).apply()
+                video.requestLayout()
+            }
+            startReceiver()
+        }
         if (intent.getBooleanExtra("discover", false)) root.post { startDiscovery() }
     }
 
     /** Tests only whether Android's SDP/EIR path makes the accessory visible in iOS CarPlay settings. */
     private fun startDiscovery() {
         if (!permissionsReady()) return
-        if (controller != null || closing.get()) { report("Keşif testinden önce mevcut oturumu durdur."); return }
+        if (controller != null || !CarPlaySessionService.isReleased()) { report("Keşif testinden önce mevcut oturumu durdur."); return }
         stopDiscovery()
         try {
             val radio = adapter ?: error("Bluetooth adapter unavailable")
@@ -178,6 +223,7 @@ open class CarPlayReceiverActivity : Activity(), SurfaceHolder.Callback {
 
     private fun choosePhone() {
         if (!permissionsReady()) return
+        if (controller != null) { report("Telefonu değiştirmeden önce Durdur’a dokun."); return }
         val devices = adapter?.bondedDevices.orEmpty().sortedBy { it.name ?: "" }
         if (devices.isEmpty()) { report("Önce iPhone’dan Bluetooth eşleştirmesini onayla."); return }
         AlertDialog.Builder(this).setTitle("CarPlay iPhone’u")
@@ -191,7 +237,7 @@ open class CarPlayReceiverActivity : Activity(), SurfaceHolder.Callback {
     private fun startReceiver() {
         if (!permissionsReady()) return
         stopDiscovery()
-        if (controller != null || closing.get()) return
+        if (controller != null) return
         if (peer == null) { choosePhone(); return }
         val directory = File(noBackupFilesDir, LocalMfiAuthenticationClient.DIRECTORY)
         try {
@@ -213,81 +259,70 @@ open class CarPlayReceiverActivity : Activity(), SurfaceHolder.Callback {
             return
         }
         val bluetoothMac = hostBluetoothMac ?: run {
-            report("Gerçek alıcı Bluetooth adresi okunamadı. Yerel ADB kurulum adımını tamamla; sahte adresle eşleştirme denenmedi.")
+            report("Alıcı adresini ilk kurulumda bir kez kaydet.")
+            configureHostAddress()
             return
         }
+        prefs.edit().putString("iphone", peer).putString("host-bt-mac", bluetoothMac)
+            .putBoolean("paused", false).putBoolean("auto-connect", prefs.getBoolean("auto-connect", true)).apply()
+        val service = Intent(this, CarPlaySessionService::class.java).setAction(CarPlaySessionService.CONNECT)
+            .putExtra("user-visible", true)
         try {
-            val id = identity.publicKey.take(6).map { "%02X".format(it.toInt() and 255) }.joinToString(":")
-            val media = AndroidMediaSink(surface = video.holder.surface.takeIf { it.isValid },
-                videoWidth = 800, videoHeight = 480, context = this,
-                mainVideoFrameRate = 30, audioFocusEnabled = true, videoPacingDelayMillis = 0)
-            sink = media
-            val pairings = PairingStore { identifier, key ->
-                prefs.edit().putString("pair.$identifier", Base64.encodeToString(key, Base64.NO_WRAP)).apply()
-            }
-            prefs.all.filterKeys { it.startsWith("pair.") }.forEach { (k,v) ->
-                if (v is String) pairings.save(k.removePrefix("pair."), Base64.decode(v, Base64.NO_WRAP))
-            }
-            val config = CarPlayRuntimeConfig(mfiTarget = MfiTarget.LOCAL,
-                identification = Iap2IdentificationConfig("Fiorino Auto", "Fiorino-CarPlay-Lab", "Fiorino",
-                    identity.pairingId, "0.1.0", "1", 0, language = "tr"),
-                label = "Fiorino Auto", hostName = "fiorino-carplay",
-                transport = CarPlayTransport.WIRELESS, wirelessBluetoothDeviceAddress = peer,
-                wifiP2pPreferredChannel = 6)
-            controller = CarPlayController(this, config,
-                AirPlayConfig("Fiorino Auto", id, bluetoothMac, "220.68",
-                    AirPlayDisplayConfig(800, 480, widthPhysicalMm = 250, heightPhysicalMm = 150, fps = 30),
-                    manufacturer = "Fiorino", model = "Fiorino-CarPlay-Lab", oemLabel = "Fiorino Auto", microphone = true),
-                identity, pairings, object : AirPlaySessionListener {
-                    override val wantsTrace = false
-                    override fun onSessionActive(session: AirPlaySession) { report("CarPlay kontrol oturumu kuruldu; görüntü bekleniyor.") }
-                    override fun onVideoFrameRendered(session: AirPlaySession) { report("CarPlay görüntü akışı başladı.") }
-                    override fun onSessionEnded(session: AirPlaySession) { report("CarPlay oturumu sona erdi.") }
-                    override fun onTransportError(message: String) { report("Bağlantı hatası. Yerel logu kontrol et.") }
-                }, CarPlayMediaEngine(media, microphoneEnabled = true),
-                reportStatus = { s -> report(statusLabel(s)) })
-            startButton.isEnabled = false
-            controller?.start()
-        } catch (e: Exception) {
-            report("CarPlay başlatılamadı: ${e.javaClass.simpleName}")
-            stopReceiver()
-        }
+            if (Build.VERSION.SDK_INT >= 26) startForegroundService(service) else startService(service)
+        } catch (_: Exception) { report("CarPlay hizmeti başlatılamadı. Arka plan izinlerini kontrol et.") }
     }
 
     private fun stopReceiver() {
-        val old = controller; val oldSink = sink
-        controller = null; sink = null
-        if (old == null && oldSink == null) return
-        closing.set(true)
-        Thread {
-            try { old?.close() } finally {
-                try { oldSink?.close() } finally {
-                    closing.set(false)
-                    runOnUiThread { if (!isDestroyed) { startButton.isEnabled = true; report("Alıcı durduruldu.") } }
-                }
-            }
-        }.start()
+        prefs.edit().putBoolean("paused", true).apply()
+        CarPlaySessionService.stop(this)
+        setProjectionFullscreen(false)
+    }
+    private fun configureHostAddress() {
+        val input = EditText(this).apply {
+            hint = "AA:BB:CC:DD:EE:FF"
+            setSingleLine(true)
+            setText(hostBluetoothMac ?: "")
+        }
+        val dialog = AlertDialog.Builder(this).setTitle("Teybin Bluetooth adresi")
+            .setMessage("Adres otomatik okunamıyorsa teybin Bluetooth / cihaz bilgileri ekranındaki kendi adresini bir kez kaydet. Telefonun adresini kullanma.")
+            .setView(input).setPositiveButton("Kaydet", null).setNegativeButton("Vazgeç", null).create()
+        dialog.setOnShowListener { dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+            val value = input.text.toString().trim().uppercase()
+            if (!validMac(value)) { input.error = "Geçerli alıcı adresini gir"; return@setOnClickListener }
+            hostBluetoothMac = value
+            prefs.edit().putString("host-bt-mac", value).apply()
+            dialog.dismiss(); report("Alıcı adresi kaydedildi. Her bağlantıda yeniden girmen gerekmez.")
+        } }
+        dialog.show()
+    }
+    private fun setProjectionFullscreen(enabled: Boolean) {
+        fullscreen = enabled
+        rootLayout.setPadding(if (enabled) 0 else dp(16), if (enabled) 0 else dp(10),
+            if (enabled) 0 else dp(16), if (enabled) 0 else dp(10))
+        video.requestLayout()
+        chrome.forEach { it.visibility = if (enabled) View.GONE else View.VISIBLE }
+        if (enabled) window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+    }
+    override fun update(message: String, controller: CarPlayController?, sink: AndroidMediaSink?, videoActive: Boolean) {
+        this.controller = controller; this.sink = sink
+        CarPlaySessionService.displayProfile()?.let { profile ->
+            if (profile != displayProfile) { displayProfile = profile; video.requestLayout() }
+        }
+        startButton.isEnabled = controller == null
+        if (video.holder.surface.isValid) sink?.setSurface(110, video.holder.surface)
+        report(message)
+        if (videoActive && !hadVideo) setProjectionFullscreen(true)
+        if (!videoActive && hadVideo) setProjectionFullscreen(false)
+        hadVideo = videoActive
+    }
+    override fun onStart() {
+        super.onStart(); CarPlaySessionService.observe(this)
+        if (CarPlaySessionService.isRunning()) {
+            val intent = Intent(this, CarPlaySessionService::class.java).putExtra("user-visible", true)
+            if (Build.VERSION.SDK_INT >= 26) startForegroundService(intent) else startService(intent)
+        }
     }
 
-    private fun loadIdentity(): AirPlayIdentity {
-        val file = File(noBackupFilesDir, "airplay-identity.bin")
-        if (file.exists()) return file.inputStream().buffered().use { input ->
-            java.io.DataInputStream(input).let { d ->
-                val privateKey = ByteArray(32).also(d::readFully)
-                val publicKey = ByteArray(32).also(d::readFully)
-                AirPlayIdentity(privateKey, publicKey, d.readUTF())
-            }
-        }
-        return AirPlayIdentity.generate().also { identity ->
-            val atomic = android.util.AtomicFile(file)
-            val stream = atomic.startWrite()
-            try {
-                val d = java.io.DataOutputStream(stream)
-                d.write(identity.privateKey); d.write(identity.publicKey); d.writeUTF(identity.pairingId); d.flush()
-                atomic.finishWrite(stream)
-            } catch (e: Exception) { atomic.failWrite(stream); throw e }
-        }
-    }
     private fun java.io.InputStream.readBytesBounded(): ByteArray {
         val output = java.io.ByteArrayOutputStream()
         val buffer = ByteArray(1024)
@@ -298,17 +333,6 @@ open class CarPlayReceiverActivity : Activity(), SurfaceHolder.Callback {
             output.write(buffer, 0, count)
         }
         return output.toByteArray().also { require(it.isNotEmpty()) }
-    }
-    private fun statusLabel(s: CarPlayStatus): String = when (s) {
-        CarPlayStatus.DiscoveringMfi -> "Yerel aksesuar kimliği kontrol ediliyor…"
-        CarPlayStatus.MfiReady -> "Yerel imzalama hazır. iPhone kabulü henüz doğrulanmadı."
-        CarPlayStatus.StartingHotspot -> "CarPlay Wi-Fi ağı hazırlanıyor…"
-        is CarPlayStatus.HotspotReady -> "Wi-Fi hazır: ${s.band}, kanal ${s.channel}"
-        CarPlayStatus.WaitingForPairedIphone -> "Eşleşmiş iPhone bekleniyor…"
-        CarPlayStatus.ConnectingBluetooth -> "iPhone ile Bluetooth el sıkışması…"
-        CarPlayStatus.Pairing -> "iPhone eşleştirmesi…"
-        is CarPlayStatus.Failed -> "CarPlay bağlantısı başarısız. Yerel tanılama kaydını kontrol et."
-        else -> "CarPlay: ${s.javaClass.simpleName}"
     }
     private fun report(message: String) {
         Log.i("FiorinoCarPlayLab", message)
@@ -323,10 +347,10 @@ open class CarPlayReceiverActivity : Activity(), SurfaceHolder.Callback {
     override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) { sink?.setSurface(110, holder.surface) }
     override fun surfaceDestroyed(holder: SurfaceHolder) { sink?.clearSurface(110, holder.surface) }
     override fun onStop() {
-        // Android may cover us with its secure pairing dialog. Keep only the bounded
-        // discovery lease across that dialog; projection itself remains foreground-only.
         if (isFinishing) stopDiscovery()
-        stopReceiver()
+        CarPlaySessionService.unobserve(this)
+        sink?.clearSurface(110, video.holder.surface)
+        controller = null; sink = null
         super.onStop()
     }
     override fun onDestroy() { stopDiscovery(); super.onDestroy() }

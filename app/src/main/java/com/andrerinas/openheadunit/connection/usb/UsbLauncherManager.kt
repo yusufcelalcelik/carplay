@@ -726,6 +726,7 @@ class UsbLauncherManager(val service: AapService) {
         accessoryOnly: Boolean = false,
         trigger: UsbPlugInPolicy.Trigger = UsbPlugInPolicy.Trigger.APP_START,
     ) {
+        if (service.carPlayOwnsReceiver) return
         val settings = App.provide(service).settings
         val commManager = App.provide(service).commManager
         if (settingsRestart != null && !settingsRestart.acceptsSettingsRestart(commManager.connectionState.value)) return

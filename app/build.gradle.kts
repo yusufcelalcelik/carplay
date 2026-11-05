@@ -97,8 +97,8 @@ android {
         applicationId = "com.yusufcelik.fiorinoheadunit"
         minSdk = 21
         targetSdk = 36
-        versionCode = 129
-        versionName = if (providers.environmentVariable("FIORINO_CARPLAY_AUTH_ASSETS").isPresent) "1.4.0-local-auth-test" else "1.4.0-fiorino-preview"
+        versionCode = 132
+        versionName = if (providers.environmentVariable("FIORINO_CARPLAY_AUTH_ASSETS").isPresent) "1.4.3-local-auth-test" else "1.4.3-fiorino-preview"
         setProperty("archivesBaseName", "${applicationId}_${versionName}")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled = true
@@ -182,8 +182,10 @@ android {
 
     buildTypes {
         getByName("release") {
-            isMinifyEnabled = true
-            isShrinkResources = true
+            // Local device iterations use the same release signing without spending time in R8.
+            val localCarPlayTest = providers.environmentVariable("FIORINO_CARPLAY_AUTH_ASSETS").isPresent
+            isMinifyEnabled = !localCarPlayTest
+            isShrinkResources = !localCarPlayTest
             proguardFiles(
                 getDefaultProguardFile("proguard-android.txt"),
                 "proguard-project.txt"

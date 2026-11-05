@@ -71,6 +71,8 @@ class BluetoothSetupActivity : VehiclePreferencesActivity() {
                 "Alıcıyı açık tutarak 3 dakikalık Android Auto eşleştirme penceresi aç") { makeDiscoverable() },
             SettingItem.SettingEntry("selectPhone", R.string.fiorino_select_phone,
                 settings.nativePreferredDeviceMac.ifBlank { "Henüz seçilmedi" }) { choosePhone() },
+            SettingItem.SettingEntry("manageDevices", R.string.fiorino_select_phone,
+                "Telefon kayıtlarını temizle / Bluetooth eşleşmelerini yönet") { ProjectionPhonePicker.manageSavedDevices(this) },
             SettingItem.InfoBanner("instructions", R.string.fiorino_native_info),
             SettingItem.SettingEntry("systemBluetooth", R.string.fiorino_system_bluetooth,
                 "Ayrı OEM modülünde fabrika uygulamasından eşleştir") {
@@ -80,13 +82,17 @@ class BluetoothSetupActivity : VehiclePreferencesActivity() {
         ))
     }
     private fun startReceiver(): Boolean = try {
-        ProjectionPhonePicker.selectAndroidAuto(this)
-        ContextCompat.startForegroundService(this, Intent(this, AapService::class.java).setAction(AapService.ACTION_START_WIRELESS))
+        lifecycleScope.launch {
+            if (!ProjectionPhonePicker.releaseCarPlay(this@BluetoothSetupActivity)) {
+                message("CarPlay kapanıyor; tekrar dene."); return@launch
+            }
+            ProjectionPhonePicker.selectAndroidAuto(this@BluetoothSetupActivity)
+            try { ContextCompat.startForegroundService(this@BluetoothSetupActivity,
+                Intent(this@BluetoothSetupActivity, AapService::class.java).setAction(AapService.ACTION_START_WIRELESS)) }
+            catch (_: Exception) { message("Bağlantı başlatılamadı. Arka plan izinlerini kontrol et.") }
+        }
         true
-    } catch (_: Exception) {
-        message("Bağlantı başlatılamadı. Bluetooth ve otomatik başlatma izinlerini kontrol et.")
-        false
-    }
+    } catch (_: Exception) { message("Bağlantı hazırlanamadı."); false }
     private fun permitted(): Boolean {
         if (Build.VERSION.SDK_INT < 31) return true
         val permissions = arrayOf(Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.BLUETOOTH_ADVERTISE)

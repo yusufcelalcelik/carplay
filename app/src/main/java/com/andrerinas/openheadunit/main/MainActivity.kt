@@ -1187,6 +1187,27 @@ class MainActivity : BaseActivity() {
             getSharedPreferences("carplay-lab", MODE_PRIVATE).edit().putString("host-bt-mac", address).apply()
         }
         intent.removeExtra(com.andrerinas.openheadunit.fiorino.LocalCarPlaySetup.HOST_ADDRESS_EXTRA)
+        if (intent.getBooleanExtra("manage_saved_phones", false)) {
+            intent.removeExtra("manage_saved_phones")
+            HomeFragment.requestDriverSelection = false
+            window.decorView.post {
+                if (!isFinishing && !isDestroyed)
+                    com.andrerinas.openheadunit.fiorino.ProjectionPhonePicker.manageSavedDevices(this)
+            }
+            return
+        }
+        val manualLauncher = intent.action == Intent.ACTION_MAIN && intent.hasCategory(Intent.CATEGORY_LAUNCHER)
+        if ((manualLauncher || intent.hasExtra(EXTRA_LAUNCH_SOURCE)) &&
+            !intent.getBooleanExtra(EXTRA_SHOW_DRIVER_SELECTOR, false) &&
+            !App.provide(this).commManager.isConnected &&
+            com.andrerinas.openheadunit.fiorino.ProjectionPhonePicker.autoCarPlayReady(this)) {
+            HomeFragment.requestDriverSelection = false
+            window.decorView.post {
+                if (!isFinishing && !isDestroyed)
+                    com.andrerinas.openheadunit.fiorino.ProjectionPhonePicker.openSavedCarPlay(this)
+            }
+            return
+        }
         // A deliberate launcher open asks; boot/Bluetooth launches keep their saved auto-connect path.
         if (intent.action == Intent.ACTION_MAIN && intent.hasCategory(Intent.CATEGORY_LAUNCHER) &&
             !intent.hasExtra(EXTRA_LAUNCH_SOURCE) && !App.provide(this).commManager.isConnected) {
@@ -1584,6 +1605,11 @@ class MainActivity : BaseActivity() {
     }
 
     fun checkSetupFlow() {
+        // CarPlay has its own completed phone/permissions setup; keep the optional AA wizard deferred.
+        if (com.andrerinas.openheadunit.fiorino.ProjectionPhonePicker.autoCarPlayReady(this)) {
+            requestPermissions()
+            return
+        }
         val appSettings = Settings(this)
         // Show the intelligent onboarding wizard once whenever the stored version is
         // older than the current one (covers fresh installs and upgraders alike).

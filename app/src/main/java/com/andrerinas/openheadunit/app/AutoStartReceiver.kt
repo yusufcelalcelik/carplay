@@ -32,6 +32,11 @@ class AutoStartReceiver : BroadcastReceiver() {
             return
         }
 
+        if (Build.VERSION.SDK_INT >= 24 && com.andrerinas.openheadunit.fiorino.ProjectionPhonePicker.carPlaySelected(context)) {
+            com.yusufcelik.carplaylab.CarPlaySessionService.autoStart(context)
+            return
+        }
+
         // [FIX] Don't trigger auto-start if we are already connected!
         // This prevents activity restarts if BT reconnects during a session.
         if (com.andrerinas.openheadunit.App.provide(context).commManager.isConnected) {

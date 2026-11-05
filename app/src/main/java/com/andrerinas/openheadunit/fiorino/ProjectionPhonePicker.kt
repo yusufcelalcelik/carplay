@@ -29,6 +29,18 @@ object ProjectionPhonePicker {
     private fun prefs(context: Context) = context.getSharedPreferences("projection-phones", Context.MODE_PRIVATE)
     fun carPlaySelected(context: Context) = prefs(context).getString("selected-protocol", null) == "CARPLAY"
     fun selectAndroidAuto(context: Context) { prefs(context).edit().putString("selected-protocol", "ANDROID_AUTO").apply() }
+    fun autoCarPlayReady(context: Context): Boolean {
+        if (Build.VERSION.SDK_INT < 24 || !carPlaySelected(context)) return false
+        val saved = context.getSharedPreferences("carplay-lab", Context.MODE_PRIVATE)
+        return saved.getBoolean("auto-connect", false) && !saved.getBoolean("paused", false) &&
+            saved.getString("iphone", null) != null && saved.getString("host-bt-mac", null) != null
+    }
+    fun openSavedCarPlay(activity: FragmentActivity): Boolean {
+        if (!autoCarPlayReady(activity)) return false
+        val peer = activity.getSharedPreferences("carplay-lab", Context.MODE_PRIVATE).getString("iphone", null)
+        launchCarPlay(activity, peer, false)
+        return true
+    }
     private var switching = false
 
     fun show(activity: FragmentActivity, legacy: (() -> Unit)? = null) {
@@ -74,10 +86,32 @@ object ProjectionPhonePicker {
                     } else launchCarPlay(activity, null, discover = true)
                 }.show()
         }.setNegativeButton("Vazgeç", null)
-        legacy?.let { callback -> builder.setNeutralButton("Diğer bağlantı yöntemleri") {
-            _, _ -> prefs(activity).edit().putString("selected-protocol", "ANDROID_AUTO").apply(); callback()
-        } }
+        builder.setNeutralButton("Cihazları yönet") { _, _ -> manageSavedDevices(activity, legacy) }
         builder.show()
+    }
+
+    fun manageSavedDevices(activity: FragmentActivity, legacy: (() -> Unit)? = null) {
+        val options = mutableListOf("Uygulamadaki telefon tercihlerini sıfırla", "Bluetooth eşleşmelerini yönet")
+        if (legacy != null) options += "Diğer bağlantı yöntemleri"
+        MaterialAlertDialogBuilder(activity).setTitle("Kayıtlı telefonlar")
+            .setItems(options.toTypedArray()) { _, choice -> when (choice) {
+                0 -> MaterialAlertDialogBuilder(activity).setTitle("Kayıtlı telefonlar unutulsun mu?")
+                    .setMessage("Android Auto telefon seçimleri ve CarPlay yetkilendirmeleri silinir, otomatik bağlantı durur. Teybin alıcı adresi, ekran ve ses ayarları korunur. Sistem Bluetooth eşleşmelerini ayrıca Bluetooth ayarlarından kaldırabilirsin.")
+                    .setNegativeButton("Vazgeç", null).setPositiveButton("Telefonları unut") { _, _ ->
+                        activity.lifecycleScope.launch {
+                            AapService.instance?.prepareForCarPlay()
+                            if (!releaseCarPlay(activity)) { message(activity, "Oturum kapanmadı; kayıtlar silinmedi."); return@launch }
+                            withContext(Dispatchers.IO) { App.provide(activity).commManager.disconnectForLinkLoss(3000) }
+                            SavedPhoneState.clear(activity, App.provide(activity).settings)
+                            message(activity, "Uygulamanın telefon kayıtları temizlendi. Yeni telefon eşleştirebilirsin.")
+                        }
+                    }.show()
+                1 -> runCatching { activity.startActivity(Intent(android.provider.Settings.ACTION_BLUETOOTH_SETTINGS)) }
+                    .onFailure { message(activity, "Teybin fabrika Bluetooth uygulamasını aç.") }
+                else -> activity.lifecycleScope.launch {
+                    if (releaseCarPlay(activity)) { selectAndroidAuto(activity); legacy?.invoke() }
+                }
+            } }.setNegativeButton("Kapat", null).show()
     }
 
     private fun connect(activity: FragmentActivity, mac: String, carPlay: Boolean) {
@@ -85,14 +119,25 @@ object ProjectionPhonePicker {
         val protocol = if (carPlay) "CARPLAY" else "ANDROID_AUTO"
         prefs(activity).edit().putString("protocol.$mac", protocol).putString("selected-protocol", protocol).apply()
         if (carPlay) launchCarPlay(activity, mac, false)
-        else {
+        else activity.lifecycleScope.launch {
+            if (!releaseCarPlay(activity)) { message(activity, "CarPlay kapanıyor; birazdan Android telefonu tekrar seç."); return@launch }
             App.provide(activity).settings.configureNativeReceiver(mac)
             ContextCompat.startForegroundService(activity, Intent(activity, AapService::class.java)
-                .setAction(AapService.ACTION_NATIVE_AA_POKE).putExtra(AapService.EXTRA_MAC, mac))
+                .setAction(if (App.provide(activity).commManager.isConnected) AapService.ACTION_NATIVE_AA_SWITCH_DEVICE else AapService.ACTION_NATIVE_AA_POKE)
+                .putExtra(AapService.EXTRA_MAC, mac).putExtra(AapService.EXTRA_EXPLICIT_PICK, true))
         }
+    }
+    internal suspend fun releaseCarPlay(context: Context): Boolean {
+        if (Build.VERSION.SDK_INT < 24) return true
+        com.yusufcelik.carplaylab.CarPlaySessionService.stop(context)
+        return withTimeoutOrNull(6000) {
+            while (!com.yusufcelik.carplaylab.CarPlaySessionService.isReleased()) delay(100)
+            true
+        } ?: false
     }
 
     private fun launchCarPlay(activity: FragmentActivity, mac: String?, discover: Boolean) {
+        if (switching) return
         if (Build.VERSION.SDK_INT < 24) { message(activity, "CarPlay için Android 7.0 veya üzeri gerekli."); return }
         val needed = mutableListOf(Manifest.permission.ACCESS_FINE_LOCATION)
         if (Build.VERSION.SDK_INT >= 33) needed += Manifest.permission.NEARBY_WIFI_DEVICES
@@ -106,10 +151,15 @@ object ProjectionPhonePicker {
         switching = true
         activity.lifecycleScope.launch {
             try {
+                val lastIphone = activity.getSharedPreferences("carplay-lab", Context.MODE_PRIVATE).getString("iphone", null)
+                if (mac != null && mac != lastIphone && !releaseCarPlay(activity)) {
+                    message(activity, "Önceki iPhone bağlantısı kapanıyor; tekrar dene."); return@launch
+                }
                 // Stop reconnect before touching the old interface. Do not run two receivers on P2P.
-                AapService.instance?.prepareForCarPlay()
+                val heldAaWifi = AapService.instance?.prepareForCarPlay() == true
                 withContext(Dispatchers.IO) { App.provide(activity).commManager.disconnectForLinkLoss(3000) }
-                val ready = awaitWifiRelease(activity)
+                val ready = if (android.os.Build.VERSION.SDK_INT >= 24 &&
+                    com.yusufcelik.carplaylab.CarPlaySessionService.isRunning() || !heldAaWifi) true else awaitWifiRelease(activity)
                 if (!ready) { message(activity, "Android Auto ağı kapanmadı. Bağlantıyı durdurup tekrar dene."); return@launch }
                 activity.startActivity(Intent().setClassName(activity, "com.yusufcelik.carplaylab.CarPlayReceiverActivity")
                     .putExtra("selectedPhoneMac", mac).putExtra("startReceiver", !discover).putExtra("discover", discover))

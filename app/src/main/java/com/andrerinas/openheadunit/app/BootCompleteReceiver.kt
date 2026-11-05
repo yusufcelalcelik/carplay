@@ -27,6 +27,11 @@ class BootCompleteReceiver : BroadcastReceiver() {
             return
         }
 
+        if (Build.VERSION.SDK_INT >= 24 && com.andrerinas.openheadunit.fiorino.ProjectionPhonePicker.carPlaySelected(context)) {
+            com.yusufcelik.carplaylab.CarPlaySessionService.autoStart(context)
+            return
+        }
+
         val settings = Settings(context)
         val bootEnabled = Settings.isAutoStartOnBootEnabled(context)
         val screenOnEnabled = Settings.isAutoStartOnScreenOnEnabled(context)
