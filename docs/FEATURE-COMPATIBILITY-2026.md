@@ -1,6 +1,6 @@
 # Android Auto / CarPlay özellik ve doğrulama matrisi
 
-İnceleme: **5 Kasım 2026**. Hedef: Fiorino'nun Android 7.1 / Rockchip PX3–PX5 teybi; masa başında Note 9 alıcı, Note 12 Android gönderici ve gerçek iPhone 14 Pro Max. Araç ekranı ve CAN verisi henüz bağlı değil. Aşağıdaki tablo mevcut alıcının kapsamını ve test durumunu ayırır; gelecekteki özellikleri çalışıyormuş gibi göstermez.
+İnceleme: **5 Kasım 2026**. Hedef: Fiorino'nun Android 7.1 etiketli, kullanıcı bildirimine göre Rockchip PX3 / 2 GB RAM teybi (MCU ve donanım envanteri bekliyor); masa başında Note 9 alıcı, Note 12 Android gönderici ve gerçek iPhone 14 Pro Max. Araç ekranı ve CAN verisi henüz bağlı değil. Aşağıdaki tablo mevcut alıcının kapsamını ve test durumunu ayırır; gelecekteki özellikleri çalışıyormuş gibi göstermez.
 
 ## Somut cihaz kanıtı
 

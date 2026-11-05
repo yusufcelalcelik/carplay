@@ -8,7 +8,7 @@
 
 Fiorino Auto, Fiat Fiorino'daki Android 7.1 tabanlı multimedya için geliştiriliyor. Telefon seçimi, kablosuz bağlantı, ses/mikrofon ayarları ve ekran ölçeklendirmesini tek uygulamada toplar. Android Auto ve CarPlay aynı anda iki görüntü açmaz; seçilen telefonun alıcısı bağlantıyı sahiplenir.
 
-**Proje önizleme aşamasındadır.** Gerçek iPhone ile CarPlay kontrol ve görüntü bağlantısı Note 9 üzerinde doğrulandı. Hedef araçtaki PX3/PX5 platformu henüz cihaz bilgisiyle kesinleştirilmedi; gerçek teyp, kontak döngüsü ve görüşme sesi testleri bekliyor.
+**Proje önizleme aşamasındadır.** Gerçek iPhone ile CarPlay kontrol ve görüntü bağlantısı Note 9 üzerinde doğrulandı. Hedef teyp kullanıcı bildirimine göre PX3 ve 2 GB RAM içeriyor; donanım envanteri henüz alınmadı; gerçek teyp, kontak döngüsü ve görüşme sesi testleri bekliyor.
 
 [APK sürümleri](https://github.com/yusufcelalcelik/carplay/releases) · [Kurulum](docs/GETTING-STARTED.md) · [Yerel derleme](docs/BUILDING.md) · [Sorun bildir](https://github.com/yusufcelalcelik/carplay/issues)
 
@@ -39,7 +39,7 @@ Telefon uygulamalarının sunduğu özellikler ve araç donanımı gerektiren i�
 | --- | --- |
 | Android Auto alıcısı | Android 5.0+ / API 21; ARM32 ve ARM64 |
 | CarPlay alıcısı | Android 7.0+ / API 24; ARM32 ve ARM64 |
-| Hedef teyp | Android 7.1, Rockchip olasılığı; tam MCU/kart tespiti ve araç testi bekliyor |
+| Hedef teyp | Android 7.1 etiketi, kullanıcı bildirimine göre PX3 / 2 GB RAM; MCU/kart tespiti ve araç testi bekliyor |
 | Masa başı test | Redmi Note 9 alıcı, Redmi Note 12 Android gönderici, gerçek iPhone 14 Pro Max |
 | 1.4.4 doğrulaması | 4.811 ana uygulama + 16 ortak CarPlay testi; yerel build |
 
