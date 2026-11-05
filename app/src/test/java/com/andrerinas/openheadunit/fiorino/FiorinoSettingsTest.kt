@@ -35,4 +35,42 @@ class FiorinoSettingsTest {
         assertEquals(190, reopened.dpiPixelDensity)
         assertFalse(reopened.automaticMicrophone)
     }
+    @Test fun `native receiver setup remembers one phone and preserves audio and display preferences`() {
+        val settings = Settings(context)
+        settings.speechMediaPercent = 55
+        settings.dpiPixelDensity = 190
+        settings.automaticMicrophone = false
+        settings.autoStartSelfMode = true
+        settings.rawKillOnDisconnect = true
+        settings.configureNativeReceiver("AA:BB:CC:DD:EE:01")
+        assertEquals(com.andrerinas.openheadunit.connection.wifi.WifiLauncherMode.NATIVE, settings.wifiConnectionMode)
+        assertEquals(setOf(Settings.ConnectionMode.WIFI, Settings.ConnectionMode.USB), settings.connectionModes)
+        assertEquals(Settings.ConnectionKind.NATIVE_AA, settings.primaryConnection)
+        assertEquals(com.andrerinas.openheadunit.main.HomePrimaryPolicy.Connection.WIFI,
+            com.andrerinas.openheadunit.utils.HomeUiHelper.lastConnection(settings))
+        assertEquals("AA:BB:CC:DD:EE:01", settings.nativePreferredDeviceMac)
+        assertEquals(setOf("AA:BB:CC:DD:EE:01"), settings.autoStartBluetoothDeviceMacs)
+        assertEquals(setOf("AA:BB:CC:DD:EE:01"), settings.nativePokeBtMacs)
+        assertFalse(settings.nativePokeAllPairedDevices)
+        assertTrue(settings.autoStartOnBoot)
+        assertTrue(settings.autoStartOnScreenOn)
+        assertTrue(settings.autoConnectLastSession)
+        assertTrue(settings.rawReopenOnReconnection)
+        assertFalse(settings.rawKillOnDisconnect)
+        assertFalse(settings.autoStartSelfMode)
+        settings.configureNativeReceiver()
+        assertEquals("AA:BB:CC:DD:EE:01", settings.nativePreferredDeviceMac)
+        assertEquals(55, settings.speechMediaPercent)
+        assertEquals(190, settings.dpiPixelDensity)
+        assertFalse(settings.automaticMicrophone)
+    }
+
+    @Test fun `invalid phone address cannot partially change the receiver configuration`() {
+        val settings = Settings(context)
+        settings.wifiConnectionMode = com.andrerinas.openheadunit.connection.wifi.WifiLauncherMode.MANUAL
+        assertThrows(IllegalArgumentException::class.java) { settings.configureNativeReceiver("invalid") }
+        assertEquals(com.andrerinas.openheadunit.connection.wifi.WifiLauncherMode.MANUAL, settings.wifiConnectionMode)
+        assertFalse(settings.autoStartOnBoot)
+    }
+
 }

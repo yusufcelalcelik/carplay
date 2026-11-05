@@ -71,6 +71,31 @@ class Settings(private val context: Context) {
         }
     }
 
+    /** Explicit setup action. Preserve audio/display choices and any existing phone on re-apply. */
+    fun configureNativeReceiver(phoneMac: String? = null) {
+        val peer = phoneMac?.let {
+            requireNotNull(com.andrerinas.openheadunit.utils.bluetooth.BluetoothPeerInventory.normalizeAddress(it)) {
+                "Invalid Bluetooth phone address"
+            }
+        }
+        wifiConnectionMode = WifiLauncherMode.NATIVE
+        primaryConnection = ConnectionKind.NATIVE_AA
+        connectionModes = setOf(ConnectionMode.WIFI, ConnectionMode.USB)
+        autoStartOnBoot = true
+        autoStartOnScreenOn = true
+        autoConnectLastSession = true
+        autoStartSelfMode = false
+        rawReopenOnReconnection = true
+        rawKillOnDisconnect = false
+        if (peer != null) {
+            nativePreferredDeviceMac = peer
+            nativePokeBtMacs = setOf(peer)
+            nativePokeAllPairedDevices = false
+            autoStartBluetoothDeviceMacs = setOf(peer)
+            syncAutoStartBtMacsToDeviceStorage(context, setOf(peer))
+        }
+    }
+
     var speedVolumeEnabled: Boolean
         get() = prefs.getBoolean("fiorino-speed-volume", true)
         set(value) { prefs.edit().putBoolean("fiorino-speed-volume", value).apply() }

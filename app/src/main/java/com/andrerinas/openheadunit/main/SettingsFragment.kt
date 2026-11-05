@@ -870,7 +870,13 @@ class SettingsFragment : Fragment() {
         items.add(SettingItem.SettingEntry(
             stableId = "fiorino", nameResId = R.string.fiorino_settings,
             value = "Ses, mikrofon, otomatik kalite ve DPI",
-            onClick = { startActivity(Intent(requireContext(), com.andrerinas.openheadunit.fiorino.FiorinoSettingsActivity::class.java)) }
+            onClick = {
+                val open = {
+                    startActivity(Intent(requireContext(), com.andrerinas.openheadunit.fiorino.FiorinoSettingsActivity::class.java))
+                    true
+                }
+                (activity as? SettingsActivity)?.openSetup(open) ?: open()
+            }
         ))
 
         // Auto-Optimize Wizard

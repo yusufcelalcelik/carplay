@@ -1,0 +1,26 @@
+<resources>
+    <string name="fiorino_connection">Telefon ve bağlantı</string>
+    <string name="fiorino_native_setup">Native Android Auto kurulumu</string>
+    <string name="fiorino_enable_native">Otomatik Native alıcıyı etkinleştir</string>
+    <string name="fiorino_native_info">İlk kullanımda telefondan teyple eşleşmeyi onayla ve telefonunu seç. Sonraki açılışlarda kayıtlı telefonla Native Android Auto bağlantısı denenir. Kurulumdan sonra ayarlardan çık. Bluetooth bağlantıyı başlatır, görüntü ve Android Auto sesi Wi-Fi üzerinden taşınır. Telefonda Telefon aramaları açık, Medya sesi kapalı olsun. Ayrı OEM Bluetooth modüllerinde fabrika uygulamasından eşleştirme gerekebilir.</string>
+    <string name="fiorino_discoverable">Telefon için görünür yap</string>
+    <string name="fiorino_select_phone">Eşleşen telefonu seç</string>
+    <string name="fiorino_system_bluetooth">Teybin Bluetooth ayarları</string>
+    <string name="fiorino_apply_info">Ses seviyeleri hemen uygulanır. Mikrofon, bağlantı, çözünürlük ve DPI seçimleri sonraki bağlantıda kullanılır.</string>
+    <string name="fiorino_sound">Araç sesi</string>
+    <string name="fiorino_ducking">Anonslarda müziği otomatik kıs</string>
+    <string name="fiorino_speech_level">Anons sırasında müzik seviyesi</string>
+    <string name="fiorino_speed_volume">Hıza göre teyp sesi</string>
+    <string name="fiorino_speed_description">Teybin GPS hızına göre medya sesini kademeli ayarlar. Telefonun ses ayarı için komut gönderilmez.</string>
+    <string name="fiorino_speed_boost">90 km/sa hızda ek ses kademesi</string>
+    <string name="fiorino_auto_microphone">Mikrofon girişini otomatik seç</string>
+    <string name="fiorino_mic_source">Mikrofon girişi</string>
+    <string name="fiorino_mic_rate">Örnekleme hızı</string>
+    <string name="fiorino_mic_test">Mikrofon testi</string>
+    <string name="fiorino_display">Görüntü ve ölçek</string>
+    <string name="fiorino_auto_quality">Otomatik görüntü kalitesi</string>
+    <string name="fiorino_quality_description">Performansa göre sonraki bağlantıda 480p veya 720p seçer.</string>
+    <string name="fiorino_video_profile">Görüntü profili</string>
+    <string name="fiorino_density">Arayüz boyutu / DPI</string>
+    <string name="fiorino_device">Cihaz bilgileri</string>
+</resources>

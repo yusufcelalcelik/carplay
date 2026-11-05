@@ -4,12 +4,13 @@ Fiat Fiorino'daki Android 7.1 / Rockchip PX3 veya PX5 teyp için Android Auto al
 
 ## Kurulum
 
-1. APK'yı **teybe** yükleyin. Telefonda Android Auto bulunmalı.
-2. Mikrofon, yakın cihazlar/konum ve gerekli otomatik başlatma izinlerini kurulum ekranından verin. Teybin pil optimizasyonundan uygulamayı çıkarın.
-3. Teybin kendi Bluetooth uygulamasından telefonu eşleştirin. **Telefondaki** bu Bluetooth kaydında Telefon aramaları açık olsun.
-4. Kablosuz modda Native AA seçilidir. Kurulum ekranından telefonu seçip ilk bağlantıyı onaylayın. Sonraki açılışlarda otomatik bağlantı etkinleşir. OEM Bluetooth modülü standart Android arayüzünde görünmeyebilir. Uygulamanın HCT/harici Bluetooth seçenekleri cihazın firmware desteğine bağlıdır.
-5. USB kullanımı için telefonun veri kablosunu teybin USB Host portuna bağlayın, USB erişim iznini verin. Bazı portlar yalnızca şarj sağlar.
-6. Ayarlar → **Fiorino ayarları** altında anons, mikrofon, kalite ve DPI ayarlarını yapın.
+1. APK'yı teybe yükleyin. Telefonda Android Auto bulunmalı. Mikrofon, Bluetooth/konum ve otomatik başlatma izinlerini verin.
+2. **Ayarlar → Fiorino ayarları → Native Android Auto kurulumu** ekranında **Otomatik Native alıcıyı etkinleştir** seçeneğine dokunun.
+3. **Telefon için görünür yap** seçeneğini açın. Telefondan teybi bulup eşleştirmeyi iki cihazda onaylayın. OEM modülü Android'e görünmüyorsa ilk eşleştirmeyi teybin fabrika Bluetooth uygulamasından yapın.
+4. Uygulamada **Eşleşen telefonu seç** satırından telefonunuzu kaydedin.
+5. Kurulum bitince ayarlardan çıkın. Telefonda Android Auto izinlerini onaylayın. Wi-Fi açık kalsın. Bluetooth kaydında **Telefon aramaları açık, Medya sesi kapalı** olsun.
+
+Native profil açılışta ve uykudan dönüşte bağlantıyı hazırlar, kopma sonrasında alıcıyı dinlemede tutar. İlk eşleştirme ve sistem izinleri kullanıcı onayı gerektirir. USB Host portunda veri kablosuyla kullanım da korunur.
 
 ![Kablosuz bağlantı adımları](docs/screenshots/06-wireless-steps.png)
 
@@ -22,6 +23,14 @@ Fiat Fiorino'daki Android 7.1 / Rockchip PX3 veya PX5 teyp için Android Auto al
 - Kısa mikrofon testi ses dosyası kaydetmeden tepe seviyesini gösterir. Bluetooth SCO ve HFP görüşme mikrofonu gerçek görüşmeyle ayrıca denenmelidir.
 - Otomatik görüntü kalitesi yeterli uzunluktaki kablosuz oturum sonunda kare kaybı ve render atlamalarını değerlendirir. %5 ve üzeri kayıpta sonraki bağlantı 480p olur. En fazla %1 kayıplı üç oturum sonunda 720p denenir. Manuel seçim otomatiği kapatır. Protokol doğrudan video bitrate kontrolü sunmaz. Kalite değişimi mevcut oturumu kesmez.
 - DPI hazır değerleri, özel DPI ve mevcut gelişmiş görüntü ayarları.
+
+## 1.3 — Standart ayar menüsü ve Native alıcı profili
+
+Fiorino ve telefon bağlantısı ekranları, uygulamanın diğer ayar sayfalarıyla aynı liste, kategori başlığı, anahtar, kaydırıcı ve seçim pencerelerini kullanır. Uygulamanın dil ve tema altyapısı bu ekranlarda da uygulanır.
+
+Native kurulum seçeneği Native AA, açılışta/uyanışta başlatma ve arka planda yeniden bağlantıyı birlikte ayarlar. Bağlantı kopunca alıcının kapanmasını ve otomatik Bağımsız Mod başlamasını kapatır. Seçilen telefon ve mevcut mikrofon, ses ve DPI tercihleri korunur. Kayıtlı telefon Bluetooth üzerinden başlangıç iletişimini kurar, Android Auto görüntüsü ve sesi Wi-Fi üzerinden taşınır. Teybin Bluetooth modülü ve gerçek Android Auto el sıkışması araçta doğrulanmalıdır.
+
+Yerel derleme ve 4.795 test geçti. Native profilin tekrar uygulanması, kayıtlı telefonu koruması, ses/görüntü ayarlarını koruması ve geçersiz adresi ayarlara dokunmadan reddetmesi Android 7.1 ortamında test edildi.
 
 ## 1.2 — Ana ekranla uyumlu ayarlar
 

@@ -115,7 +115,7 @@ object HomeUiHelper {
     fun lastConnection(settings: Settings): Connection? = when (settings.lastConnectionType) {
         Settings.CONNECTION_TYPE_USB -> Connection.USB
         Settings.CONNECTION_TYPE_WIFI, Settings.CONNECTION_TYPE_NEARBY -> Connection.WIFI
-        else -> null
+        else -> if (settings.primaryConnection == Settings.ConnectionKind.NATIVE_AA) Connection.WIFI else null
     }
 
     private fun tileId(connection: Connection): Int = when (connection) {
