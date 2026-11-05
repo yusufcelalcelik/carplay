@@ -9,7 +9,7 @@
 | Android 7.1 etiketi | Kasadaki yazı; çalışma zamanı SDK/ROM bilgisi henüz alınmadı. |
 | `MTA701H…` seri/kart ailesi | Olası anakart ailesi için ipucu; seri etiketini tek başına kesin ürün/MCU modeli saymıyoruz. |
 | `K1/TX`, `K2/RX`, GND, ACC, B+ | Kumanda girişlerini araştırmak için somut etiket bilgisi; araç pinout'u veya CAN-H/CAN-L eşlemesi değildir. |
-| Araç: 2017 Fiorino Pop | Premium direksiyon ve kumanda sonradan takılmış. Fabrika çıkışlı kumandalı tesisat bulunduğu varsayılmaz. |
+| Araç: 2017 Fiorino Pop | Premio direksiyon ve kumanda sonradan takılmış. Fabrika çıkışlı kumandalı tesisat bulunduğu varsayılmaz. |
 | Tuş öğrenme ekranı hep boş | Beklenen öğrenme yolunda sinyal görülmediği bildirildi. Android, MCU ve tesisat nedeni henüz ayrılmadı. |
 | Mute basışında bazen kısa kesilme | Tekrarlanabilirliği doğrulanmadı; kumandanın çalıştığına veya arızanın yazılım olduğuna kanıt değil. |
 

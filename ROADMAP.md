@@ -14,7 +14,7 @@ Durum: 5 Kasım 2026. Kaynakta bulunan işlev ile gerçek araç doğrulaması fa
 ## Yakın doğrulama ve bakım
 
 - [ ] Gerçek 2017 Fiorino Pop'a takılı teybin MCU, SoC ve tesisatını doğrulamak.
-- [ ] Sonradan takılan Premium direksiyonun sinyal yolunu ölçmek; varsa MCU/Android tuşlarını eşlemek.
+- [ ] Sonradan takılan Premio direksiyonun sinyal yolunu ölçmek; varsa MCU/Android tuşlarını eşlemek.
 - [ ] PX3/Android 7.1 üzerinde kontak/uyku ve tekrar bağlantı testleri.
 - [ ] Gerçek arama, mikrofon, navigasyon anonsu ve ses toparlama testi.
 - [ ] Uzun oturumda kare kaybı, sıcaklık, dokunma ve bağlantı süresi dağılımını ölçmek.

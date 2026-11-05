@@ -78,7 +78,7 @@ JDK 21, SDK 36, NDK 28.2.13676358 ve CMake 3.22.1 ile **yerelde** derlenir. Bulu
 
 ## Donanım ve direksiyon tuşları
 
-Android uygulaması yalnızca kendisine ulaşan tuş olaylarını işleyebilir. Dirençli KEY girişleri ile araç CAN hattı aynı şey değildir. 2017 Pop araçta sonradan takılmış Premium direksiyonun kablolama ve sinyal yolu ayrıca kontrol edilmelidir. [Fotoğrafa dayalı donanım incelemesi ve birlikte debug planı](docs/HARDWARE-AND-STEERING.md).
+Android uygulaması yalnızca kendisine ulaşan tuş olaylarını işleyebilir. Dirençli KEY girişleri ile araç CAN hattı aynı şey değildir. 2017 Pop araçta sonradan takılmış Premio direksiyonun kablolama ve sinyal yolu ayrıca kontrol edilmelidir. [Fotoğrafa dayalı donanım incelemesi ve birlikte debug planı](docs/HARDWARE-AND-STEERING.md).
 
 ## Lisans ve kaynaklar
 
