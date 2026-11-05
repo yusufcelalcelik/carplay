@@ -10,7 +10,7 @@
 | `MTA701H…` seri/kart ailesi | Olası anakart ailesi için ipucu; seri etiketini tek başına kesin ürün/MCU modeli saymıyoruz. |
 | `K1/TX`, `K2/RX`, GND, ACC, B+ | Kumanda girişlerini araştırmak için somut etiket bilgisi; araç pinout'u veya CAN-H/CAN-L eşlemesi değildir. |
 | Araç: 2017 Fiorino Pop | Premio direksiyon ve kumanda sonradan takılmış. Fabrika çıkışlı kumandalı tesisat bulunduğu varsayılmaz. |
-| Tuş öğrenme ekranı hep boş | Beklenen öğrenme yolunda sinyal görülmediği bildirildi. Android, MCU ve tesisat nedeni henüz ayrılmadı. |
+| Fabrika menüsündeki Key Study boş | Kullanıcı bu ekranı kullandığını doğruladı. Benzer üretici kılavuzunda bu bölüm panel/dokunmatik tuşlar içindir; gerçek direksiyon öğrenmesiyle karıştırılmamalı. |
 | Mute basışında bazen kısa kesilme | Tekrarlanabilirliği doğrulanmadı; kumandanın çalıştığına veya arızanın yazılım olduğuna kanıt değil. |
 
 Fotoğrafın tamamı ve kişiye özgü seri numarası bu belgeye eklenmedi.
@@ -83,3 +83,15 @@ Sonuç analog KEY yolunu doğrularsa CAN kutusuz öğrenme denenebilir. Sonuç C
 Şimdilik firmware seçimi veya flash işlemi yapılmaz. Önce MCU ailesi/üreticisi, SoC, anakart revizyonu, RAM, ekran/touch, Bluetooth/radyo modülü, mevcut sistem ve geri dönüş yöntemi bilinmeli. Android sistem imajı ile MCU firmware'i ayrı bileşenlerdir. Aynı kasa/Android etiketi, uyumlu ROM anlamına gelmez.
 
 Hedef önce çalışan kurulumun envanteri ve yedeği, sonra gerçekten aynı donanıma uygun güncelleme kaynağının doğrulanmasıdır. Yalnız “Android7.1/PX3 gibi” bilgisiyle Android sürümü yükseltme veya MCU değişimi önerilmez.
+
+## Sonraki fotoğraflarla netleşen menü ayrımı
+
+Kullanıcı, boş kalan öğrenme ekranının **fabrika menüsündeki Key Study** olduğunu doğruladı. Yeni fotoğrafta A-MEDIA AUTO adı ve App/Car Logo/Radio/Voice/CanBus/Key Study/other sekmeleri görülüyor. Bu arayüz benzerliği kesin kart veya MCU sürümü değildir. 20–24dB listesi radyo arama ayarına aittir; RAM miktarı bu ekranda görünmüyor. Kullanıcının2GB/4GB hatırlaması henüz doğrulanmadı.
+
+Seicane H2 üretici kılavuzunun18–19.sayfalarında direksiyon için ayrı bir öğrenme uygulaması anlatılır.47.sayfa, fabrika Key Study bölümünü ön panel ve dokunmatik panel tuşlarıyla sınırlar. Bu, kullanıcının menüsüyle önemli bir eşleşmedir; aynı MCU/pinout'a sahip olduğu yine doğrulanmış değildir. [Üretici kılavuzu](https://www.seicane.com/media/installation/80/Seicane-H2-Android-Car-Radio-User-Manual.pdf).
+
+Öncelik artık ana uygulama listesinde **Wheelkey Study / Steering wheel keys** benzeri direksiyon ekranını bulmaktır. Benzer kılavuz, simge yoksa fabrika **other** bölümündeki direksiyon öğrenmesine izin seçeneğini kontrol etmeyi anlatır. Yalnız aynı işlev açıkça bulunursa, mevcut durumu kaydedilerek kapalı/açık tercihi değerlendirilebilir; bu bilgi genel CAN türlerini veya MCU firmware'ini rastgele değiştirme talimatı değildir. Gerçek direksiyon ekranı denenmeden önceki boş Key Study ekranını elektriksel kopukluk kanıtı saymayın.
+
+Kullanıcı ayrıca B+ beslemesi çıkarılıp takılınca tarihin2014'e döndüğünü bildirdi. Bu, kesintiden sonra saatin başlangıç değerine dönmesiyle uyumlu bir gözlemdir; MCU sürümü, Android sürümü veya üretim yılı tespiti değildir. Normal kontak kapamasında B+ yerindeyken de aynı durum olup olmadığı ayrı kontrol konusudur.
+
+Paylaşılan YouTube bağlantısının videosu bu incelemede açılıp izlenemedi; kıyas yalnız kullanıcının sağladığı ekran görüntüsü üzerinden yapılmıştır. [Kullanıcının referans videosu](https://www.youtube.com/watch?v=lx91GR1RVrY).
