@@ -3,7 +3,7 @@
     <string name="fiorino_native_setup">Native Android Auto kurulumu</string>
     <string name="fiorino_enable_native">Otomatik Native alıcıyı etkinleştir</string>
     <string name="fiorino_native_info">İlk kullanımda telefondan teyple eşleşmeyi onayla ve telefonunu seç. Sonraki açılışlarda kayıtlı telefonla Native Android Auto bağlantısı denenir. Kurulumdan sonra ayarlardan çık. Bluetooth bağlantıyı başlatır, görüntü ve Android Auto sesi Wi-Fi üzerinden taşınır. Telefonda Telefon aramaları açık, Medya sesi kapalı olsun. Ayrı OEM Bluetooth modüllerinde fabrika uygulamasından eşleştirme gerekebilir.</string>
-    <string name="fiorino_discoverable">Telefon için görünür yap</string>
+    <string name="fiorino_discoverable">Kablosuz Android Auto eşleştir</string>
     <string name="fiorino_select_phone">Eşleşen telefonu seç</string>
     <string name="fiorino_system_bluetooth">Teybin Bluetooth ayarları</string>
     <string name="fiorino_apply_info">Ses seviyeleri hemen uygulanır. Mikrofon, bağlantı, çözünürlük ve DPI seçimleri sonraki bağlantıda kullanılır.</string>

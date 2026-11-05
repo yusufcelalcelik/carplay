@@ -14,14 +14,14 @@ object SettingsScreenPausePolicy {
      * @param sessionLive a session is never torn down for the settings screen.
      * @param qrHold the setup QR reads the running launcher, so it holds the stack up.
      */
-    fun pauses(settingsForeground: Boolean, sessionLive: Boolean, qrHold: Boolean): Boolean =
-        settingsForeground && !sessionLive && !qrHold
+    fun pauses(settingsForeground: Boolean, sessionLive: Boolean, qrHold: Boolean, nativePairing: Boolean = false): Boolean =
+        settingsForeground && !sessionLive && !qrHold && !nativePairing
 
     /**
      * Whether lifting the pause re-arms the stack. Only the setup QR, which reads the running
      * launcher, or a request held behind the screen (a wireless Save, or the phone arriving over
      * Bluetooth); a visit with neither leaves the stack down, and the WiFi button is the way back up.
      */
-    fun rearmsOnRelease(qrHold: Boolean, wirelessRequestHeld: Boolean): Boolean =
-        qrHold || wirelessRequestHeld
+    fun rearmsOnRelease(qrHold: Boolean, wirelessRequestHeld: Boolean, nativePairing: Boolean = false): Boolean =
+        qrHold || wirelessRequestHeld || nativePairing
 }

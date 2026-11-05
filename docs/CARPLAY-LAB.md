@@ -2,11 +2,11 @@
 
 ## Durum
 
-`carplay-lab`, ana Android Auto uygulamasından ayrı kurulabilen yerel bir alıcı prototipidir. Paket: `com.yusufcelik.fiorino.carplaylab`, sürüm `0.1.0-lab`. Android 7.0+ ve ARM32/ARM64 hedeflenir. Ana uygulama 1.3.2 olarak korunur.
+`carplay-lab`, ana Android Auto uygulamasından ayrı kurulabilen yerel bir alıcı prototipidir. Paket: `com.yusufcelik.fiorino.carplaylab`, sürüm `0.1.1-lab`. Android 7.0+ ve ARM32/ARM64 hedeflenir. Ana uygulama 1.3.2 olarak korunur.
 
 DiPlay'ın `615b32ce0b40cd0b99ce94ba23a512001553684f` sürümündeki `shared/` motoru `carplay-engine` içine alındı. iAP2 Bluetooth başlangıcı, Wi-Fi Direct, AirPlay kontrolü, video/ses ve dokunma motoru bağlandı. Kaynak/lisans bilgisi [UPSTREAM.md](../carplay-engine/UPSTREAM.md) dosyasındadır. Ayrı lisanslı BYD HUD görselleri alınmadı. Upstream demo Android Auto servisi manifestten çıkarıldı.
 
-**Henüz iPhone ile CarPlay oturumu doğrulanmadı.** Bu ekran çalışan CarPlay görüntüsü değildir. Kaynak APK hiçbir aksesuar kimliği içermez. Kimlik yoksa veya geçersizse ağ/CarPlay kurulumu başlatılmaz; kullanıcıya neden bildirilir. Yerel anahtarın sertifikasıyla eşleşmesi, iPhone'un onu kabul ettiğini kanıtlamaz.
+**Henüz iPhone ile CarPlay oturumu doğrulanmadı.** Bu ekran çalışan CarPlay görüntüsü değildir. Kaynak APK hiçbir aksesuar kimliği içermez. Kimlik yoksa veya geçersizse yansıtma/ağ kurulumu başlatılmaz; kullanıcıya neden bildirilir. Yerel anahtarın sertifikasıyla eşleşmesi, iPhone'un onu kabul ettiğini kanıtlamaz.
 
 ![Yerel emülatörde gerçek prototip ekranı; CarPlay oturumu açık değil](screenshots/08-carplay-lab.png)
 
@@ -57,7 +57,7 @@ Ekrandan ayrılma ve “Durdur” alıcıyı kapatır. Bu prototipte foreground 
 ## Bu adımda doğrulananlar
 
 - Yerel debug APK derlendi ve imzası doğrulandı.
-- 92 hedefli motor testi ve 2 Lab ön kontrol testi geçti. Motorun tüm upstream testleri çalıştırılmış sayılmaz.
+- 92 hedefli motor testi ve 5 Lab testi geçti (2 ön kontrol, 3 keşif kayıt yaşam döngüsü testi). Motorun tüm upstream testleri çalıştırılmış sayılmaz.
 - Android 11, 1024×600 yerel emülatöründe Lab kuruldu ve gerçek ekranı açıldı.
 - Note 9'un Downloads klasörüne test APK'sı kopyalandı. Fiziksel Lab kurulum/açılışı henüz doğrulanmadı; cihaz son kontrolde kilitli/uykudaydı.
 - Xcode cihaz envanterinde fiziksel iPhone çevrimdışıydı. Simülatör envanterinin görünmesi gerçek iPhone veya Bluetooth CarPlay testi değildir.
@@ -65,3 +65,13 @@ Ekrandan ayrılma ve “Durdur” alıcıyı kapatır. Bu prototipte foreground 
 ## Devam edilecekler
 
 Önce geçerli yerel aksesuar provizyonu ve fiziksel iPhone erişimini çöz, gerçek el sıkışmasını kaydet. Bunlar olmadan “native CarPlay çalışıyor” veya “iPhone araç olarak tanıyor” sonucu bildirme. Kullanıcı uzaktayken fiziksel onay engel olursa uygulama içi Android Auto kablosuz eşleştirme akışı ve ölçülebilir performans iyileştirmeleriyle devam et. Note 12 kullanıcıyla dışarıda; alıcı olarak Note 9 kalacak.
+
+## 0.1.1 — iPhone CarPlay menüsünden keşif denemesi
+
+Kullanıcının hedefi iPhone → Genel → CarPlay → Kullanılabilir Araçlar ekranından alıcıyı seçmek. Önceden eşleşmiş bir iPhone'a giden bağlantı ile bu ilk keşif aynı aşama değildir. Apple, Bluetooth alt sisteminin servis keşfi/iAP2 yanında CarPlay desteğini EIR içinde ilan etmesini ister: [Apple WWDC17](https://developer.apple.com/videos/play/wwdc2017/717/).
+
+Lab'daki **CarPlay keşif testi**, aksesuar tarafındaki iAP2 (`…decacaff`) ve CarPlay (`ec884348-cd41-40a2-9727-575d50bf1fd3`) servis kayıtlarını birlikte açar ve Android'in izin penceresiyle üç dakikalık görünürlük ister. Kimlik bilgisi gerektirmeyen, yalnızca keşif deneyidir. Bu moddaki gelen bağlantılar kapatılır; iAP2/MFi yanıtı veya görüntü/ses oturumu oluşturulmaz. Socket kaydının açılması EIR'nin iPhone tarafından görüldüğünü **kanıtlamaz**. Gerçek araç listesi, Android Bluetooth yığını ve iPhone üzerinde ayrıca denenmelidir. Kayıt çifti atomik açılır; ikinci kayıt başarısızsa ilk kayıt da kapanır. Durdur/çıkış ve süre sonu kayıtları kaldırır.
+
+Aksesuar/iPhone UUID ayrımı için incelenen birincil uygulama: [catplay iAP2 kaynakları, 4487a6d](https://github.com/catplay-labs/catplay/blob/4487a6d85f2ced8c2a680e4d122a0dea2f294320/bluetooth/catplay_bt/src/iap2.rs). Bu aşamada cihaz sınıfı veya sistem Bluetooth kimliği değiştirilmez.
+
+Tek APK içinde Android Auto ve CarPlay kullanımı son hedef olarak korunur. Mevcut Lab ayrı deneme paketidir; tek APK entegrasyonu henüz tamamlanmadı.

@@ -6,7 +6,7 @@ Fiat Fiorino'daki Android 7.1 / Rockchip PX3 veya PX5 teyp için Android Auto al
 
 1. APK'yı teybe yükleyin. Telefonda Android Auto bulunmalı. Mikrofon, Bluetooth/konum ve otomatik başlatma izinlerini verin.
 2. **Ayarlar → Fiorino ayarları → Native Android Auto kurulumu** ekranında **Otomatik Native alıcıyı etkinleştir** seçeneğine dokunun.
-3. **Telefon için görünür yap** seçeneğini açın. Telefondan teybi bulup eşleştirmeyi iki cihazda onaylayın. OEM modülü Android'e görünmüyorsa ilk eşleştirmeyi teybin fabrika Bluetooth uygulamasından yapın.
+3. **Kablosuz Android Auto eşleştir** seçeneğini açın. Bu işlem ayarlar açıkken de Native alıcıyı üç dakika dinlemede tutar. Telefonda Android Auto → Kablosuz araç bağla ekranından teybi arayın ve sistem eşleştirmesini iki cihazda onaylayın. Bu menüde listelenme gerçek araçta henüz doğrulanmadı. OEM modülü Android'e görünmüyorsa ilk eşleştirmeyi teybin fabrika Bluetooth uygulamasından yapın.
 4. Uygulamada **Eşleşen telefonu seç** satırından telefonunuzu kaydedin.
 5. Kurulum bitince ayarlardan çıkın. Telefonda Android Auto izinlerini onaylayın. Wi-Fi açık kalsın. Bluetooth kaydında **Telefon aramaları açık, Medya sesi kapalı** olsun.
 
@@ -113,3 +113,7 @@ Uygulama kimliği `com.yusufcelik.fiorinoheadunit`. APK hem armeabi-v7a hem arm6
 ## CarPlay deneme modülü
 
 Yerel `carplay-lab` prototipi ve `carplay-engine` alıcı motoru eklendi. Ana Android Auto APK'sı ayrı kalır. **Henüz gerçek iPhone CarPlay bağlantısı doğrulanmadı; genel kaynak APK aksesuar kimliği içermez.** Kurulum, yerel derleme, doğrulama ve kalan işler [CarPlay Lab notlarında](docs/CARPLAY-LAB.md) açıklanır.
+
+## 1.3.3 Native Android Auto eşleştirme penceresi
+
+Ayarlar ekranındaki normal bağlantı bekletmesi, açıkça başlatılmış üç dakikalık eşleştirme penceresi boyunca Native AA servis kaydını kapatmaz. Sistem görünürlük onayından sonra süre yenilenir; ret/geri çıkış/süre sonu normal ayar davranışını geri getirir. Eski ekranın kapanışı yeni ekranın penceresini kapatamaz. Aktif/kurulan oturum, pencere kapandığında kesilmez. Bu, keşif için gerekli alıcı dinlemesini düzeltir; Android Auto araç listesi üzerinde fiziksel doğrulamanın yerine geçmez.

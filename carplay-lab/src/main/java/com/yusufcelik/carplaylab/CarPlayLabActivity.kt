@@ -29,6 +29,10 @@ class CarPlayLabActivity : Activity(), SurfaceHolder.Callback {
     private lateinit var video: SurfaceView
     private var controller: CarPlayController? = null
     private var sink: AndroidMediaSink? = null
+    @Volatile private var discovery: CarPlayDiscoveryRecords<android.bluetooth.BluetoothServerSocket>? = null
+    private var discoveryConsentPending = false
+    private val handler = android.os.Handler(android.os.Looper.getMainLooper())
+    private val discoveryExpiry = Runnable { stopDiscovery(); report("CarPlay keşif penceresi sona erdi.") }
     private val closing = AtomicBoolean(false)
     private val prefs by lazy { getSharedPreferences("carplay-lab", MODE_PRIVATE) }
     private var peer: String? = null
@@ -60,13 +64,10 @@ class CarPlayLabActivity : Activity(), SurfaceHolder.Callback {
             text = label; setOnClickListener { action() }
             buttons.addView(this, LinearLayout.LayoutParams(0, dp(56), 1f))
         }
-        button("iPhone eşleştir") {
-            if (permissionsReady()) startActivity(Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE)
-                .putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 120))
-        }
+        button("CarPlay keşif testi") { startDiscovery() }
         button("Kayıtlı iPhone seç") { choosePhone() }
         startButton = button("CarPlay başlat") { startReceiver() }
-        button("Durdur") { stopReceiver() }
+        button("Durdur") { stopDiscovery(); stopReceiver() }
         root.addView(buttons)
         status = TextView(this).apply {
             setTextColor(Color.rgb(190, 207, 233)); textSize = 16f
@@ -105,6 +106,61 @@ class CarPlayLabActivity : Activity(), SurfaceHolder.Callback {
         setContentView(root)
     }
 
+    /** Tests only whether Android's SDP/EIR path makes the accessory visible in iOS CarPlay settings. */
+    private fun startDiscovery() {
+        if (!permissionsReady()) return
+        if (controller != null || closing.get()) { report("Keşif testinden önce mevcut oturumu durdur."); return }
+        stopDiscovery()
+        try {
+            val radio = adapter ?: error("Bluetooth adapter unavailable")
+            check(radio.isEnabled)
+            val group = CarPlayDiscoveryRecords.open { name, uuid -> radio.listenUsingRfcommWithServiceRecord(name, uuid) }
+            discovery = group
+            // No iAP2/MFi responses are fabricated by the discovery experiment.
+            group.records.forEach { server ->
+                Thread {
+                    try {
+                        while (discovery === group) {
+                            server.accept().use { }
+                            runOnUiThread {
+                                if (discovery === group) report("Bir Bluetooth bağlantı isteği alındı. Keşif testi yansıtma başlatmadı; aksesuar doğrulaması hâlâ gerekli.")
+                            }
+                        }
+                    } catch (_: Exception) { /* Closing the bounded window unblocks accept(). */ }
+                }.apply { isDaemon = true; start() }
+            }
+            handler.postDelayed(discoveryExpiry, 180_000)
+            discoveryConsentPending = true
+            report("Keşif servis kayıtları açıldı. Görünürlüğü onayladıktan sonra iPhone’da Genel → CarPlay → Kullanılabilir Araçlar ekranından Note 9’u ara. Listeleme henüz doğrulanmadı; bu test görüntü/ses oturumu açmaz.")
+            startActivityForResult(Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE)
+                .putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 180), 42)
+        } catch (_: Exception) {
+            discoveryConsentPending = false
+            stopDiscovery()
+            report("CarPlay keşif kaydı açılamadı. Bluetooth izinlerini ve Android servis kayıt desteğini kontrol et.")
+        }
+    }
+    private fun stopDiscovery() {
+        handler.removeCallbacks(discoveryExpiry)
+        val old = discovery
+        discovery = null
+        old?.close()
+    }
+    @Deprecated("Platform activity result used by this foreground-only laboratory")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode != 42) return
+        discoveryConsentPending = false
+        val visible = runCatching { adapter?.scanMode == BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE }.getOrDefault(false)
+        if (resultCode <= 0 && !visible) {
+            stopDiscovery()
+            report("Görünürlük onaylanmadı; keşif testi durduruldu.")
+        } else if (discovery != null) {
+            handler.removeCallbacks(discoveryExpiry)
+            handler.postDelayed(discoveryExpiry, 180_000)
+        }
+    }
+
     private fun permissionsReady(): Boolean {
         val needed = mutableListOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.RECORD_AUDIO)
         if (Build.VERSION.SDK_INT >= 31) needed += listOf(Manifest.permission.BLUETOOTH_CONNECT,
@@ -131,6 +187,7 @@ class CarPlayLabActivity : Activity(), SurfaceHolder.Callback {
 
     private fun startReceiver() {
         if (!permissionsReady()) return
+        stopDiscovery()
         if (controller != null || closing.get()) return
         if (peer == null) { choosePhone(); return }
         val directory = File(noBackupFilesDir, LocalMfiAuthenticationClient.DIRECTORY)
@@ -262,5 +319,12 @@ class CarPlayLabActivity : Activity(), SurfaceHolder.Callback {
     override fun surfaceCreated(holder: SurfaceHolder) { sink?.setSurface(110, holder.surface) }
     override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) { sink?.setSurface(110, holder.surface) }
     override fun surfaceDestroyed(holder: SurfaceHolder) { sink?.clearSurface(110, holder.surface) }
-    override fun onStop() { stopReceiver(); super.onStop() }
+    override fun onStop() {
+        // Android may cover us with its secure pairing dialog. Keep only the bounded
+        // discovery lease across that dialog; projection itself remains foreground-only.
+        if (isFinishing) stopDiscovery()
+        stopReceiver()
+        super.onStop()
+    }
+    override fun onDestroy() { stopDiscovery(); super.onDestroy() }
 }

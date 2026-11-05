@@ -10,8 +10,8 @@ android {
         applicationId = "com.yusufcelik.fiorino.carplaylab"
         minSdk = 24
         targetSdk = 35
-        versionCode = 1
-        versionName = "0.1.0-lab"
+        versionCode = 2
+        versionName = "0.1.1-lab"
         ndk { abiFilters += listOf("arm64-v8a", "armeabi-v7a") }
     }
     localAuthAssets?.let { sourceSets.getByName("main").assets.srcDir(it) }

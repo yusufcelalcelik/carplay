@@ -1,5 +1,9 @@
 package com.andrerinas.openheadunit.fiorino
 
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import android.Manifest
 import com.andrerinas.openheadunit.R
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -21,6 +25,21 @@ import com.andrerinas.openheadunit.utils.bluetooth.BluetoothPeerDiscovery
 class BluetoothSetupActivity : VehiclePreferencesActivity() {
     override val titleResource = R.string.fiorino_connection
     private var connectionMessage: String? = null
+    private val pairingOwner = Any()
+    private var pairingRequest: Job? = null
+    private val discoveryConsent = registerForActivityResult(
+        androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        val visible = runCatching {
+            BluetoothHelper.getBluetoothAdapter(this)?.scanMode == BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE
+        }.getOrDefault(false)
+        if (result.resultCode > 0 || visible) {
+            AapService.instance?.onNativePairingWindow(pairingOwner, true)
+        } else {
+            AapService.instance?.onNativePairingWindow(pairingOwner, false)
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         updatePreferences()
@@ -45,7 +64,7 @@ class BluetoothSetupActivity : VehiclePreferencesActivity() {
                 }
             },
             SettingItem.SettingEntry("discoverable", R.string.fiorino_discoverable,
-                "Telefondan Bluetooth aramasını açıp teybi seç") { makeDiscoverable() },
+                "Alıcıyı açık tutarak 3 dakikalık Android Auto eşleştirme penceresi aç") { makeDiscoverable() },
             SettingItem.SettingEntry("selectPhone", R.string.fiorino_select_phone,
                 settings.nativePreferredDeviceMac.ifBlank { "Henüz seçilmedi" }) { choosePhone() },
             SettingItem.InfoBanner("instructions", R.string.fiorino_native_info),
@@ -78,7 +97,27 @@ class BluetoothSetupActivity : VehiclePreferencesActivity() {
                 message("Android Bluetooth modülüne erişemiyor. Teybin fabrika Bluetooth uygulamasından eşleştir.")
                 return
             }
-            startActivity(Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE).putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 180))
+            if (pairingRequest?.isActive == true) return
+            settings.configureNativeReceiver()
+            if (!startReceiver()) return
+            pairingRequest = lifecycleScope.launch {
+                try {
+                    var waited = 0
+                    while (AapService.instance == null && waited < 5000) { delay(100); waited += 100 }
+                    val service = AapService.instance
+                    if (service == null) { message("Alıcı hazırlanamadı. Tekrar dene."); return@launch }
+                    service.onNativePairingWindow(pairingOwner, true)
+                    connectionMessage = "Android Auto alıcısı eşleştirme için hazırlanıyor. Görünürlüğü onayla; telefonda Android Auto → Kablosuz araç bağla ekranını aç. Araç listesinde görünme bu cihazda henüz doğrulanmadı."
+                    updatePreferences()
+                    try {
+                        discoveryConsent.launch(Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE)
+                            .putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 180))
+                    } catch (_: Exception) {
+                        service.onNativePairingWindow(pairingOwner, false)
+                        message("Görünürlük açılamadı. Teybin Bluetooth modülünü kontrol et.")
+                    }
+                } finally { pairingRequest = null }
+            }
         } catch (_: Exception) { message("Görünürlük açılamadı. Teybin Bluetooth ayarlarını kullan.") }
     }
     private fun choosePhone() {
@@ -97,6 +136,10 @@ class BluetoothSetupActivity : VehiclePreferencesActivity() {
                     updatePreferences()
                 }.show()
         } catch (_: Exception) { message("Eşleşen cihazlar okunamadı. Bluetooth izinlerini ve teybin modülünü kontrol et.") }
+    }
+    override fun onDestroy() {
+        AapService.instance?.onNativePairingWindow(pairingOwner, false)
+        super.onDestroy()
     }
     private fun message(text: String) = ToastUtils.showToast(this, text, Toast.LENGTH_LONG, force = true)
 }

@@ -3136,6 +3136,34 @@ class AapService : Service() {
     /** True while the setup QR dialog needs the running launcher to read a network off. */
     @Volatile private var settingsQrHold = false
 
+    private val nativePairingWindow = com.andrerinas.openheadunit.connection.wifi.NativePairingWindow()
+    private var nativePairingExpiry: Job? = null
+
+    /** Explicit phone-led pairing is allowed to publish Native AA while its setup page is open. */
+    fun onNativePairingWindow(owner: Any, open: Boolean) {
+        if (open) {
+            val wasPaused = wirelessPausedForSettings
+            nativePairingWindow.open(owner, android.os.SystemClock.elapsedRealtime())
+            nativePairingExpiry?.cancel()
+            wirelessRearmPendingForSettings = true
+            onSettingsScreenChanged()
+            // A freshly started service may not yet have received settings visibility callbacks.
+            if (!wasPaused && !commManager.isBusy) startWirelessForSettings()
+            nativePairingExpiry = serviceScope.launch {
+                delay(com.andrerinas.openheadunit.connection.wifi.NativePairingWindow.DURATION_MS)
+                if (nativePairingWindow.close(owner)) {
+                    AppLog.i("Native AA pairing window expired; ordinary settings hold restored.")
+                    onSettingsScreenChanged()
+                }
+            }
+        } else if (nativePairingWindow.close(owner)) {
+            nativePairingExpiry?.cancel()
+            nativePairingExpiry = null
+            onSettingsScreenChanged()
+        }
+    }
+
+
     /** A wireless Save or a Bluetooth auto-start arrived while the screen had the stack down; the close re-arms it. */
     @Volatile private var wirelessRearmPendingForSettings = false
 
@@ -3213,6 +3241,7 @@ class AapService : Service() {
             settingsForeground = foreground,
             sessionLive = sessionLive,
             qrHold = settingsQrHold,
+            nativePairing = nativePairingWindow.isOpen(android.os.SystemClock.elapsedRealtime()),
         )
         if (pause == wirelessPausedForSettings) return
 
@@ -3233,7 +3262,8 @@ class AapService : Service() {
         val mode = App.provide(this).settings.wifiConnectionMode
         if (mode == WifiLauncherMode.MANUAL) return
 
-        if (!SettingsScreenPausePolicy.rearmsOnRelease(settingsQrHold, wirelessRearmPendingForSettings)) {
+        if (!SettingsScreenPausePolicy.rearmsOnRelease(settingsQrHold, wirelessRearmPendingForSettings,
+                nativePairingWindow.isOpen(android.os.SystemClock.elapsedRealtime()))) {
             AppLog.i(
                 "AapService: the settings screen closed with nothing wireless changed, so the " +
                     "wireless stack stays down. The WiFi button re-arms it."
@@ -3241,7 +3271,8 @@ class AapService : Service() {
             return
         }
 
-        val why = if (settingsQrHold) "the setup QR needs the running launcher"
+        val why = if (nativePairingWindow.isOpen(android.os.SystemClock.elapsedRealtime())) "Native AA pairing needs its service record while setup is visible"
+            else if (settingsQrHold) "the setup QR needs the running launcher"
             else "the settings screen closed with a wireless request held behind it"
         AppLog.i("AapService: $why, re-arming wireless mode $mode")
         settingsRearmJob = serviceScope.launch {
