@@ -2,7 +2,7 @@
 
 ## Durum
 
-`carplay-lab`, ana Android Auto uygulamasından ayrı kurulabilen yerel bir alıcı prototipidir. Paket: `com.yusufcelik.fiorino.carplaylab`, sürüm `0.1.1-lab`. Android 7.0+ ve ARM32/ARM64 hedeflenir. Ana uygulama 1.3.2 olarak korunur.
+`carplay-lab`, ana Android Auto uygulamasından ayrı kurulabilen yerel bir alıcı prototipidir. Paket: `com.yusufcelik.fiorino.carplaylab`, sürüm `0.1.2-lab`. Android 7.0+ ve ARM32/ARM64 hedeflenir. Ana uygulama 1.3.2 olarak korunur.
 
 DiPlay'ın `615b32ce0b40cd0b99ce94ba23a512001553684f` sürümündeki `shared/` motoru `carplay-engine` içine alındı. iAP2 Bluetooth başlangıcı, Wi-Fi Direct, AirPlay kontrolü, video/ses ve dokunma motoru bağlandı. Kaynak/lisans bilgisi [UPSTREAM.md](../carplay-engine/UPSTREAM.md) dosyasındadır. Ayrı lisanslı BYD HUD görselleri alınmadı. Upstream demo Android Auto servisi manifestten çıkarıldı.
 
@@ -75,3 +75,13 @@ Lab'daki **CarPlay keşif testi**, aksesuar tarafındaki iAP2 (`…decacaff`) ve
 Aksesuar/iPhone UUID ayrımı için incelenen birincil uygulama: [catplay iAP2 kaynakları, 4487a6d](https://github.com/catplay-labs/catplay/blob/4487a6d85f2ced8c2a680e4d122a0dea2f294320/bluetooth/catplay_bt/src/iap2.rs). Bu aşamada cihaz sınıfı veya sistem Bluetooth kimliği değiştirilmez.
 
 Tek APK içinde Android Auto ve CarPlay kullanımı son hedef olarak korunur. Mevcut Lab ayrı deneme paketidir; tek APK entegrasyonu henüz tamamlanmadı.
+
+## Fiziksel keşif ve kurulum doğrulaması — 5 Kasım 2026
+
+Kullanıcı, iPhone 14 Pro Max'in CarPlay araç listesinde Note 9'u gördüğünü bildirdi. Note 9'da gelen RFCOMM bağlantısı ve iPhone Bluetooth bağı da doğrulandı; iPhone uygulamada hedef olarak kaydedildi. Bu, keşif ve eşleştirme aşamalarını doğrular. Gelen bağlantının keşif testince kapatıldığı için görüntü/ses oturumu henüz doğrulanmış değildir.
+
+0.1.1 debug APK'nın hash/imza kontrolleri ve emülatör kurulumu başarılıydı; Note 9'un dosyadan kurulum kayıtlarında `INSTALL_FAILED_INTERNAL_ERROR: Session relinquished`, doğrudan USB kurulumunda `INSTALL_FAILED_USER_RESTRICTED` görüldü. Kesin kök neden belirlenmedi. Ana Fiorino imzasıyla `debuggable=false` olarak derlenen 0.1.2 paketi kullanıcı tarafından başarıyla kuruldu ve cihazda sürümü doğrulandı. Önceki debug Lab sürümleri farklı imzalıdır; bu cihazdaki eski Lab zaten kullanıcı tarafından kaldırılmıştı.
+
+0.1.2 release için `key.properties` gerekir; imza anahtarı kaynağa girmez. Genel dağıtımda `:carplay-lab:assemblePublicRelease` kullanılmalı; bu görev yerel kimlik girdisini ve APK içindeki kimlik dosyalarını reddeder. Yerel kimlik seçilirse sürüm adı `0.1.2-local-auth-test` olur. Böyle bir APK genel Releases'a yüklenmez.
+
+Referans DiPlay 0.2.22 APK'sı resmi release SHA256 listesiyle doğrulanarak yalnızca yerel birlikte çalışabilirlik deneyi için incelendi. Deneysel kimlik dosyaları depo dışında, kullanıcıya özel yerel depolamada tutulur; kaynakta ve genel APK'da bulunmaz. Bu, yeni verilmiş Apple/MFi kimliği değildir. Geçerli yerel imza üretimi ile iPhone'un kabulünü ayrı ayrı doğrulamak gerekir.
