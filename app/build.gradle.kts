@@ -96,8 +96,8 @@ android {
         applicationId = "com.yusufcelik.fiorinoheadunit"
         minSdk = 21
         targetSdk = 36
-        versionCode = 123
-        versionName = "1.1.0-fiorino-preview"
+        versionCode = 124
+        versionName = "1.2.0-fiorino-preview"
         setProperty("archivesBaseName", "${applicationId}_${versionName}")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled = true

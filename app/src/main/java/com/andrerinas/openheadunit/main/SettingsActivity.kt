@@ -99,6 +99,7 @@ class SettingsActivity : BaseActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        delegate.localNightMode = androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
         requestedOrientation = Settings(this).screenOrientation.androidOrientation
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)

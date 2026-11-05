@@ -116,8 +116,8 @@
         android:supportsRtl="true"
         tools:ignore="GoogleAppIndexingWarning">
 
-        <activity android:name=".fiorino.BluetoothSetupActivity" android:exported="false" />
-        <activity android:name=".fiorino.FiorinoSettingsActivity" android:exported="false" />
+        <activity android:name=".fiorino.BluetoothSetupActivity" android:theme="@style/FiorinoSettingsTheme" android:exported="false" />
+        <activity android:name=".fiorino.FiorinoSettingsActivity" android:theme="@style/FiorinoSettingsTheme" android:exported="false" />
         <activity
             android:name=".aap.AapProjectionActivity"
             android:configChanges="uiMode|orientation|screenSize|screenLayout|smallestScreenSize|keyboard|keyboardHidden|navigation"

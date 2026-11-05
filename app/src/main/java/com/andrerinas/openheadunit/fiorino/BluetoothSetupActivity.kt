@@ -1,8 +1,9 @@
 package com.andrerinas.openheadunit.fiorino
 
 import android.Manifest
-import android.app.Activity
-import android.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import com.andrerinas.openheadunit.R
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import android.bluetooth.BluetoothAdapter
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -18,21 +19,20 @@ import com.andrerinas.openheadunit.utils.ToastUtils
 import com.andrerinas.openheadunit.utils.bluetooth.BluetoothPeerDiscovery
 
 /** The system owns pairing consent. Native AA owns reconnection after a saved phone is selected. */
-class BluetoothSetupActivity : Activity() {
+class BluetoothSetupActivity : AppCompatActivity() {
     private lateinit var status: TextView
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        title = "Telefon eşleştirme"
-        val column = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setPadding(24, 24, 24, 24) }
-        setContentView(ScrollView(this).apply { addView(column) })
-        status = TextView(this).apply { textSize = 19f; column.addView(this) }
-        fun button(label: String, action: () -> Unit) {
-            column.addView(Button(this).apply { text = label; setOnClickListener { action() } })
+        val screen = VehicleSettingsLayout(this, "Kablosuz bağlantı", "İlk eşleştirme ve otomatik yeniden bağlantı")
+        val column = screen.section("Eşleştir", "Telefon eşleştirme", "Bluetooth ile başlat, Wi-Fi ile devam et.", R.drawable.ic_bluetooth_white_24dp)
+        status = screen.label("").apply { setPadding(0, 0, 0, screen.dp(12)); column.addView(this) }
+        fun button(label: String, primary: Boolean = false, action: () -> Unit) {
+            column.addView(screen.action(label, primary, action), LinearLayout.LayoutParams(-1, -2))
         }
-        button("Telefonun görebilmesi için görünür yap") { makeDiscoverable() }
-        column.addView(TextView(this).apply {
+        button("Telefonun görebilmesi için görünür yap", primary = true) { makeDiscoverable() }
+        column.addView(screen.label("").apply {
             text = "Telefondan Bluetooth aramasını aç ve teybin adını seç. Eşleştirmeyi iki cihazda onayla. Sonra aşağıdan telefonunu kaydet. Görüntü ve Android Auto sesi Wi-Fi üzerinden taşınır.\n\nTelefonun Bluetooth kaydında Telefon aramaları açık, Medya sesi kapalı olsun. Böylece görüşme bağlantısı korunur ve Bluetooth medya ses eşitlemesi devreye girmez."
-            textSize = 17f; setPadding(0, 16, 0, 16)
+            setPadding(0, screen.dp(14), 0, screen.dp(14))
         })
         button("Eşleşen telefonumu seç ve arka plan bağlantısını başlat") { choosePhone() }
         button("Teybin Bluetooth ayarları") {
@@ -69,7 +69,7 @@ class BluetoothSetupActivity : Activity() {
         try {
             val peers = BluetoothPeerDiscovery.read(this).inventory.peers
             if (peers.isEmpty()) { message("Önce telefonunu teyple eşleştir, sonra tekrar dene."); return }
-            AlertDialog.Builder(this).setTitle("Android Auto telefonu")
+            MaterialAlertDialogBuilder(this).setTitle("Android Auto telefonu")
                 .setItems(peers.map { "${it.name ?: "Telefon"}\n${it.address}" }.toTypedArray()) { _, index ->
                     val settings = App.provide(this).settings
                     val peer = peers[index]

@@ -23,6 +23,12 @@ Fiat Fiorino'daki Android 7.1 / Rockchip PX3 veya PX5 teyp için Android Auto al
 - Otomatik görüntü kalitesi yeterli uzunluktaki kablosuz oturum sonunda kare kaybı ve render atlamalarını değerlendirir. %5 ve üzeri kayıpta sonraki bağlantı 480p olur. En fazla %1 kayıplı üç oturum sonunda 720p denenir. Manuel seçim otomatiği kapatır. Protokol doğrudan video bitrate kontrolü sunmaz. Kalite değişimi mevcut oturumu kesmez.
 - DPI hazır değerleri, özel DPI ve mevcut gelişmiş görüntü ayarları.
 
+## 1.2 — Ana ekranla uyumlu ayarlar
+
+Fiorino ayarları ve telefon eşleştirme ekranları koyu lacivert zemin, yuvarlatılmış kartlar, turuncu vurgular ve büyük dokunma alanlarıyla yenilendi. Ses, Hız, Mikrofon, Bağlantı, Görüntü ve Cihaz bölümleri soldaki menüden açılır. Genel ayarlar ekranı da koyu temada gösterilir. Seçim pencereleri aynı temayı kullanır. Mevcut ayarlar korunur.
+
+Görünür yerel emülatörde arayüz kontrol edildi. 4.793 mevcut test ve Android 7.1 üzerinde menü yazılarının sığmasını ve kontrol geri çağrılarını doğrulayan iki yeni arayüz testi geçti. Güncel ekran görüntüleri aşağıdadır.
+
 ## 1.1 — Hıza göre teyp sesi ve uygulamadan eşleştirme
 
 Hıza göre ses ayarı yalnızca teybin Android medya sesine uygulanır. Telefonun ses ayarını değiştiren Wi-Fi veya AVRCP komutu gönderilmez. Teybin canlı GPS hızı kullanılır. 90 km/sa hızda varsayılan artış üç kademedir, 0–6 arasında seçilebilir. Geçiş iki saniyede en fazla bir kademedir. GPS verisi beş saniyeden eskiyse ek ses kaldırılır. Elle sessize alma korunur ve ses düğmesiyle yapılan değişiklik yeni temel seviye kabul edilir. Görüşme sırasında ses yönetimi bekler. OEM amplifikatörü Android medya seviyesini kullanmıyorsa fiziksel ana ses ayrıca cihazda incelenmelidir.
@@ -74,6 +80,7 @@ Uygulama kimliği `com.yusufcelik.fiorinoheadunit`. APK hem armeabi-v7a hem arm6
 1024×600 yerel Android 11 emülatöründen alınmıştır. Android Auto telefon yansıtması ve gerçek araç bağlantısı bu görsellerde açık değildir.
 
 ![Ana ekran](docs/screenshots/01-home.png)
+![Genel ayarlar](docs/screenshots/07-general-settings.png)
 ![Ses ve hız ayarları](docs/screenshots/02-sound-speed.png)
 ![Bluetooth eşleştirme](docs/screenshots/04-bluetooth.png)
 ![Görüntü ayarları](docs/screenshots/05-display.png)
