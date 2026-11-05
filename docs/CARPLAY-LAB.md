@@ -129,3 +129,12 @@ Cihaz yönetimi onaydan sonra önce AA ve CarPlay'i durdurur, ardından uygulama
 1.4.4'te API30+ `setDecorFitsSystemWindows(false)` ve cutoutALWAYS; eski platformlarda uygunlayoutfullscreen/navigation flagları uygulanır. İlk kare tam ekran geçişi aynılayoutflaglarını korur. API31Robolectric testi pencere cutout ve layoutflaglarını kontrol eder. Fiziksel kamera deliğinin kendisi yazılımla kaldırılmaz; bu değişiklik Android'in ayırdığı tam şeride ilişkindir.
 
 Siri/Gemini ses artırma testi kullanıcı tarafından açıkça sonraya bırakıldı. Telefonda bu komutun fiziksel teyp sesine aktarılması yapılmış/doğrulanmış sayılmaz. Bu tur bu testi otomatik tekrar istemeyin.
+
+## Teslim doğrulaması — 1.4.4
+
+- Main kaynak düzeltmesi6ade5f2; genel APK bu commit'ten yerelde, kimlik girdisi ortam değişkeni olmadan üretildi. Public guard ve ayrıca ZIP incelemesi offline-mfi asset bulunmadığını, iki ARM ABI'yi doğruladı.
+- Tam ana uygulama4.811test ve ortakCarPlay16test başarılı. Yerel deneysel APK ayrı özel dizinde tutuldu; genelrelease'e yüklenmedi.
+- Note9'da versionCode133 / 1.4.4-local-auth-test doğrulandı. Kayıtlı iPhone otomatik bağlantı başlangıcı16:00:39.965, kontrol6.534ms, ilk çizilen kare7.229ms. Genel performans ortalaması değildir.
+- Kullanıcı1.4.4'ü kurduktan sonra son görünüm ve temel işleyiş için “oldu hepsi çalışıyor” geri bildirimi verdi. Test sırasında önceki CarPlay hizmeti başka uygulama öndeyken foreground kalıyordu. Gerçek PX3 kontak çevrimi, uzun kopma/geri geliş döngüsü ve gerçek arama/mikrofon testi yapılmış sayılmaz.
+- Siri/Gemini ile fiziksel teyp sesi testi kullanıcı isteğiyle ertelendi. Bu sesli komut entegrasyonunu uygulanmış/kanıtlanmış göstermeyin.
+- Geçici otomatik devam görevi, bu yerel geliştirme ve teslim adımı tamamlandığında kapatılır; cihaz gerektiren sonraki testler kullanıcının yeni yönlendirmesiyle yapılır.

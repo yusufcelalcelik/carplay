@@ -18,14 +18,14 @@ Note 12'de kurulu Android Auto: **17.9.664054-release**. Bu, test cihazında oku
 | Kablosuz CarPlay kontrol ve görüntü | Yerel deneysel kimlik + Wi-Fi + AirPlay | Gerçek kontrol oturumu ve Haritalar görüntüsü doğrulandı. Apple onaylı ürün veya genel kimlik dağıtımı anlamına gelmez. |
 | Android Auto kablosuz / USB | Mevcut AA alıcısı | Mevcut özellikler korunur; gerçek PX3 / otomatik kontak testi bekler. |
 | Ortak telefon seçimi | Alıcı uygulaması | Tek APK; MAC bazında Android/iPhone seçimi, aktif protokol sahipliği, yanlış iPhone AA hedefini eleme. |
-| Açılış / uyandırma / tekrar bağlanma | Alıcı uygulaması, Android arka plan kuralları | 1.4.3 kaynakta foreground CarPlay hizmeti, kayıtlı iPhone, Bluetooth/boot/unlock tetikleri, 2–60 s sınırlı geri çekilme. Aktif/kurulan oturum yeniden başlatılmaz. Cihaz deneyi sonucu sürüm notlarına eklenir. |
+| Açılış / uyandırma / tekrar bağlanma | Alıcı uygulaması, Android arka plan kuralları | 1.4.3 kaynakta foreground CarPlay hizmeti, kayıtlı iPhone, Bluetooth/boot/unlock tetikleri, 2–60 s sınırlı geri çekilme. Aktif/kurulan oturum yeniden başlatılmaz. Foreground hizmeti ve kayıtlı iPhone bağlantısı Note9'da doğrulandı; gerçek teyp boot/kopma döngüsü bekler. |
 | Tam ekran / yüzey ömrü | Alıcı uygulaması | 1.4.3 kaynakta ilk kareden sonra kontroller gizlenir; menüyle geri açılır. Activity arka plana geçince oturum yerine yalnız ekran yüzeyi ayrılır. |
 | Daha büyük AA yazıları | AA oturum DPI tanıtımı | 140/160/190/220/260 ve özel DPI. 260 seçimi boyut sınırı geçersiz kılmasını açar; yeni oturum gerekir ve yerleşim değişebilir. |
 | Navigasyon, müzik, mesaj ve arama uygulamaları | Telefonun desteklenen uygulamaları | Telefonun sunduğu projeksiyon taşınır. Her uygulama ve ses yolu henüz ayrı ayrı doğrulanmadı. |
 | Siri / telefon asistanı ve mikrofon | Telefon + ses kanalları + izinler | Siri etkinleştirme engeli gerçek cihazda çözüldü. Arka plan mikrofonuna modern Android ek kısıtlar uygular; araçta ses testi bekler. |
 | CarPlay widget / Live Activities / yeni MiniPlayer | iPhone/iOS ve uygulaması | Güncel iOS tarafından üretilir; alıcı video/dokunma taşır. Tek tek cihaz testleri bekler. APK'dan iOS yetkisi veya yeni uygulama kategorisi verilemez. |
 | Çoklu dokunma | Alıcı giriş protokolü | İki temas gönderimi kaynakta mevcut. iPhone üzerinde iki parmaklı harita testi bekler. |
-| Dinamik CarPlay boyutlandırma / ikinci ekran | Araç/alıcı görüşmesi ve ek video yüzeyleri | 1.4.3 ana CarPlay tuvali en çok800×480 / 30FPS, ekran oranına göre hesaplanır. Gerçek zamanlı yeniden görüşme veya gösterge paneli entegrasyonu tamamlanmadı. |
+| Dinamik CarPlay boyutlandırma / ikinci ekran | Araç/alıcı görüşmesi ve ek video yüzeyleri | 1.4.3 ana CarPlay tuvali en çok800×480 / 30FPS, ekran oranına göre hesaplanır. Oturum başında ekran oranı seçilir; gerçek zamanlı yeniden görüşme veya gösterge paneli entegrasyonu tamamlanmadı. |
 | Uzamsal / çok kanallı ses | Destekleyen araç ses sistemi | Donanım ve uçtan uca test olmadan destek ilan edilmez. |
 | CarPlay Ultra gösterge ve araç verileri | Otomobil üreticisi / MFi / araç entegrasyonu | Doğrulanmadı. iPhone'daki Ultra bağlantı yazısı, hız/devir göstergesi veya diğer Ultra işlevlerinin çalıştığını kanıtlamaz. Klima/araç kumandaları kullanıcının kapsamı dışındadır. |
 | Park halinde video, dijital araç anahtarı | Ayrı araç yetenekleri, donanım ve onay | Genel telefon projeksiyonuna eşit değildir; bu kurulumda açılmış sayılmaz. Video-in-car varsayılan kapalıdır; park verisi kaynağı yok. |
@@ -49,3 +49,5 @@ Apple'ın güncel CarPlay forum dizininde iOS 27 harita paneli yerleşimi, CarPl
 DiPlay'ın güncel açık sorun başlıklarında Wi-Fi Direct meşgul durumu ve tekrar bağlanma raporları da görüldü; başka cihazların raporları bizim PX3 ölçümü yerine kullanılmadı. [DiPlay sorunları](https://github.com/shihabal3amri/DiPlay/issues).
 
 Bu inceleme güncel kamuya açık dokümanlarla sınırlıdır; kapalı MFi/üretici protokol paketleri incelenmiş veya bütün özellikler uçtan uca test edilmiş değildir. Google'ın 2026 blog arama kaydı bulundu fakat tam makale gövdesi alınamadığından teknik sonuçlar buna dayandırılmadı.
+
+Son1.4.4tesliminde4.811ana/16CarPlaytest geçti; Note9kullanıcı son görünümü doğruladı. Testtelefona kurulan yerel deneysel APK ile GitHub'daki kimliksiz genel APK aynı provizyon içeriğine sahip değildir. Siri/Gemini'nin fiziksel teyp ses komutu testi kullanıcı isteğiyle sonraya bırakıldı; Ultra ve gerçek araç test sınırları geçerliliğini korur.
