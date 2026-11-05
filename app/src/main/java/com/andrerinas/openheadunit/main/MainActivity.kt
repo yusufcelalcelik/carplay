@@ -1180,6 +1180,11 @@ class MainActivity : BaseActivity() {
 
     private fun handleLaunchIntent(intent: Intent?) {
         if (intent == null) return
+        // A deliberate launcher open asks; boot/Bluetooth launches keep their saved auto-connect path.
+        if (intent.action == Intent.ACTION_MAIN && intent.hasCategory(Intent.CATEGORY_LAUNCHER) &&
+            !intent.hasExtra(EXTRA_LAUNCH_SOURCE) && !App.provide(this).commManager.isConnected) {
+            HomeFragment.requestDriverSelection = true
+        }
 
         if (intent.getBooleanExtra(EXTRA_SHOW_DRIVER_SELECTOR, false)) {
             AppLog.i("MainActivity: EXTRA_SHOW_DRIVER_SELECTOR received")

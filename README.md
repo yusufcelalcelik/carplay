@@ -2,6 +2,14 @@
 
 Fiat Fiorino'daki Android 7.1 / Rockchip PX3 veya PX5 teyp için Android Auto alıcısı. Open Headunit'in `ae74788d8312dd7a735775ddc21370f1741a7af1` sürümünden türetilmiştir. AGPL-3.0 lisansı ve önceki yazarların telif bildirimleri korunmuştur. Önceki proje belgeleri [README_UPSTREAM.md](README_UPSTREAM.md) dosyasındadır.
 
+## Tek uygulamada telefon seçimi — 1.4.0-preview
+
+Ana APK Android Auto ve deneysel CarPlay arayüzünü birlikte içerir; ayrı Lab kurulumu gerekmez. Uygulama simgesinden elle açılışta veya **Wi-Fi** düğmesinde **Hangi telefona bağlanmak istiyorsun?** sorulur. Kayıtlı telefonu seçin; türü bilinmiyorsa Android/iPhone seçimi bir kez kaydedilir. **Yeni telefon eşleştir** ilgili keşif ekranını açar. Aktif Android Auto görüntüsünde telefon değiştirmek için Wi-Fi düğmesine uzun basın.
+
+CarPlay için Android 7.0+ gerekir. iPhone'un araç listesinde görünmesi ve Bluetooth eşleşmesi gerçek cihazda doğrulandı; **CarPlay görüntü/ses oturumu henüz doğrulanmadı**. Genel APK aksesuar kimliği içermez; kimlik yokken bağlantıyı başlatmaz. CarPlay şimdilik ön planda çalışır, otomatik arka plan bağlantısı tamamlanmadı. [Deneme ve derleme notları](docs/CARPLAY-LAB.md).
+
+Yerel birleşik sürüm: 4.806 ana uygulama ve 6 CarPlay UI testi başarılı. Note 9 üzerinde 1.4.0 kurulumu ve ana paket içinden CarPlay keşif ekranının açılması doğrulandı.
+
 ## Kurulum
 
 1. APK'yı teybe yükleyin. Telefonda Android Auto bulunmalı. Mikrofon, Bluetooth/konum ve otomatik başlatma izinlerini verin.

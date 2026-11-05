@@ -2,7 +2,13 @@
 
 ## Durum
 
-`carplay-lab`, ana Android Auto uygulamasından ayrı kurulabilen yerel bir alıcı prototipidir. Paket: `com.yusufcelik.fiorino.carplaylab`, sürüm `0.1.2-lab`. Android 7.0+ ve ARM32/ARM64 hedeflenir. Ana uygulama 1.3.2 olarak korunur.
+**1.4.0-preview:** Android Auto ve deneysel CarPlay artık tek ana APK içindedir (`com.yusufcelik.fiorinoheadunit`). `carplay-ui` ortak Android arayüzünü, `carplay-engine` protokol motorunu içerir. `carplay-lab` yalnızca geliştirme için ayrı giriş noktasıdır; ana uygulamanın çalışması için kurulması gerekmez. CarPlay Android 7.0+ gerektirir; Android Auto'nun minSDK 21 desteği korunur. Eski platformda CarPlay sınıfı yüklenmeden sürüm denetimi yapılır.
+
+Elle uygulama simgesinden açılış ve Wi-Fi düğmesi ortak **Hangi telefona bağlanmak istiyorsun?** seçicisini açar. Aktif Android Auto oturumunda kısa dokunma görüntüye döner; Wi-Fi düğmesine uzun basma telefon değiştirme seçicisini açar. Kayıtlı telefonun türü bilinmiyorsa Android/iPhone sorulur, MAC adresine göre hatırlanır. iPhone iAP2/CarPlay servis kaydı, yanlışlıkla kayıtlı AA tercihi olsa bile AA uyandırma adaylarından çıkarılır; tamamlanmış AA oturumu kanıtı korunur. İsimden işletim sistemi tahmin edilmez.
+
+CarPlay seçimi AA yeniden bağlanmasını durdurur, USB denemesini iptal eder ve önceki Wi-Fi Direct grubunun kapanmasını en fazla altı saniye bekler; kapanmıyorsa ikinci alıcı başlatılmaz. Android Auto yeniden seçildiğinde kendi otomatik bağlantı ayarları kullanılır. CarPlay hâlâ ön planda çalışan bir prototiptir; CarPlay otomatik açılış/arka plan hizmeti tamamlanmadı. İki protokol aynı anda yansıtma yapmaz.
+
+Note 9 üzerinde 1.4.0/versionCode129 kurulum ve aynı ana paket içinden CarPlay keşif/görünürlük ekranına geçiş doğrulandı. Önceki 0.1.2 Lab testinde gerçek iPhone 14 Pro Max'in araç listesinde görünme ve Bluetooth eşleşmesi kullanıcıyla doğrulandı. Bu sonuçlar medya oturumu kabulü değildir.
 
 DiPlay'ın `615b32ce0b40cd0b99ce94ba23a512001553684f` sürümündeki `shared/` motoru `carplay-engine` içine alındı. iAP2 Bluetooth başlangıcı, Wi-Fi Direct, AirPlay kontrolü, video/ses ve dokunma motoru bağlandı. Kaynak/lisans bilgisi [UPSTREAM.md](../carplay-engine/UPSTREAM.md) dosyasındadır. Ayrı lisanslı BYD HUD görselleri alınmadı. Upstream demo Android Auto servisi manifestten çıkarıldı.
 
@@ -15,7 +21,7 @@ DiPlay'ın `615b32ce0b40cd0b99ce94ba23a512001553684f` sürümündeki `shared/` m
 Ana projeyle aynı JDK 21, SDK 36 ve NDK 28.2.13676358 kullanılır. Cloud build gerekmez.
 
 ```sh
-./gradlew :carplay-lab:assembleDebug :carplay-lab:testDebugUnitTest \
+./gradlew :carplay-lab:assembleDebug :carplay-ui:testDebugUnitTest \
   :carplay-engine:testDebugUnitTest \
   --tests '*MfiAuthenticationClientTest' --tests '*Iap2*' \
   --tests '*AirPlayCryptoTest' --tests '*WifiP2p*' \
@@ -85,3 +91,9 @@ Kullanıcı, iPhone 14 Pro Max'in CarPlay araç listesinde Note 9'u gördüğün
 0.1.2 release için `key.properties` gerekir; imza anahtarı kaynağa girmez. Genel dağıtımda `:carplay-lab:assemblePublicRelease` kullanılmalı; bu görev yerel kimlik girdisini ve APK içindeki kimlik dosyalarını reddeder. Yerel kimlik seçilirse sürüm adı `0.1.2-local-auth-test` olur. Böyle bir APK genel Releases'a yüklenmez.
 
 Referans DiPlay 0.2.22 APK'sı resmi release SHA256 listesiyle doğrulanarak yalnızca yerel birlikte çalışabilirlik deneyi için incelendi. Deneysel kimlik dosyaları depo dışında, kullanıcıya özel yerel depolamada tutulur; kaynakta ve genel APK'da bulunmaz. Bu, yeni verilmiş Apple/MFi kimliği değildir. Geçerli yerel imza üretimi ile iPhone'un kabulünü ayrı ayrı doğrulamak gerekir.
+
+## Birleşik sürüm doğrulaması (5 Kasım 2026)
+
+Yerel `:app:assemblePublicGithubRelease`, `:app:assembleGithubDebug`, `:carplay-lab:assemblePublicRelease` başarılı. Ana uygulama 4.806, ortak CarPlay UI 6 test geçti. Yeni testler, iPhone servis kayıtlarının kullanıcı AA pinini geçersiz kılmasını, aksesuar/telefon UUID ayrımını ve ortak seçiciden gelen telefonun eski Lab favorisine üstünlüğünü kapsar. Emülatörde ortak seçici → yeni telefon → CarPlay akışı ana paket içindeki private Activity'ye açıldı; gerçek Note 9'da da aynı Activity ve sistem görünürlük penceresi gözlendi. Tam CarPlay görüntü/ses ve PX3 donanımı doğrulanmadı.
+
+Herkese açık ana APK yalnızca `:app:assemblePublicGithubRelease` ile hazırlanır; bu görev yerel kimlik ortam girdisini reddeder ve APK içinde `assets/offline-mfi/` bulunmadığını denetler. Özel kimlikli APK genel `dist` veya Releases alanına konulmaz. Bu sürüm, seçilmiş iPhone için kimlik bulunmazsa sebebi gösterip medya başlatmayı reddeder.

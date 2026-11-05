@@ -1,7 +1,7 @@
 import org.gradle.kotlin.dsl.maven
 import org.gradle.kotlin.dsl.repositories
 
-include(":app", ":contract", ":carplay-engine", ":carplay-lab")
+include(":app", ":contract", ":carplay-engine", ":carplay-lab", ":carplay-ui")
 
 
 rootProject.name = "open-headunit"

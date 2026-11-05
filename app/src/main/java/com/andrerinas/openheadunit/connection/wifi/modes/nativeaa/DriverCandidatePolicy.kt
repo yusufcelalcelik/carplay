@@ -12,7 +12,7 @@ object DriverCandidatePolicy {
 
     enum class Reason {
         AUDIO_GATEWAY, HANDS_FREE_UNIT, LOW_ENERGY_ONLY, CLASS_PHONE, CLASS_NOT_PHONE,
-        GATEWAY_BUT_CLASS_NOT_PHONE, GATEWAY_BUT_CLASS_UNCATEGORIZED, PINNED, NO_SIGNAL
+        GATEWAY_BUT_CLASS_NOT_PHONE, GATEWAY_BUT_CLASS_UNCATEGORIZED, PINNED, NO_SIGNAL, IOS_CARPLAY
     }
 
     data class Classification(val verdict: Verdict, val reason: Reason)
@@ -52,6 +52,9 @@ object DriverCandidatePolicy {
     const val DEVICE_TYPE_UNKNOWN = 0
     const val DEVICE_TYPE_LE = 2
 
+    val IOS_PHONE_UUIDS = setOf("00000000-deca-fade-deca-deafdecacafe", "2d8d2466-e14d-451c-88bc-7301abea291a")
+    fun isCarPlayPhone(uuids: Collection<String>?) = uuids.orEmpty().any { it.lowercase() in IOS_PHONE_UUIDS }
+
     private val AUDIO_GATEWAY_UUIDS = setOf(HFP_AG_UUID, HSP_AG_UUID)
     private val CAR_SIDE_UUIDS = setOf(HFP_HF_UUID, A2DP_SINK_UUID)
     private val NON_PHONE_MAJORS = setOf(MAJOR_WEARABLE, MAJOR_PERIPHERAL, MAJOR_IMAGING, MAJOR_HEALTH, MAJOR_TOY)
@@ -76,6 +79,8 @@ object DriverCandidatePolicy {
         pin: Pin = Pin.NONE
     ): Classification {
         if (pin == Pin.PROVEN) return Classification(Verdict.PHONE, Reason.PINNED)
+
+        if (isCarPlayPhone(uuids)) return Classification(Verdict.NOT_A_PHONE, Reason.IOS_CARPLAY)
 
         val records = uuids.orEmpty().map { it.lowercase() }
         val gateway = records.any { it in AUDIO_GATEWAY_UUIDS }
@@ -119,6 +124,7 @@ object DriverCandidatePolicy {
         Reason.GATEWAY_BUT_CLASS_UNCATEGORIZED ->
             "advertises the Audio Gateway record but its device class is uncategorized"
         Reason.PINNED -> if (classification.verdict == Verdict.PHONE) "vouched for by a stored MAC" else "pinned"
+        Reason.IOS_CARPLAY -> "advertises iPhone iAP2/CarPlay phone records; not an Android Auto target"
         Reason.NO_SIGNAL -> "no service record or device class says either way"
     }
 }

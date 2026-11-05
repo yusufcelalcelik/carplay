@@ -92,6 +92,10 @@ open class WifiLauncherManager(val service: AapService) {
         noInfoToasts: Boolean = true,
         userRequested: Boolean = false,
     ) {
+        if (com.andrerinas.openheadunit.fiorino.ProjectionPhonePicker.carPlaySelected(service)) {
+            AppLog.i("WifiLauncher: CarPlay is selected; Android Auto will wait for an explicit phone choice.")
+            return
+        }
         if (newLauncher.manager != this)
             throw IllegalArgumentException("newLauncher.manager is different instance")
         if (active == newLauncher)

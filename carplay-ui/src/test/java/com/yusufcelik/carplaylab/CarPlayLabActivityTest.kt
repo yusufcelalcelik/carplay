@@ -19,7 +19,7 @@ import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [25], application = Application::class)
-class CarPlayLabActivityTest {
+class CarPlayReceiverActivityTest {
     private val app get() = RuntimeEnvironment.getApplication()
     @Before fun reset() {
         app.getSharedPreferences("carplay-lab", 0).edit().clear()
@@ -30,13 +30,20 @@ class CarPlayLabActivityTest {
     private fun all(v: View): List<View> = listOf(v) +
         if (v is ViewGroup) (0 until v.childCount).flatMap { all(v.getChildAt(it)) } else emptyList()
     private fun tryStart(): String {
-        val holder = Robolectric.buildActivity(CarPlayLabActivity::class.java).setup()
+        val holder = Robolectric.buildActivity(CarPlayReceiverActivity::class.java).setup()
         val a = holder.get()
         val views = all(a.findViewById(android.R.id.content))
         views.filterIsInstance<Button>().single { it.text == "CarPlay başlat" }.performClick()
         val texts = views.filterIsInstance<TextView>().joinToString("\n") { it.text.toString() }
         holder.pause().stop().destroy()
         return texts
+    }
+    @Test fun `host phone selection overrides the standalone laboratory favorite`() {
+        val intent = android.content.Intent(app, CarPlayReceiverActivity::class.java)
+            .putExtra("selectedPhoneMac", "AA:BB:CC:DD:EE:04")
+        val holder = Robolectric.buildActivity(CarPlayReceiverActivity::class.java, intent).setup()
+        assertEquals("AA:BB:CC:DD:EE:04", app.getSharedPreferences("carplay-lab", 0).getString("iphone", null))
+        holder.pause().stop().destroy()
     }
     @Test fun `source build with no accessory identity never announces CarPlay ready`() {
         val text = tryStart()

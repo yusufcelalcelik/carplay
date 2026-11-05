@@ -1777,7 +1777,7 @@ class HomeFragment : Fragment() {
         usbTile.setOnClickListener { onUsbClicked() }
         wifiTile.setOnClickListener { onWifiClicked() }
         wifiTile.setOnLongClickListener {
-            openNetworkList()
+            com.andrerinas.openheadunit.fiorino.ProjectionPhonePicker.show(requireActivity()) { openNetworkList() }
             true
         }
         settingsTile.setOnClickListener {
@@ -1916,6 +1916,11 @@ class HomeFragment : Fragment() {
     }
 
     private fun onWifiClicked() {
+        if (commManager.isConnected) { openProjection(); return }
+        com.andrerinas.openheadunit.fiorino.ProjectionPhonePicker.show(requireActivity()) { onLegacyWifiClicked() }
+    }
+
+    private fun onLegacyWifiClicked() {
         if (showsBringUp(HomePrimaryPolicy.Connection.WIFI)) return
         // With a session up the wireless tile is the way back to it, the same as the USB one. It
         // used to do nothing, and on a page without the main button nothing else led back.
@@ -2100,11 +2105,9 @@ class HomeFragment : Fragment() {
         val appSettings = App.provide(requireContext()).settings
         if (requestDriverSelection) {
             requestDriverSelection = false
-            if (!ExternalBtTransportPolicy.usesExternalModule(NativeAaHandshakeManager.transportRoute(requireContext()))) {
-                showNativeAaDeviceSelector(autoCountdown = false)
-            }
+            com.andrerinas.openheadunit.fiorino.ProjectionPhonePicker.show(requireActivity())
         } else if (appSettings.wifiConnectionMode == WifiLauncherMode.NATIVE && !commManager.isConnected) {
-            if (!hasCheckedNativeDriverSelection) checkNativeDriverSelectionOnStartup()
+            if (!hasCheckedNativeDriverSelection && !com.andrerinas.openheadunit.fiorino.ProjectionPhonePicker.carPlaySelected(requireContext())) checkNativeDriverSelectionOnStartup()
         }
 
         activity?.let { act ->

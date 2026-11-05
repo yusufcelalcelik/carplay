@@ -3655,6 +3655,16 @@ class AapService : Service() {
         }
     }
 
+    /** Explicit receiver handoff; sticky stops prevent reconnect jobs from reclaiming its radio. */
+    internal fun prepareForCarPlay() {
+        commManager.cancelPendingSettingsRestart()
+        wirelessRearmPendingForSettings = false
+        usbCheckPendingForSettings = false
+        bluetoothLaunchPendingForSettings = false
+        wifiLauncherManager.stopForUser()
+        usbLauncherManager.stopForUser()
+    }
+
     internal fun stopWirelessForCommand(fromSettings: Boolean) {
         releaseParkedHct()
         // Configuration refresh and explicit cancellation have different owners: only the

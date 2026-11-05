@@ -17,7 +17,6 @@ android {
         versionName = if (localAuthAssets == null) "0.1.2-lab" else "0.1.2-local-auth-test"
         ndk { abiFilters += listOf("arm64-v8a", "armeabi-v7a") }
     }
-    localAuthAssets?.let { sourceSets.getByName("main").assets.srcDir(it) }
     compileOptions { sourceCompatibility = JavaVersion.VERSION_11; targetCompatibility = JavaVersion.VERSION_11 }
     kotlinOptions { jvmTarget = "11" }
     testOptions { unitTests.isIncludeAndroidResources = true }
@@ -42,7 +41,8 @@ android {
     }
 }
 dependencies {
-    implementation(project(":carplay-engine"))
+    implementation(project(":carplay-ui"))
+    testImplementation(project(":carplay-engine"))
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.robolectric:robolectric:4.15.1")
 }

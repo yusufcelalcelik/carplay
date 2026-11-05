@@ -51,6 +51,10 @@ class BluetoothSetupActivity : VehiclePreferencesActivity() {
     private fun updatePreferences() {
         showPreferences(listOf(
             SettingItem.CategoryHeader("native", R.string.fiorino_native_setup),
+            SettingItem.SettingEntry("projectionPhone", R.string.fiorino_select_phone,
+                "Android Auto veya CarPlay • hangi telefona bağlanmak istiyorsun?") {
+                ProjectionPhonePicker.show(this)
+            },
             SettingItem.InfoBanner("status", R.string.fiorino_native_info,
                 connectionMessage ?: "Kayıtlı telefon ${settings.nativePreferredDeviceMac.ifBlank { "henüz seçilmedi" }}"),
             SettingItem.SettingEntry("nativeSetup", R.string.fiorino_enable_native,
@@ -76,6 +80,7 @@ class BluetoothSetupActivity : VehiclePreferencesActivity() {
         ))
     }
     private fun startReceiver(): Boolean = try {
+        ProjectionPhonePicker.selectAndroidAuto(this)
         ContextCompat.startForegroundService(this, Intent(this, AapService::class.java).setAction(AapService.ACTION_START_WIRELESS))
         true
     } catch (_: Exception) {
@@ -123,7 +128,14 @@ class BluetoothSetupActivity : VehiclePreferencesActivity() {
     private fun choosePhone() {
         if (!permitted()) return
         try {
-            val peers = BluetoothPeerDiscovery.read(this).inventory.peers
+            val snapshot = BluetoothPeerDiscovery.read(this)
+            val devices = snapshot.androidDevices.associateBy { it.address }
+            val peers = snapshot.inventory.peers.filter { peer ->
+                val device = devices[peer.address]
+                device == null || BluetoothHelper.classifyDevice(device,
+                    com.andrerinas.openheadunit.connection.wifi.modes.nativeaa.DriverCandidatePolicy.Pin.NONE).reason !=
+                    com.andrerinas.openheadunit.connection.wifi.modes.nativeaa.DriverCandidatePolicy.Reason.IOS_CARPLAY
+            }
             if (peers.isEmpty()) { message("Önce telefonunu teyple eşleştir, sonra tekrar dene."); return }
             MaterialAlertDialogBuilder(this).setTitle("Android Auto telefonu")
                 .setItems(peers.map { "${it.name ?: "Telefon"}\n${it.address}" }.toTypedArray()) { _, index ->

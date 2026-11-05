@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.util.zip.ZipFile
 import java.util.Properties
 import java.io.FileInputStream
 
@@ -96,8 +97,8 @@ android {
         applicationId = "com.yusufcelik.fiorinoheadunit"
         minSdk = 21
         targetSdk = 36
-        versionCode = 128
-        versionName = "1.3.3-fiorino-preview"
+        versionCode = 129
+        versionName = if (providers.environmentVariable("FIORINO_CARPLAY_AUTH_ASSETS").isPresent) "1.4.0-local-auth-test" else "1.4.0-fiorino-preview"
         setProperty("archivesBaseName", "${applicationId}_${versionName}")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled = true
@@ -278,6 +279,7 @@ dependencies {
     testImplementation("org.robolectric:robolectric:4.16")
 
     implementation(project(":contract"))
+    implementation(project(":carplay-ui"))
 
     // Multidex
     implementation("androidx.multidex:multidex:2.0.1")
@@ -313,5 +315,26 @@ configurations.configureEach {
 kotlin {
     compilerOptions {
         jvmTarget.set(JvmTarget.JVM_1_8)
+    }
+}
+
+// Distribution must explicitly use this entry point; private accessory identity inputs stay local.
+val requirePublicCarPlayInputs by tasks.registering {
+    doLast { check(!providers.environmentVariable("FIORINO_CARPLAY_AUTH_ASSETS").isPresent) {
+        "Local-authentication builds are private test artifacts"
+    } }
+}
+tasks.matching { it.name == "preGithubReleaseBuild" }.configureEach { mustRunAfter(requirePublicCarPlayInputs) }
+tasks.register("assemblePublicGithubRelease") {
+    group = "build"
+    dependsOn(requirePublicCarPlayInputs, "assembleGithubRelease")
+    doLast {
+        val apks = layout.buildDirectory.dir("outputs/apk/github/release").get().asFile.listFiles().orEmpty().filter { it.extension == "apk" }
+        check(apks.isNotEmpty())
+        apks.forEach { apk -> ZipFile(apk).use { zip ->
+            check(zip.entries().asSequence().none { it.name.startsWith("assets/offline-mfi/") }) {
+                "Accessory identity found in an APK intended for public distribution"
+            }
+        } }
     }
 }

@@ -8,6 +8,24 @@ import org.junit.Test
 
 class DriverCandidatePolicyTest {
 
+    @Test fun `an iPhone is excluded from AA even with an explicit preferred pin`() {
+        DriverCandidatePolicy.IOS_PHONE_UUIDS.forEach { uuid ->
+            listOf(Pin.NONE, Pin.USER).forEach { pin ->
+                assertVerdict(Verdict.NOT_A_PHONE, Reason.IOS_CARPLAY,
+                    classify(uuids = listOf(uuid.uppercase(), DriverCandidatePolicy.HFP_AG_UUID),
+                        major = DriverCandidatePolicy.MAJOR_PHONE, pin = pin))
+            }
+        }
+    }
+    @Test fun `a successful AA session still proves a dual role device`() {
+        assertVerdict(Verdict.PHONE, Reason.PINNED,
+            classify(uuids = DriverCandidatePolicy.IOS_PHONE_UUIDS.toList(), pin = Pin.PROVEN))
+    }
+    @Test fun `accessory UUIDs do not classify an Android receiver as an iPhone`() {
+        assertEquals(false, DriverCandidatePolicy.isCarPlayPhone(listOf(
+            "00000000-deca-fade-deca-deafdecacaff", "ec884348-cd41-40a2-9727-575d50bf1fd3")))
+    }
+
     private val audioGateway = DriverCandidatePolicy.HFP_AG_UUID
     private val headsetGateway = DriverCandidatePolicy.HSP_AG_UUID
     private val handsFree = DriverCandidatePolicy.HFP_HF_UUID
