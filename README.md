@@ -14,6 +14,16 @@ Native profil açılışta ve uykudan dönüşte bağlantıyı hazırlar, kopma 
 
 ![Kablosuz bağlantı adımları](docs/screenshots/06-wireless-steps.png)
 
+## 1.3.2 bağlantı ve ekran ayarları
+
+**Ayarlar → Fiorino ayarları → Kablosuz bağlantı profili** bölümünde yalnızca 2,4 GHz destekleyen PX3 teyp için **2,4 GHz araç — 480p / 30 FPS** seçin. Bu işlem hem Wi-Fi Direct hem hotspot bandını 2,4 GHz seçer, H.264 ve AAC kullanır, otomatik 720p yükseltmesini kapatır. Mevcut oturumun Wi-Fi ağı değiştirilmez. Android 7.1 üretici sürücüsü kanal/bant isteğini dikkate almayabilir; gerçek bant araç üzerinde kontrol edilmelidir. **Otomatik** destek varsa 5 GHz dener ve platformun yedek bağlantısını korur. **5 GHz** yalnızca bunu destekleyen cihaz içindir.
+
+Küçük yazılar için **Arayüz boyutu / DPI → Büyük (190)** veya **Çok büyük (220)** seçin. 480p'de Android Auto yerleşim sınırı DPI'yı aşağı çekebilir. **Seçtiğim DPI boyutunu uygula** anahtarı bu sınırı kaldırır. Daha az içerik veya farklı menü düzeni oluşabilir. Değişiklikler sonraki bağlantıda uygulanır.
+
+Uyandırma öncesi Bluetooth cihaz taraması durdurulur. Bu, tarama açıkken RFCOMM kurulumunun radyo zamanını paylaşmasını azaltmayı amaçlar. Deneme süreleri loga yazılır. Dayanak: [Android Bluetooth bağlantı belgesi](https://developer.android.com/develop/connectivity/bluetooth/connect-bluetooth-devices). Bu değişiklik ölçülmüş bir toplam bağlantı süresi garantisi değildir.
+
+Canlı veya kurulmakta olan yansıtma sırasında geçici boş Wi-Fi Direct grup yanıtı ağı yeniden oluşturmaz. Otomatik Wi-Fi kurtarma, hazırlık sonrasında da oturum durumunu tekrar kontrol eder. Donanım/parazit kaynaklı kopmalar için PX3 üzerinde test gerekir.
+
 ## Bu sürümdeki eklemeler
 
 - İlk çalıştırmada 480p / 30 FPS / H.264, Türkçe dil ve kontak/ekran uyanışında otomatik başlatma.

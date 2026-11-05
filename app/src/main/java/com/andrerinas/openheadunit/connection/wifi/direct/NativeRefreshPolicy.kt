@@ -20,7 +20,7 @@ object NativeRefreshPolicy {
      */
     const val GROUP_INFO_WINDOW_MS = 21_000L
 
-    enum class Action { REDELIVER, WAIT, RECREATE }
+    enum class Action { REDELIVER, KEEP_SESSION, WAIT, RECREATE }
 
     /** Whether a create asked for this long ago is still owed an answer. */
     fun withinCreateGrace(elapsedMs: Long?): Boolean =
@@ -43,8 +43,10 @@ object NativeRefreshPolicy {
         isGroupOwner: Boolean,
         createInFlightForMs: Long?,
         acceptedCreatePendingForMs: Long? = null,
+        sessionBusy: Boolean = false,
     ): Action = when {
         groupExists && isGroupOwner -> Action.REDELIVER
+        sessionBusy -> Action.KEEP_SESSION
         withinCreateGrace(createInFlightForMs) -> Action.WAIT
         withinGroupInfoWindow(acceptedCreatePendingForMs) -> Action.WAIT
         else -> Action.RECREATE

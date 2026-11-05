@@ -71,6 +71,21 @@ class Settings(private val context: Context) {
         }
     }
 
+    /** User-selected radio profile; takes effect at the next connection, never toggles live Wi-Fi. */
+    fun configureFiorinoWireless(band: Int) {
+        require(band in 0..2)
+        wifiDirectBand = band
+        hotspotBand = band
+        narrowBandProfileCap = true
+        resolutionId = 1
+        fpsLimit = 30
+        videoCodec = "H.264"
+        healthyVideoSessions = 0
+        // Keep a 2.4 GHz-only radio at 480p instead of promoting after healthy sessions.
+        adaptiveVideoQuality = band != 2
+        useAacAudio = true
+    }
+
     /** Explicit setup action. Preserve audio/display choices and any existing phone on re-apply. */
     fun configureNativeReceiver(phoneMac: String? = null) {
         val peer = phoneMac?.let {

@@ -860,7 +860,7 @@ class WifiDirectManager(private val context: Context) : WifiP2pManager.Connectio
         val optedIn = try { App.provide(context).settings.autoRestartWifiWhenP2pStuck } catch (e: Exception) { false }
         // CommManager as well as the Native provider, so a Helper-mode WiFi Direct session counts.
         val sessionConnected = isNativeSessionConnected?.invoke() == true ||
-            try { App.provide(context).commManager.isConnected } catch (e: Exception) { false }
+            try { App.provide(context).commManager.isBusy } catch (e: Exception) { false }
         if (!P2pStackWedgePolicy.mayAutoRestart(optedIn, sessionConnected, now, restarts)) {
             if (optedIn) AppLog.i("WifiDirectManager: automatic WiFi restart held back (cooldown, hourly limit or live session).")
             return
@@ -2296,12 +2296,15 @@ class WifiDirectManager(private val context: Context) : WifiP2pManager.Connectio
      * [NativeRefreshPolicy]'s: a group that is up and ours has its credentials read again, one that
      * was just asked for is left to answer, and only no group at all is worth creating one.
      */
+    private fun projectionBusy(): Boolean = isNativeSessionConnected?.invoke() == true ||
+        try { App.provide(context).commManager.isBusy } catch (_: Exception) { false }
+
     @SuppressLint("MissingPermission")
     fun refreshNativeCredentials() {
         val mgr = manager
         val ch = channel
         if (mgr == null || ch == null) {
-            startNativeAaQuietHost()
+            if (!projectionBusy()) startNativeAaQuietHost()
             return
         }
         val gen = generation
@@ -2317,6 +2320,7 @@ class WifiDirectManager(private val context: Context) : WifiP2pManager.Connectio
                 isGroupOwner = group?.isGroupOwner == true,
                 createInFlightForMs = inFlightForMs,
                 acceptedCreatePendingForMs = acceptedForMs,
+                sessionBusy = projectionBusy(),
             )) {
                 NativeRefreshPolicy.Action.REDELIVER -> {
                     AppLog.i(
@@ -2325,6 +2329,9 @@ class WifiDirectManager(private val context: Context) : WifiP2pManager.Connectio
                     )
                     mgr.requestConnectionInfo(ch, this)
                     onGroupInfoAvailable(group)
+                }
+                NativeRefreshPolicy.Action.KEEP_SESSION -> {
+                    AppLog.i("WifiDirectManager: refresh returned no owner group during projection setup/session; preserving the radio.")
                 }
                 NativeRefreshPolicy.Action.WAIT -> {
                     if (NativeRefreshPolicy.withinCreateGrace(inFlightForMs)) {

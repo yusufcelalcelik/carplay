@@ -2149,6 +2149,18 @@ class NativeAaHandshakeManager(
             return BluetoothWakePolicy.WakeOutcome.NOT_PAIRED
         }
 
+        // Inquiry shares radio time with RFCOMM. Android recommends cancelling it before
+        // connect(), including discovery started by the system Bluetooth screen.
+        try {
+            val adapter = BluetoothHelper.getBluetoothAdapter(context)
+            val cancelled = adapter?.cancelDiscovery() == true
+            AppLog.i("NativeAA: pre-wake Bluetooth discovery cancellation=$cancelled")
+        } catch (_: SecurityException) {
+            // Android 12+ may grant CONNECT without SCAN. Wake remains usable in that case.
+            AppLog.i("NativeAA: pre-wake discovery cancellation unavailable (SCAN permission)")
+        } catch (e: Exception) {
+            AppLog.d("NativeAA: pre-wake discovery cancellation unavailable: ${e.javaClass.simpleName}")
+        }
         pokeAttemptInFlight = true
         try {
             for (uuid in BluetoothWakePolicy.POKE_TARGETS) {
@@ -2157,6 +2169,7 @@ class NativeAaHandshakeManager(
                 currentCoroutineContext().ensureActive()
                 val profile = BluetoothWakePolicy.profileName(uuid)
                 var socket: BluetoothSocket? = null
+                val dialStartedMs = SystemClock.elapsedRealtime()
                 try {
                     socket = device.createRfcommSocketToServiceRecord(uuid)
                     AppLog.i("NativeAA: Calling socket.connect() for ${device.name} via $profile ($uuid)...")
@@ -2168,7 +2181,7 @@ class NativeAaHandshakeManager(
                     pokeConnectingTo = null
                     // Named, not just the UUID: which record we ended up on is the first thing to
                     // check when a reporter's calls come out of the phone instead of the car.
-                    AppLog.i("NativeAA: Successfully poked ${device.name} via $profile. Holding ${holdMs}ms...")
+                    AppLog.i("NativeAA: Successfully poked ${device.name} via $profile in ${SystemClock.elapsedRealtime() - dialStartedMs}ms. Holding ${holdMs}ms...")
                     // Counted before the hold, so a poke that is cancelled mid-hold still counts:
                     // the phone answered, which is the whole point of the count.
                     pokesSinceLastAccept++
@@ -2184,7 +2197,7 @@ class NativeAaHandshakeManager(
                     // Info, not debug: the success above is info, so a reporter at the default level
                     // saw the attempt and never its outcome. Address as well as name, because
                     // getName() is null for an unbonded device.
-                    AppLog.i("NativeAA: Poke via $profile to ${device.name ?: "unnamed"} (${device.address}) failed: ${e.message}")
+                    AppLog.i("NativeAA: Poke via $profile to ${device.name ?: "unnamed"} (${device.address}) failed after ${SystemClock.elapsedRealtime() - dialStartedMs}ms: ${e.message}")
                 } finally {
                     pokeConnectingTo = null
                     socket?.let { closePhoneSocket(it) }

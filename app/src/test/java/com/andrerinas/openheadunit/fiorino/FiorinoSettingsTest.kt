@@ -65,6 +65,26 @@ class FiorinoSettingsTest {
         assertFalse(settings.automaticMicrophone)
     }
 
+    @Test fun `2_4 GHz vehicle profile pins lightweight video and preserves the selected phone and DPI`() {
+        val settings = Settings(context)
+        settings.configureNativeReceiver("AA:BB:CC:DD:EE:01")
+        settings.dpiPixelDensity = 220
+        settings.configureFiorinoWireless(2)
+        assertEquals(2, settings.wifiDirectBand)
+        assertEquals(2, settings.hotspotBand)
+        assertEquals(1, settings.resolutionId)
+        assertEquals(30, settings.fpsLimit)
+        assertEquals("H.264", settings.videoCodec)
+        assertFalse(settings.adaptiveVideoQuality)
+        assertTrue(settings.useAacAudio)
+        assertTrue(settings.narrowBandProfileCap)
+        assertEquals("AA:BB:CC:DD:EE:01", settings.nativePreferredDeviceMac)
+        assertEquals(220, settings.dpiPixelDensity)
+        settings.configureFiorinoWireless(0)
+        assertEquals(0, settings.wifiDirectBand)
+        assertTrue(settings.adaptiveVideoQuality)
+    }
+
     @Test fun `invalid phone address cannot partially change the receiver configuration`() {
         val settings = Settings(context)
         settings.wifiConnectionMode = com.andrerinas.openheadunit.connection.wifi.WifiLauncherMode.MANUAL

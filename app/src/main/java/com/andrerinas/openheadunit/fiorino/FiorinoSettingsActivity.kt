@@ -39,6 +39,14 @@ class FiorinoSettingsActivity : VehiclePreferencesActivity() {
             "Native kablosuz Android Auto, açılışta bağlantı ve yeniden bağlanma") {
             startActivity(Intent(this, BluetoothSetupActivity::class.java))
         })
+        items.add(SettingItem.SettingEntry("wirelessProfile", R.string.fiorino_wireless_profile,
+            when (settings.wifiDirectBand) { 2 -> "2,4 GHz araç — 480p / 30 FPS"; 1 -> "5 GHz — destekleyen cihazlar"; else -> "Otomatik — 5 GHz, 2,4 GHz yedek" }) {
+            MaterialAlertDialogBuilder(this).setTitle(R.string.fiorino_wireless_profile)
+                .setItems(arrayOf("Otomatik — destek varsa 5 GHz", "5 GHz — destekleyen cihazlar", "2,4 GHz araç — 480p / 30 FPS")) { _, index ->
+                    settings.configureFiorinoWireless(index)
+                    updatePreferences()
+                }.show()
+        })
         items.add(SettingItem.InfoBanner("applyInfo", R.string.fiorino_apply_info))
         items.add(SettingItem.CategoryHeader("sound", R.string.fiorino_sound))
         items.add(SettingItem.ToggleSettingEntry("speechDucking", R.string.fiorino_ducking, null,
@@ -89,12 +97,16 @@ class FiorinoSettingsActivity : VehiclePreferencesActivity() {
         })
         items.add(SettingItem.SettingEntry("density", R.string.fiorino_density,
             if (settings.dpiPixelDensity == 0) "Otomatik" else "${settings.dpiPixelDensity} DPI") {
-            MaterialAlertDialogBuilder(this).setItems(arrayOf("Otomatik", "Küçük — 140 DPI", "Orta — 160 DPI", "Büyük — 190 DPI", "Özel")) { _, index ->
-                if (index < 4) {
-                    settings.dpiPixelDensity = intArrayOf(0, 140, 160, 190)[index]
+            MaterialAlertDialogBuilder(this).setItems(arrayOf("Otomatik", "Küçük — 140 DPI", "Orta — 160 DPI", "Büyük — 190 DPI", "Çok büyük — 220 DPI", "Özel")) { _, index ->
+                if (index < 5) {
+                    settings.dpiPixelDensity = intArrayOf(0, 140, 160, 190, 220)[index]
                     updatePreferences()
                 } else customDpi()
             }.show()
+        })
+        items.add(SettingItem.ToggleSettingEntry("densityOverride", R.string.fiorino_density_override,
+            R.string.fiorino_density_override_hint, settings.dpiFloorOverride) {
+            settings.dpiFloorOverride = it
         })
         items.add(SettingItem.CategoryHeader("device", R.string.fiorino_device))
         val pm = packageManager

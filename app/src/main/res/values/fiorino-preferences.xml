@@ -23,4 +23,7 @@
     <string name="fiorino_video_profile">Görüntü profili</string>
     <string name="fiorino_density">Arayüz boyutu / DPI</string>
     <string name="fiorino_device">Cihaz bilgileri</string>
+    <string name="fiorino_wireless_profile">Kablosuz bağlantı profili</string>
+    <string name="fiorino_density_override">Seçtiğim DPI boyutunu uygula</string>
+    <string name="fiorino_density_override_hint">480p görüntüde büyük DPI normalde sınırlandırılır. Açarsan seçimin uygulanır; ekranda daha az içerik veya farklı menü düzeni görünebilir. Sonraki bağlantıda geçerli.</string>
 </resources>

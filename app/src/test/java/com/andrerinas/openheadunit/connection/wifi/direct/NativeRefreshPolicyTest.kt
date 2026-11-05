@@ -9,6 +9,13 @@ import org.junit.Test
 class NativeRefreshPolicyTest {
 
     @Test
+    fun `transient missing group during projection must not recreate its network`() {
+        assertEquals(Action.KEEP_SESSION, NativeRefreshPolicy.decide(false, false, null, null, sessionBusy = true))
+        assertEquals(Action.REDELIVER, NativeRefreshPolicy.decide(true, true, null, null, sessionBusy = true))
+        assertEquals(Action.RECREATE, NativeRefreshPolicy.decide(false, false, null, null, sessionBusy = false))
+    }
+
+    @Test
     fun `a group that is up and ours has its credentials read again`() {
         assertEquals(Action.REDELIVER, NativeRefreshPolicy.decide(groupExists = true, isGroupOwner = true, createInFlightForMs = null))
         // Even mid-create: the group answering is what ends the create.

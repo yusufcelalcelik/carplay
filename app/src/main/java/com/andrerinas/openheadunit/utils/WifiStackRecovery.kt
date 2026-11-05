@@ -55,6 +55,8 @@ object WifiStackRecovery {
      * [automatic] is true when no user is looking: then only a route already proven at setup runs.
      */
     suspend fun restartWifi(context: Context, reason: String, automatic: Boolean = false): Pair<Boolean, String> = withContext(Dispatchers.IO) {
+        fun sessionBusy() = try { App.provide(context).commManager.isBusy } catch (_: Exception) { true }
+        if (automatic && sessionBusy()) return@withContext false to "projection busy"
         var route = availableRoute()
         // A fresh process has not opened a root shell yet, so libsu cannot say root is granted
         // until it asks - and asking raises the superuser prompt when no grant is saved. So only
@@ -85,6 +87,11 @@ object WifiStackRecovery {
         ) {
             AppLog.w("WifiStackRecovery: not restarting WiFi ($reason): the $route route was not proven when the switch was turned on.")
             return@withContext false to "route not proven at setup"
+        }
+        // Route/root checks suspend. A phone may have connected while they were running.
+        if (automatic && sessionBusy()) {
+            AppLog.i("WifiStackRecovery: preserving a projection that started during recovery preparation.")
+            return@withContext false to "projection became busy"
         }
         AppLog.w("WifiStackRecovery: restarting WiFi via $route ($reason).")
         val (code, out) = try {
