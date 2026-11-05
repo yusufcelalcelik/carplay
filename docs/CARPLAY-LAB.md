@@ -2,7 +2,7 @@
 
 ## Durum
 
-**1.4.3 kaynak durumu:** Android Auto ve CarPlay tek ana APK içindedir (`com.yusufcelik.fiorinoheadunit`). `carplay-ui` ortak arayüzü ve CarPlay foreground hizmetini, `carplay-engine` protokol motorunu içerir. Lab yalnız ayrı geliştirme girişidir. CarPlay Android 7.0+, AA minSDK21; PX3/Android7.1 donanım testi henüz yapılmadı.
+**1.4.4 kaynak durumu:** Android Auto ve CarPlay tek ana APK içindedir (`com.yusufcelik.fiorinoheadunit`). `carplay-ui` ortak arayüzü ve CarPlay foreground hizmetini, `carplay-engine` protokol motorunu içerir. Lab yalnız ayrı geliştirme girişidir. CarPlay Android 7.0+, AA minSDK21; PX3/Android7.1 donanım testi henüz yapılmadı.
 
 **Gerçek CarPlay kontrol ve görüntü bağlantısı doğrulandı.** Yerel deneysel kimlikli 1.4.0 testinde iPhone14ProMax kontrol oturumu ve çizilen video karesi verdi; Siri etkinleştirildikten sonra Haritalar açıldı. 1.4.1'de foreground hizmeti ve tam ekran gerçek Note9'da açıldı: kontrol 7.145ms, ilk kare 7.878ms. Bunlar tekil bağlantı ölçümleridir. Genel kaynak APK bu yerel kimlik girdisini içermez; yeni cihaza genel APK kurmak tek başına CarPlay hazırlamaz. Başarılı yerel deney Apple onaylı ürün veya kimlik dağıtım yetkisi anlamına gelmez.
 
@@ -121,3 +121,11 @@ Güncel belge ve forum karşılaştırması: [Özellik matrisi](FEATURE-COMPATIB
 1.4.3 kaynakta tam ekranda kenar payları sıfırlanır; API28+ kısa kenar kamera alanında çizime izin verilir. Tuval/surface oranındaki en çok%2 codec-blok yuvarlaması görüntü ve normalize dokunma beraber ölçeklenerek doldurulur; gerçekten farklı ekran oranı zorla kırpılmaz. Dikdörtgen ana ekran için iPhone corner-mask özelliği ilan edilir. Bu son değişikliklerin fiziksel testi sürümün cihaz kaydıyla ayrıca doğrulanır.
 
 Cihaz yönetimi onaydan sonra önce AA ve CarPlay'i durdurur, ardından uygulamadaki Android telefon seçimlerini ve AirPlay eşleşmelerini siler. Alıcı MAC/ekran/ses ayarları ve offline-mfi alıcı provizyonu korunur. Sistem Bluetooth bond'ları sessizce topluca silinmez; sistem eşleşme yönetimine ayrı geçiş vardır. iPhone'daki kayıt gerektiğinde telefonun CarPlay ayarlarından unutulabilir.
+
+## 1.4.4 sistem kenar boşluğu düzeltmesi
+
+1.4.3 gerçek Note9'da kuruldu ve ilk kare8.429ms ile geldi. Kalan boşluk ayrıca ölçüldü: Window2340×1080 olmasına rağmen Android Decor içerikte soldan100px çentik güvenli payı bırakıyordu;800×368 tuval2240px alana sığarken üstalt25px ek boşluk doğuyordu. Yalnız cutoutSHORT_EDGES yeterli olmadı.
+
+1.4.4'te API30+ `setDecorFitsSystemWindows(false)` ve cutoutALWAYS; eski platformlarda uygunlayoutfullscreen/navigation flagları uygulanır. İlk kare tam ekran geçişi aynılayoutflaglarını korur. API31Robolectric testi pencere cutout ve layoutflaglarını kontrol eder. Fiziksel kamera deliğinin kendisi yazılımla kaldırılmaz; bu değişiklik Android'in ayırdığı tam şeride ilişkindir.
+
+Siri/Gemini ses artırma testi kullanıcı tarafından açıkça sonraya bırakıldı. Telefonda bu komutun fiziksel teyp sesine aktarılması yapılmış/doğrulanmış sayılmaz. Bu tur bu testi otomatik tekrar istemeyin.

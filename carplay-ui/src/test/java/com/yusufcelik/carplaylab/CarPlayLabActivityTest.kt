@@ -45,6 +45,16 @@ class CarPlayReceiverActivityTest {
         assertEquals("AA:BB:CC:DD:EE:04", app.getSharedPreferences("carplay-lab", 0).getString("iphone", null))
         holder.pause().stop().destroy()
     }
+    @Test @Config(sdk = [31]) fun `fullscreen retains edge layout flags and permits camera cutouts`() {
+        val holder = Robolectric.buildActivity(CarPlayReceiverActivity::class.java).setup()
+        val activity = holder.get()
+        assertEquals(android.view.WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS,
+            activity.window.attributes.layoutInDisplayCutoutMode)
+        val flags = activity.window.decorView.systemUiVisibility
+        assertTrue(flags and View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION != 0)
+        assertTrue(flags and View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN != 0)
+        holder.pause().stop().destroy()
+    }
     @Test fun `source build with no accessory identity never announces CarPlay ready`() {
         val text = tryStart()
         assertTrue(text.contains("Yerel aksesuar kimliği yok veya geçersiz"))

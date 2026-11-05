@@ -2,7 +2,7 @@
 
 Fiat Fiorino'daki Android 7.1 / Rockchip PX3 veya PX5 teyp için Android Auto alıcısı. Open Headunit'in `ae74788d8312dd7a735775ddc21370f1741a7af1` sürümünden türetilmiştir. AGPL-3.0 lisansı ve önceki yazarların telif bildirimleri korunmuştur. Önceki proje belgeleri [README_UPSTREAM.md](README_UPSTREAM.md) dosyasındadır.
 
-## Android Auto ve CarPlay — 1.4.3 kaynak durumu
+## Android Auto ve CarPlay — 1.4.4 kaynak durumu
 
 Tek APK iki alıcıyı içerir. Ortak **Hangi telefona bağlanmak istiyorsun?** seçicisi Android/iPhone tercihini kaydeder. CarPlay otomatik bağlantısı etkinleştirildikten sonra uygulama açılışı doğrudan kayıtlı iPhone'a gider. **Telefon değiştir / Cihazları yönet** ile seçim ve kayıt yönetimi açılır.
 

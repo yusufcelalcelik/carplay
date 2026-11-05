@@ -45,10 +45,13 @@ open class CarPlayReceiverActivity : Activity(), SurfaceHolder.Callback, CarPlay
     override fun onCreate(state: Bundle?) {
         super.onCreate(state)
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or WindowManager.LayoutParams.FLAG_FULLSCREEN)
+        if (Build.VERSION.SDK_INT >= 30) window.setDecorFitsSystemWindows(false)
         if (Build.VERSION.SDK_INT >= 28) window.attributes = window.attributes.apply {
-            layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+            layoutInDisplayCutoutMode = if (Build.VERSION.SDK_INT >= 30)
+                WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
+            else WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
         }
-        window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+        window.decorView.systemUiVisibility = immersiveFlags()
         displayProfile = CarPlaySessionService.displayProfile() ?: run {
             val metrics = android.util.DisplayMetrics()
             @Suppress("DEPRECATION")
@@ -295,13 +298,16 @@ open class CarPlayReceiverActivity : Activity(), SurfaceHolder.Callback, CarPlay
         } }
         dialog.show()
     }
+    private fun immersiveFlags() = View.SYSTEM_UI_FLAG_FULLSCREEN or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
+        View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
+        View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
     private fun setProjectionFullscreen(enabled: Boolean) {
         fullscreen = enabled
         rootLayout.setPadding(if (enabled) 0 else dp(16), if (enabled) 0 else dp(10),
             if (enabled) 0 else dp(16), if (enabled) 0 else dp(10))
         video.requestLayout()
         chrome.forEach { it.visibility = if (enabled) View.GONE else View.VISIBLE }
-        if (enabled) window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_FULLSCREEN or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+        if (enabled) window.decorView.systemUiVisibility = immersiveFlags()
     }
     override fun update(message: String, controller: CarPlayController?, sink: AndroidMediaSink?, videoActive: Boolean) {
         this.controller = controller; this.sink = sink
