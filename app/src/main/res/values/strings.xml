@@ -1919,4 +1919,9 @@
     <string name="fiorino_settings">Fiorino ayarları</string>
     <string name="fiorino_usb_bridge">USB kablosuz adaptör modu</string>
     <string name="fiorino_carplay_address">CarPlay alıcı adresi</string>
+    <string name="fiorino_bridge_choose">Sürücü telefonu</string>
+    <string name="fiorino_bridge_start">Köprüyü başlat</string>
+    <string name="fiorino_bridge_auto">USB takılınca bağlantı</string>
+    <string name="fiorino_bridge_pair">Yeni telefon eşleştir</string>
+    <string name="fiorino_bridge_stop">Normal alıcıya dön</string>
 </resources>

@@ -50,16 +50,16 @@ class UsbBridgeActivity : VehiclePreferencesActivity() {
             SettingItem.InfoBanner("bridgeIntro", R.string.fiorino_usb_bridge,
                 "Eski Android telefonu aracın kablolu Android Auto USB girişine tak. Sürücü telefonu bu cihaza kablosuz bağlanır. Bu mod iPhone → fabrika CarPlay köprüsü sağlamaz; mevcut Android teyp CarPlay alıcısı ayrı çalışır."),
             SettingItem.InfoBanner("bridgeState", R.string.fiorino_native_info, UsbBridgeService.status),
-            SettingItem.SettingEntry("bridgePhone", R.string.fiorino_select_phone, "Sürücü telefonunu seç / değiştir") { choosePhone() },
-            SettingItem.SettingEntry("bridgeStart", R.string.fiorino_enable_native, "Son seçilen Android telefonu bağla") { beginSaved() },
-            SettingItem.SettingEntry("bridgeAsk", R.string.fiorino_select_phone,
+            SettingItem.SettingEntry("bridgePhone", R.string.fiorino_bridge_choose, "Sürücü telefonunu seç / değiştir") { choosePhone() },
+            SettingItem.SettingEntry("bridgeStart", R.string.fiorino_bridge_start, "Son seçilen Android telefonu bağla") { beginSaved() },
+            SettingItem.SettingEntry("bridgeAsk", R.string.fiorino_bridge_auto,
                 if (prefs.getBoolean("ask-each-time", true)) "USB takılınca telefon seç • açık" else "USB takılınca son telefonu bağla") {
                 prefs.edit().putBoolean("ask-each-time", !prefs.getBoolean("ask-each-time", true)).apply(); render()
             },
-            SettingItem.SettingEntry("bridgePair", R.string.fiorino_system_bluetooth, "Yeni sürücü telefonunu bir kez eşleştir") {
+            SettingItem.SettingEntry("bridgePair", R.string.fiorino_bridge_pair, "Yeni sürücü telefonunu bir kez eşleştir") {
                 startActivity(Intent(android.provider.Settings.ACTION_BLUETOOTH_SETTINGS))
             },
-            SettingItem.SettingEntry("bridgeStop", R.string.fiorino_usb_bridge, "Köprüyü durdur ve normal alıcıya dön") {
+            SettingItem.SettingEntry("bridgeStop", R.string.fiorino_bridge_stop, "Köprüyü durdur ve normal alıcıya dön") {
                 UsbBridgeService.stop(this)
                 ProjectionPhonePicker.selectAndroidAuto(this)
                 render()
