@@ -2,7 +2,7 @@
 
 **Android baş üniteleri için tek uygulamada Android Auto ve deneysel CarPlay alıcısı.**
 
-[![Sürüm](https://img.shields.io/badge/s%C3%BCr%C3%BCm-1.4.4_preview-orange)](https://github.com/yusufcelalcelik/carplay/releases/tag/v1.4.4-preview)
+[![Sürüm](https://img.shields.io/badge/s%C3%BCr%C3%BCm-1.5.0_preview-orange)](https://github.com/yusufcelalcelik/carplay/releases/tag/v1.5.0-preview)
 [![Lisans](https://img.shields.io/badge/lisans-AGPL--3.0-blue)](LICENSE)
 [![Derleme](https://img.shields.io/badge/derleme-yerel_Gradle-green)](docs/BUILDING.md)
 
@@ -20,6 +20,12 @@ Fiorino Auto, Fiat Fiorino'daki Android 7.1 tabanlı multimedya için geliştiri
 | `…-local-carplay-test.apk` | Ayrı hazırlanan yerel deney | Geçerli yerel kurulum girdisiyle test edilir; genel release'e yüklenmez. |
 
 CarPlay'in keşif listesinde görünmesi, eşleşmesi ve görüntü oturumu açması farklı aşamalardır. Geçersiz/eksik yerel kimlikte uygulama medya bağlantısını başlatmaz. Testte çalışan bir kimlik, Apple onaylı bir ürün olduğumuz anlamına gelmez. [CarPlay kurulum ve provizyon açıklaması](docs/GETTING-STARTED.md#carplay).
+
+## 1.5.0: eski telefonu kablosuz adaptör olarak kullanma
+
+Aracın kendi **kablolu Android Auto** USB girişine eski Android telefonu bağlayan ayrı bir köprü modu eklendi. Kayıtlı sürücüler arasında seçim ve USB takılışında son telefonu deneme seçenekleri bulunur. **Ford Kuga ve kesintisiz iki telefon geçişi henüz doğrulanmadı; USB’yi yeniden takmak gerekebilir.** Bu mod iPhone → fabrika CarPlay köprüsü sağlamaz. [Kurulum, kapsam ve test sınırları](docs/USB-BRIDGE.md).
+
+CarPlay alıcısında normal bağlantı ekranı sadeleştirildi. Alıcı Bluetooth adresi **bağlantı ayarlarından** bir kez kaydedilir; kayıtlı iPhone ve otomatik tekrar bağlantı tercihleri korunur. Genel APK’nın aksesuar kimliği gereksinimi devam eder.
 
 ## Özellikler
 
@@ -41,9 +47,9 @@ Telefon uygulamalarının sunduğu özellikler ve araç donanımı gerektiren i�
 | CarPlay alıcısı | Android 7.0+ / API 24; ARM32 ve ARM64 |
 | Hedef teyp | Android 7.1 etiketi, kullanıcı bildirimine göre PX3 / 2 GB RAM; MCU/kart tespiti ve araç testi bekliyor |
 | Masa başı test | Redmi Note 9 alıcı, Redmi Note 12 Android gönderici, gerçek iPhone 14 Pro Max |
-| 1.4.4 doğrulaması | 4.811 ana uygulama + 16 ortak CarPlay testi; yerel build |
+| 1.5.0 doğrulaması | 4.816 ana uygulama + 18 ortak CarPlay testi; yerel build |
 
-Bu sayılar **5 Kasım 2026 tarihli 1.4.4 koşumuna** aittir; sürekli CI rozeti veya bütün donanımlar için uyumluluk garantisi değildir. Tekil CarPlay bağlantı ölçümleri [test notlarında](docs/CARPLAY-LAB.md) bulunur.
+Bu sayılar **6 Kasım 2026 tarihli 1.5.0 koşumuna** aittir; sürekli CI rozeti veya bütün donanımlar için uyumluluk garantisi değildir. Tekil CarPlay bağlantı ölçümleri [test notlarında](docs/CARPLAY-LAB.md) bulunur.
 
 Google'ın standart kablosuz AA koşullarında telefonun 5 GHz desteği bulunur. Buradaki 2,4 GHz teyp profili özel bir uyumluluk denemesidir. Modern Android, arka plandan ekran açma ve mikrofon erişimini sınırlar. [Kurulum ve sorun giderme](docs/GETTING-STARTED.md).
 

@@ -67,6 +67,7 @@ class MicrophoneForegroundClaimTest {
             App::class.java.getDeclaredField("component\$delegate").apply { isAccessible = true }
                 .set(app, lazyOf(component))
             val service = mock<AapService>()
+            whenever(service.getSharedPreferences(any(), any())).thenReturn(mock())
             whenever(service.applicationContext).thenReturn(app)
             whenever(service.getString(any())).thenReturn("Microphone test")
             AapService::class.java.getDeclaredField("settings\$delegate").apply { isAccessible = true }
@@ -233,6 +234,7 @@ class MicrophoneForegroundClaimTest {
                     App::class.java.getDeclaredField("component\$delegate").apply { isAccessible = true }
                         .set(app, lazyOf(component))
                     val service = mock<AapService>()
+            whenever(service.getSharedPreferences(any(), any())).thenReturn(mock())
                     whenever(service.applicationContext).thenReturn(app)
                     whenever(service.getString(any())).thenReturn("Shutdown foreground test")
                     field("settings\$delegate").set(service, lazyOf(settings))

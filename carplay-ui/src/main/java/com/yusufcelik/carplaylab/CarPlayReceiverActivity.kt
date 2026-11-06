@@ -35,6 +35,7 @@ open class CarPlayReceiverActivity : Activity(), SurfaceHolder.Callback, CarPlay
     private val prefs by lazy { getSharedPreferences("carplay-lab", MODE_PRIVATE) }
     private var peer: String? = null
     private var hostBluetoothMac: String? = null
+    private var awaitingAddressForConnection = false
     private val chrome = mutableListOf<View>()
     private var fullscreen = false
     private var hadVideo = false
@@ -73,7 +74,7 @@ open class CarPlayReceiverActivity : Activity(), SurfaceHolder.Callback, CarPlay
         }
         rootLayout = root
         root.addView(TextView(this).apply {
-            text = "Fiorino • Kablosuz CarPlay (deneysel)"
+            text = "Fiorino • Kablosuz CarPlay"
             textSize = 22f; setTextColor(Color.WHITE)
         })
         chrome += root.getChildAt(0)
@@ -82,7 +83,7 @@ open class CarPlayReceiverActivity : Activity(), SurfaceHolder.Callback, CarPlay
             text = label; setOnClickListener { action() }
             buttons.addView(this, LinearLayout.LayoutParams(0, dp(56), 1f))
         }
-        button("CarPlay keşif testi") { startDiscovery() }
+
         button("Telefon değiştir") {
             val main = if (packageName == "com.yusufcelik.fiorinoheadunit") packageManager.getLaunchIntentForPackage(packageName) else null
             if (main != null) startActivity(main.putExtra("show_driver_selector", true)) else choosePhone()
@@ -94,7 +95,15 @@ open class CarPlayReceiverActivity : Activity(), SurfaceHolder.Callback, CarPlay
                 startActivity(main.putExtra("manage_saved_phones", true))
             else report("Telefon eşleşmelerini Android Bluetooth ayarlarından yönetebilirsin.")
         }
-        button("Alıcı adresi") { configureHostAddress() }
+        button("Bağlantı ayarları") {
+            AlertDialog.Builder(this).setTitle("CarPlay bağlantı ayarları")
+                .setItems(arrayOf("Alıcının Bluetooth adresi", "Gelişmiş: yalnız keşif testi")) { _, choice ->
+                    if (choice == 0) configureHostAddress() else AlertDialog.Builder(this)
+                        .setMessage("Bu test yalnız araç listesinde görünürlüğü kontrol eder; CarPlay görüntüsü başlatmaz. Mevcut oturum kapatılacak.")
+                        .setPositiveButton("Keşfi dene") { _, _ -> stopReceiver(); startDiscovery() }
+                        .setNegativeButton("Vazgeç", null).show()
+                }.show()
+        }
         button("Durdur") { stopDiscovery(); stopReceiver() }
         root.addView(buttons)
         chrome += buttons
@@ -262,6 +271,7 @@ open class CarPlayReceiverActivity : Activity(), SurfaceHolder.Callback, CarPlay
             return
         }
         val bluetoothMac = hostBluetoothMac ?: run {
+            awaitingAddressForConnection = true
             report("Alıcı adresini ilk kurulumda bir kez kaydet.")
             configureHostAddress()
             return
@@ -295,6 +305,10 @@ open class CarPlayReceiverActivity : Activity(), SurfaceHolder.Callback, CarPlay
             hostBluetoothMac = value
             prefs.edit().putString("host-bt-mac", value).apply()
             dialog.dismiss(); report("Alıcı adresi kaydedildi. Her bağlantıda yeniden girmen gerekmez.")
+            if (awaitingAddressForConnection) {
+                awaitingAddressForConnection = false
+                startReceiver()
+            }
         } }
         dialog.show()
     }
@@ -344,10 +358,7 @@ open class CarPlayReceiverActivity : Activity(), SurfaceHolder.Callback, CarPlay
         Log.i("FiorinoCarPlayLab", message)
         runOnUiThread { if (!isDestroyed) status.text = message }
     }
-    private fun validMac(value: String): Boolean =
-        Regex("(?i)[0-9a-f]{2}(:[0-9a-f]{2}){5}").matches(value) &&
-            value.uppercase() !in setOf("02:00:00:00:00:00", "00:00:00:00:00:00", "FF:FF:FF:FF:FF:FF") &&
-            value.substring(0, 2).toInt(16) and 1 == 0
+    private fun validMac(value: String) = ReceiverBluetoothAddress.isValid(value)
     private fun dp(v: Int) = (v * resources.displayMetrics.density).toInt()
     override fun surfaceCreated(holder: SurfaceHolder) { sink?.setSurface(110, holder.surface) }
     override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) { sink?.setSurface(110, holder.surface) }

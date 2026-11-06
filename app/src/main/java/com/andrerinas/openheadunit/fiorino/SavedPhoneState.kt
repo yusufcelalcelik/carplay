@@ -7,6 +7,7 @@ import java.io.File
 /** Removes phone choices and AirPlay pairings, retaining receiver provisioning and display settings. */
 object SavedPhoneState {
     fun clear(context: Context, settings: Settings) {
+        context.getSharedPreferences("usb-bridge", Context.MODE_PRIVATE).edit().clear().commit()
         settings.nativePreferredDeviceMac = ""
         settings.lastConnectedNativeMac = ""
         settings.lastExternalModulePhoneMac = ""

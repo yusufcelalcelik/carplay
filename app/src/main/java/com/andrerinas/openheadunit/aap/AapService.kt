@@ -3745,6 +3745,10 @@ class AapService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if (com.andrerinas.openheadunit.bridge.BridgeMode.enabled(this)) {
+            stopSelf()
+            return START_NOT_STICKY
+        }
         try {
             startForegroundWithCurrentTypes()
         } catch (e: Exception) {

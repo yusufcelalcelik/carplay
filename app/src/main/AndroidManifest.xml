@@ -28,6 +28,7 @@
         <package android:name="com.tlink.carplay" />
     </queries>
 
+    <uses-feature android:name="android.hardware.usb.accessory" android:required="false" />
     <uses-feature
         android:name="android.hardware.usb.host"
         android:required="false" />
@@ -116,6 +117,11 @@
         android:supportsRtl="true"
         tools:ignore="GoogleAppIndexingWarning">
 
+        <service android:name=".bridge.UsbBridgeService" android:exported="false" android:foregroundServiceType="connectedDevice" />
+        <activity android:name=".bridge.UsbBridgeActivity" android:exported="true" android:theme="@style/AppTheme.Fullscreen">
+            <intent-filter><action android:name="android.hardware.usb.action.USB_ACCESSORY_ATTACHED" /></intent-filter>
+            <meta-data android:name="android.hardware.usb.action.USB_ACCESSORY_ATTACHED" android:resource="@xml/bridge_accessories" />
+        </activity>
         <activity android:name=".fiorino.BluetoothSetupActivity" android:theme="@style/AppTheme.Fullscreen" android:exported="false" />
         <activity android:name=".fiorino.FiorinoSettingsActivity" android:theme="@style/AppTheme.Fullscreen" android:exported="false" />
         <activity

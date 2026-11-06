@@ -78,3 +78,7 @@ Bu işlem sistem Bluetooth bond'larını veya iPhone'daki araç kaydını topluc
 Önce araç sabitken normal Bluetooth görüşmesi, projeksiyon, menü/dokunma ve ses giriş/çıkışını kontrol edin. Ardından birkaç kontak/uyku dönüşü ve bağlantı kopması sonrası toparlanmayı kaydedin. Karşı tarafın duyduğu mikrofonu ve navigasyon anonsu bittikten sonra müzik seviyesini ayrıca değerlendirin.
 
 [Özellik matrisi](FEATURE-COMPATIBILITY-2026.md) · [CarPlay teknik test kaydı](CARPLAY-LAB.md) · [Donanım ve direksiyon tuşları](HARDWARE-AND-STEERING.md)
+
+## Eski telefonla USB kablosuz adaptör
+
+1.5.0 ile gelen Android Auto köprüsü için [USB köprü kurulum rehberi](USB-BRIDGE.md) kullanılmalıdır. Normal Android teyp alıcı kurulumundan farklıdır; iPhone → fabrika CarPlay aktarımı içermez.

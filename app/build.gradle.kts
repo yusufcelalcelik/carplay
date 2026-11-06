@@ -97,8 +97,8 @@ android {
         applicationId = "com.yusufcelik.fiorinoheadunit"
         minSdk = 21
         targetSdk = 36
-        versionCode = 133
-        versionName = if (providers.environmentVariable("FIORINO_CARPLAY_AUTH_ASSETS").isPresent) "1.4.4-local-auth-test" else "1.4.4-fiorino-preview"
+        versionCode = 134
+        versionName = if (providers.environmentVariable("FIORINO_CARPLAY_AUTH_ASSETS").isPresent) "1.5.0-local-auth-test" else "1.5.0-fiorino-preview"
         setProperty("archivesBaseName", "${applicationId}_${versionName}")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled = true

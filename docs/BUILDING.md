@@ -43,7 +43,7 @@ Ana uygulama ve ortak CarPlay arayüzü:
   -PfiorinoNdkVersion=28.2.13676358 --console=plain
 ```
 
-5 Kasım 2026 / 1.4.4 doğrulaması: **4.811 ana + 16 CarPlay UI testi**. Bunlar motorun bütün upstream testlerinin sayısı değildir. XML raporları modüllerin `build/test-results/`, HTML raporları `build/reports/tests/` dizinindedir.
+6 Kasım 2026 / 1.5.0 doğrulaması: **4.816 ana + 18 CarPlay UI testi**. USB köprü donanım testi ayrıca bekliyor. Bunlar motorun bütün upstream testlerinin sayısı değildir. XML raporları modüllerin `build/test-results/`, HTML raporları `build/reports/tests/` dizinindedir.
 
 Motorun önceki 92 hedefli testini yeniden çalıştırmak için:
 

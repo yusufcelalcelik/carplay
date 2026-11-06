@@ -1917,4 +1917,6 @@
     <string name="audio_matching_option" translatable="false">%1$s\n(%2$s)</string>
     <string name="audio_matching_description">OHU remains the default. WSOLA aligns overlapping waveforms; Phase Vocoder adjusts spectral phases. Short uses a shorter analysis window. Phase Gradient integrates phase gradients to reconstruct phases. These independent methods add processing latency; their names do not rank sound quality.\n\nNative methods: PCM music. Navigation, voice responses, system sounds and AAC use OHU.\nReconnect to apply. Removed engine preferences reset to OHU.</string>
     <string name="fiorino_settings">Fiorino ayarları</string>
+    <string name="fiorino_usb_bridge">USB kablosuz adaptör modu</string>
+    <string name="fiorino_carplay_address">CarPlay alıcı adresi</string>
 </resources>

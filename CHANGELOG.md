@@ -2,6 +2,15 @@
 
 Bu dosya Fiorino Auto geliştirmesini izler. Türetilen projenin özgün geçmişi, yazar atıflarıyla [CHANGELOG_UPSTREAM.md](CHANGELOG_UPSTREAM.md) dosyasında korunur.
 
+## 1.5.0 Preview — 6 Kasım 2026
+
+- Ayrı USB aksesuar / kablosuz Android Auto köprüsü: eski Android telefon araçta USB ile kalır, sürücü telefonu Wi-Fi/Bluetooth üzerinden bağlanır. Şeffaf AAP/TLS aktarımı, medya yeniden kodlama yok.
+- Köprüde sürücü seçimi, USB takılışında sor/son telefonu dene tercihi, bildirimden telefon değiştirme ve durdurma.
+- Önceki USB işini kapatmadan ikinci oturum açmama; Android 10+ yeni ağ kimliği, normal AA/CarPlay alıcısının otomatik tetikleriyle sahiplik ayrımı.
+- Ford Kuga’da gerçek test bekliyor; kablosuz iki telefon geçişinde USB yeniden takılması gerekebilir. iPhone → fabrika CarPlay köprüsü eklenmedi.
+- CarPlay ekranında keşif testinin gelişmiş ayarlara taşınması; alıcı adresinin normal bağlantı ayarlarından kaydedilmesi ve ilk bağlantı adres girişi sonrası devam.
+- Yerel test/derleme sonuçları sürüm notunda belirtilir; fiziksel araç doğrulaması yerine sayılmaz.
+
 ## 1.4.4 Preview — 5 Kasım 2026
 
 - CarPlay ekranında Android Decor sistem paylarını kaldıran kenardan kenara düzen; API 30+ cutout ALWAYS ve önceki platformlar için layout flagları.

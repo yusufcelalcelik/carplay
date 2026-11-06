@@ -50,6 +50,12 @@ class BluetoothSetupActivity : VehiclePreferencesActivity() {
     }
     private fun updatePreferences() {
         showPreferences(listOf(
+            SettingItem.SettingEntry("usbBridge", R.string.fiorino_usb_bridge,
+                "Aracın kablolu Android Auto girişine eski telefonu adaptör olarak bağla") {
+                startActivity(Intent(this, com.andrerinas.openheadunit.bridge.UsbBridgeActivity::class.java))
+            },
+            SettingItem.SettingEntry("carPlayAddress", R.string.fiorino_carplay_address,
+                "Otomatik okunamayan alıcı Bluetooth adresini bir kez kaydet") { configureCarPlayAddress() },
             SettingItem.CategoryHeader("native", R.string.fiorino_native_setup),
             SettingItem.SettingEntry("projectionPhone", R.string.fiorino_select_phone,
                 "Android Auto veya CarPlay • hangi telefona bağlanmak istiyorsun?") {
@@ -80,6 +86,30 @@ class BluetoothSetupActivity : VehiclePreferencesActivity() {
                 catch (_: Exception) { message("Teybin fabrika Bluetooth uygulamasını aç.") }
             }
         ))
+    }
+    private fun configureCarPlayAddress() {
+        val saved = getSharedPreferences("carplay-lab", MODE_PRIVATE)
+        val input = android.widget.EditText(this).apply {
+            hint = "AA:BB:CC:DD:EE:FF"; setSingleLine(true)
+            setText(saved.getString("host-bt-mac", ""))
+        }
+        val dialog = MaterialAlertDialogBuilder(this).setTitle(R.string.fiorino_carplay_address)
+            .setMessage("Alıcı olarak kullanılan teybin/Android cihazın kendi Bluetooth adresi. iPhone’un adresini girme. Çalışan CarPlay bağlantısını durdurduktan sonra değiştir.")
+            .setView(input).setNegativeButton("Vazgeç", null).setPositiveButton("Kaydet", null).create()
+        dialog.setOnShowListener {
+            dialog.getButton(android.app.AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+                val mac = input.text.toString().trim().uppercase()
+                if (!com.yusufcelik.carplaylab.ReceiverBluetoothAddress.isValid(mac)) {
+                    input.error = "Geçerli alıcı Bluetooth adresi gerekli"; return@setOnClickListener
+                }
+                if (android.os.Build.VERSION.SDK_INT >= 24 && com.yusufcelik.carplaylab.CarPlaySessionService.isRunning()) {
+                    input.error = "Önce CarPlay bağlantısını durdur"; return@setOnClickListener
+                }
+                saved.edit().putString("host-bt-mac", mac).apply()
+                dialog.dismiss(); message("Alıcı adresi kaydedildi. Sonraki bağlantılarda otomatik kullanılacak.")
+            }
+        }
+        dialog.show()
     }
     private fun startReceiver(): Boolean = try {
         lifecycleScope.launch {

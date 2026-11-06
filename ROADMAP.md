@@ -1,6 +1,6 @@
 # Yol haritası
 
-Durum: 5 Kasım 2026. Kaynakta bulunan işlev ile gerçek araç doğrulaması farklı izlenir.
+Durum: 6 Kasım 2026. Kaynakta bulunan işlev ile gerçek araç doğrulaması farklı izlenir.
 
 ## Kaynakta tamamlananlar
 
@@ -28,3 +28,11 @@ Durum: 5 Kasım 2026. Kaynakta bulunan işlev ile gerçek araç doğrulaması fa
 - [ ] Kesin kart/MCU ve geri dönüş planı bilindikten sonra Android firmware yükseltme uygunluğu.
 
 Klima/araç kumandaları kullanıcı kapsamı dışındadır. CAN donanımı olmayan Android cihazda CAN menüsü seçmek, fiziksel CAN arabirimi oluşturmaz. CarPlay Ultra'nın bütün araç/gösterge işlevleri bu yol haritasında tamamlanmış kabul edilmez.
+
+## 1.5 USB köprü doğrulaması
+
+- [x] İzole USB aksesuar ↔ TCP Android Auto veri yolu ve sürücü seçimi.
+- [x] CarPlay alıcı adresinin normal bağlantı ayarlarına alınması.
+- [ ] Ford Kuga USB/SYNC ilk görüntü, kontrol ve görüşme testi.
+- [ ] İki Android telefon arasında USB yeniden takmadan geçişin araç bazında doğrulanması.
+- [ ] iPhone → fabrika CarPlay gönderici/köprü yolu; mevcut alıcı motoruyla aynı özellik değildir.

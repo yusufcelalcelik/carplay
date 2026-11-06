@@ -138,3 +138,7 @@ Siri/Gemini ses artırma testi kullanıcı tarafından açıkça sonraya bırak�
 - Kullanıcı1.4.4'ü kurduktan sonra son görünüm ve temel işleyiş için “oldu hepsi çalışıyor” geri bildirimi verdi. Test sırasında önceki CarPlay hizmeti başka uygulama öndeyken foreground kalıyordu. Gerçek PX3 kontak çevrimi, uzun kopma/geri geliş döngüsü ve gerçek arama/mikrofon testi yapılmış sayılmaz.
 - Siri/Gemini ile fiziksel teyp sesi testi kullanıcı isteğiyle ertelendi. Bu sesli komut entegrasyonunu uygulanmış/kanıtlanmış göstermeyin.
 - Geçici otomatik devam görevi, bu yerel geliştirme ve teslim adımı tamamlandığında kapatılır; cihaz gerektiren sonraki testler kullanıcının yeni yönlendirmesiyle yapılır.
+
+## 6 Kasım 2026 — 1.5.0 önizleme
+
+CarPlay otomatik bağlantı hizmeti ve kayıtlı iPhone tercihi korunur. Normal ekrandaki keşif testi gelişmiş bağlantı ayarlarına taşındı; ana bağlantı ayarlarında alıcı Bluetooth adresi bir kez kaydedilebilir. İlk bağlantıda adres eksikse kayıt sonrasında bağlantı devam eder. Genel APK aksesuar kimliği içermez; yeni cihaz provizyonu şartı kaldırılmadı. Ayrı USB Android Auto köprüsü eklendi; CarPlay gönderici/köprü yolu değildir. 4.816 ana + 18 CarPlay UI testi yerelde geçti; bu tur bağlı fiziksel cihaz yoktu, Ford Kuga doğrulaması bekliyor.

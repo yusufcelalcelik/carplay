@@ -79,7 +79,7 @@ object ProjectionPhonePicker {
         }
         builder.setPositiveButton("Yeni telefon eşleştir") { _, _ ->
             MaterialAlertDialogBuilder(activity).setTitle("Telefon türü")
-                .setItems(arrayOf("Android Auto", "CarPlay • deneysel")) { _, choice ->
+                .setItems(arrayOf("Android Auto", "iPhone • CarPlay")) { _, choice ->
                     if (choice == 0) {
                         prefs(activity).edit().putString("selected-protocol", "ANDROID_AUTO").apply()
                         activity.startActivity(Intent(activity, BluetoothSetupActivity::class.java))
@@ -127,7 +127,15 @@ object ProjectionPhonePicker {
                 .putExtra(AapService.EXTRA_MAC, mac).putExtra(AapService.EXTRA_EXPLICIT_PICK, true))
         }
     }
-    internal suspend fun releaseCarPlay(context: Context): Boolean {
+    internal suspend fun releaseCarPlay(context: Context, includeBridge: Boolean = true): Boolean {
+        if (includeBridge && com.andrerinas.openheadunit.bridge.UsbBridgeService.running) {
+            com.andrerinas.openheadunit.bridge.UsbBridgeService.stop(context)
+            val stopped = withTimeoutOrNull(6000) {
+                while (com.andrerinas.openheadunit.bridge.UsbBridgeService.running) delay(100)
+                true
+            } == true
+            if (!stopped || !awaitWifiRelease(context)) return false
+        }
         if (Build.VERSION.SDK_INT < 24) return true
         com.yusufcelik.carplaylab.CarPlaySessionService.stop(context)
         return withTimeoutOrNull(6000) {
@@ -151,6 +159,9 @@ object ProjectionPhonePicker {
         switching = true
         activity.lifecycleScope.launch {
             try {
+                if (com.andrerinas.openheadunit.bridge.UsbBridgeService.running && !releaseCarPlay(activity)) {
+                    message(activity, "USB köprüsü kapanmadı; tekrar dene."); return@launch
+                }
                 val lastIphone = activity.getSharedPreferences("carplay-lab", Context.MODE_PRIVATE).getString("iphone", null)
                 if (mac != null && mac != lastIphone && !releaseCarPlay(activity)) {
                     message(activity, "Önceki iPhone bağlantısı kapanıyor; tekrar dene."); return@launch

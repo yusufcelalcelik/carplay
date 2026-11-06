@@ -27,7 +27,9 @@ class SavedPhoneStateTest {
             .putString("host-bt-mac","AA:BB:CC:DD:EE:06").putInt("display-width",800).putInt("display-height",368).commit()
         val hardware=File(app.noBackupFilesDir,"offline-mfi/test-marker").apply { parentFile.mkdirs();writeText("receiver-provisioning") }
         File(app.noBackupFilesDir,"airplay-identity.bin").writeText("old-phone-pairing")
+        app.getSharedPreferences("usb-bridge",0).edit().putString("phone","AA:BB:CC:DD:EE:10").commit()
         SavedPhoneState.clear(app,settings)
+        assertFalse(app.getSharedPreferences("usb-bridge",0).contains("phone"))
         assertNull(saved.getString("iphone",null));assertFalse(saved.contains("pair.test"))
         assertEquals("AA:BB:CC:DD:EE:06",saved.getString("host-bt-mac",null))
         assertEquals(368,saved.getInt("display-height",0))

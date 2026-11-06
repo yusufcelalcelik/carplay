@@ -27,6 +27,8 @@ class BootCompleteReceiver : BroadcastReceiver() {
             return
         }
 
+        if (com.andrerinas.openheadunit.bridge.BridgeMode.enabled(context)) return
+
         if (Build.VERSION.SDK_INT >= 24 && com.andrerinas.openheadunit.fiorino.ProjectionPhonePicker.carPlaySelected(context)) {
             com.yusufcelik.carplaylab.CarPlaySessionService.autoStart(context)
             return
