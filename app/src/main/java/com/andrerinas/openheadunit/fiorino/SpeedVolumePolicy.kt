@@ -9,7 +9,7 @@ internal class SpeedVolumePolicy {
     private var offset = 0
     private var initialized = false
 
-    fun next(current: Int, maximum: Int, speedKmh: Float?, boostSteps: Int): Int {
+    fun next(current: Int, maximum: Int, speedKmh: Float?, boostSteps: Int, fullBoostSpeedKmh: Int = 90): Int {
         if (!initialized) {
             base = current
             lastApplied = current
@@ -19,8 +19,9 @@ internal class SpeedVolumePolicy {
             // A volume key changes the user's base, even while compensation is active.
             base = if (current == 0) 0 else (current - offset).coerceAtLeast(1)
         }
+        val boostSpeed = fullBoostSpeedKmh.coerceIn(30, 150).toFloat()
         val boost = if (speedKmh != null && speedKmh.isFinite() && speedKmh in 0f..250f)
-            (speedKmh.coerceAtMost(90f) / 90f * boostSteps.coerceIn(0, 6)).roundToInt() else 0
+            (speedKmh.coerceAtMost(boostSpeed) / boostSpeed * boostSteps.coerceIn(0, 6)).roundToInt() else 0
         val target = if (base == 0) 0 else (base + boost).coerceIn(0, maximum)
         lastApplied = when {
             target > current -> current + 1

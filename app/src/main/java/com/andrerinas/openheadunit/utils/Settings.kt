@@ -119,6 +119,10 @@ class Settings(private val context: Context) {
         get() = prefs.getInt("fiorino-speed-volume-boost", 3).coerceIn(0, 6)
         set(value) { prefs.edit().putInt("fiorino-speed-volume-boost", value.coerceIn(0, 6)).apply() }
 
+    var speedVolumeFullBoostKmh: Int
+        get() = prefs.getInt("fiorino-speed-volume-full-boost-kmh", 90).coerceIn(30, 150)
+        set(value) { prefs.edit().putInt("fiorino-speed-volume-full-boost-kmh", value.coerceIn(30, 150)).apply() }
+
     var adaptiveVideoQuality: Boolean
         get() = prefs.getBoolean("fiorino-adaptive-video", false)
         set(value) { prefs.edit().putBoolean("fiorino-adaptive-video", value).apply() }

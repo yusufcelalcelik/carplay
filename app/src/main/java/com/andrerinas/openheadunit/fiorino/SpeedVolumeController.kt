@@ -21,9 +21,14 @@ internal class SpeedVolumeController(context: Context, private val settings: Set
                 else if (audio.mode == AudioManager.MODE_NORMAL && !audio.isVolumeFixed) {
                     val active = policy ?: SpeedVolumePolicy().also { policy = it }
                     val current = audio.getStreamVolume(AudioManager.STREAM_MUSIC)
+                    val speed = VehicleSpeed.current()
                     val next = active.next(current, audio.getStreamMaxVolume(AudioManager.STREAM_MUSIC),
-                        VehicleSpeed.current(), settings.speedVolumeBoost)
-                    if (current != next) audio.setStreamVolume(AudioManager.STREAM_MUSIC, next, 0)
+                        speed, settings.speedVolumeBoost, settings.speedVolumeFullBoostKmh)
+                    if (current != next) {
+                        audio.setStreamVolume(AudioManager.STREAM_MUSIC, next, 0)
+                        val applied = audio.getStreamVolume(AudioManager.STREAM_MUSIC)
+                        AppLog.d("Fiorino speed volume: GPS km/h=$speed, media before=$current requested=$next applied=$applied")
+                    }
                 }
             } catch (e: Exception) { AppLog.w("Fiorino speed volume unavailable: ${e.message}") }
             handler.postDelayed(this, 2000)

@@ -61,6 +61,20 @@ class FiorinoSettingsActivity : VehiclePreferencesActivity() {
             "${settings.speedVolumeBoost}", settings.speedVolumeBoost.toFloat(), 0f, 6f, 1f) {
             settings.speedVolumeBoost = it.toInt()
         })
+        val speedOptions = (30..150 step 15).toList()
+        items.add(SettingItem.SettingEntry("speedFullBoost", R.string.fiorino_speed_full_boost,
+            getString(R.string.fiorino_speed_kmh, settings.speedVolumeFullBoostKmh)) {
+            MaterialAlertDialogBuilder(this).setTitle(R.string.fiorino_speed_full_boost)
+                .setSingleChoiceItems(
+                    speedOptions.map { getString(R.string.fiorino_speed_kmh, it) }.toTypedArray(),
+                    speedOptions.indexOf(settings.speedVolumeFullBoostKmh)
+                ) { dialog, index ->
+                    settings.speedVolumeFullBoostKmh = speedOptions[index]
+                    dialog.dismiss()
+                    updatePreferences()
+                }
+                .setNegativeButton(android.R.string.cancel, null).show()
+        })
         items.add(SettingItem.CategoryHeader("microphone", R.string.microphone_settings))
         items.add(SettingItem.ToggleSettingEntry("autoMicrophone", R.string.fiorino_auto_microphone, null,
             settings.automaticMicrophone) { settings.automaticMicrophone = it; updatePreferences() })

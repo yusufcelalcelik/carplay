@@ -4,6 +4,15 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class SpeedVolumePolicyTest {
+    @Test fun `selected full boost speed moves the gradual increase to lower speeds`() {
+        val policy = SpeedVolumePolicy()
+        assertEquals(5, policy.next(5, 15, 0f, 3, 60))
+        assertEquals(6, policy.next(5, 15, 10f, 3, 60))
+        assertEquals(7, policy.next(6, 15, 30f, 3, 60))
+        assertEquals(8, policy.next(7, 15, 50f, 3, 60))
+        assertEquals(8, policy.next(8, 15, 120f, 3, 60))
+    }
+
     @Test fun `speed increases only local steps and falling speed restores base`() {
         val policy = SpeedVolumePolicy()
         assertEquals(6, policy.next(5, 15, 90f, 3))

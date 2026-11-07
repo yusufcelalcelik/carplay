@@ -2,6 +2,11 @@
 
 Bu dosya Fiorino Auto geliştirmesini izler. Türetilen projenin özgün geçmişi, yazar atıflarıyla [CHANGELOG_UPSTREAM.md](CHANGELOG_UPSTREAM.md) dosyasında korunur.
 
+## 1.5.1 Preview — 7 Kasım 2026
+
+- Hıza göre teyp sesinde 30–150 km/sa arası referans hız ve 0–6 ek ses kademesi ayrı ayarlanabilir. Kayıtlı ayarlarda varsayılan referans 90 km/sa olarak korunur.
+- Hata ayıklama günlüğü, hız telafisinde istenen ve teybin Android medya kanalında okunan ses seviyesini gösterir.
+
 ## 1.5.0 Preview — 6 Kasım 2026
 
 - Ayrı USB aksesuar / kablosuz Android Auto köprüsü: eski Android telefon araçta USB ile kalır, sürücü telefonu Wi-Fi/Bluetooth üzerinden bağlanır. Şeffaf AAP/TLS aktarımı, medya yeniden kodlama yok.

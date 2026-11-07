@@ -11,8 +11,10 @@
     <string name="fiorino_ducking">Anonslarda müziği otomatik kıs</string>
     <string name="fiorino_speech_level">Anons sırasında müzik seviyesi</string>
     <string name="fiorino_speed_volume">Hıza göre teyp sesi</string>
-    <string name="fiorino_speed_description">Teybin GPS hızına göre medya sesini kademeli ayarlar. Telefonun ses ayarı için komut gönderilmez.</string>
-    <string name="fiorino_speed_boost">90 km/sa hızda ek ses kademesi</string>
+    <string name="fiorino_speed_description">Teybin medya sesi GPS hızıyla adım adım artar. Referans hızı düşürürseniz kademeler daha erken devreye girer. Yavaşlayınca ses eski seviyesine döner.</string>
+    <string name="fiorino_speed_boost">En fazla eklenecek ses kademesi</string>
+    <string name="fiorino_speed_full_boost">Ses artışı için referans hız</string>
+    <string name="fiorino_speed_kmh">%1$d km/sa</string>
     <string name="fiorino_auto_microphone">Mikrofon girişini otomatik seç</string>
     <string name="fiorino_mic_source">Mikrofon girişi</string>
     <string name="fiorino_mic_rate">Örnekleme hızı</string>
