@@ -16,6 +16,10 @@
 
 Fotoğrafın tamamı ve kişiye özgü seri numarası bu belgeye eklenmedi.
 
+7 Kasım 2026 tarihli cihaz ekranı fotoğraflarında **MTCD_MX_V2.59_1** MCU, **Android 7.1.2 / API 25** ve `px3-userdebug 7.1.2 NHG47L eng.hct.20170731.181950 test-keys` derlemesi okunuyor. Ekran dört Cortex-A9 çekirdeği, 1,6 GHz ve 2048 MB RAM gösteriyor. Çekirdek `3.0.101+`, güvenlik yaması 5 Mayıs 2017. MCU ekranındaki tarih 3 Ağustos 2017.
+
+Araç üzerinde kablolu Android Auto açıldı. Kablosuz denemede Wi-Fi Direct grubu oluştu ve telefonun kayıtlarında fabrika CAR-KIT eşleşmesi görüldü. Teyp günlüğünde uygulamanın kullandığı Android Bluetooth adaptörü kapalı veya erişilemez olduğu için Android Auto dinleyicisi açılamadı. 1.5.1 sistemin Bluetooth açma onayını ve ana ekranda hata uyarısını ekler. Bu ROM'da Microntek yoluyla native kablosuz bağlantı ayrıca doğrulanmalıdır.
+
 ## Model hakkında elde edilen kanıt
 
 Dağıtıcı tarafından yayımlanmış bir Android 5.1 kılavuzu aynı MTA701H etiket ailesini ve aynı ana soket düzenini gösteriyor; K1/TX ve K2/RX hatlarını direksiyon kumandası 1/2 olarak açıklıyor. **Bu, benzer donanım ailesine ilişkin birincil bir bağlantı belgesidir; kullanıcının cihazının tam servis kılavuzu değildir.** [Kılavuz, ana soket sayfası](https://www.silim.com/notice/NOTICES%20DES%20PRODUITS/Autoradios%20ISO%20et%20Double%20Din%20Kit%20cle%20extraction%20autoradio/Witson-Android/W2-S190/Notice%20demarrage%20Android%205.1.pdf).

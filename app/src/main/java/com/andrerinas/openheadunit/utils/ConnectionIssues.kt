@@ -2,6 +2,9 @@ package com.andrerinas.openheadunit.utils
 
 import android.content.Context
 import com.andrerinas.openheadunit.App
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 
 /**
  * A reason the last connection attempt failed, in terms a user can act on.
@@ -18,6 +21,9 @@ enum class ConnectionIssue {
      * healthy one, so the log reads as a session waiting for the user.
      */
     BLUETOOTH_SENT_NO_DATA,
+
+    /** The selected Android radio could not open the Native AA Bluetooth listener. */
+    BLUETOOTH_RADIO_UNAVAILABLE,
 
     /** No usable BSSID, which the WiFi Direct route aborts on rather than sending. */
     BSSID_UNAVAILABLE,
@@ -181,17 +187,28 @@ interface ConnectionIssueStore {
  * workaround used to delete the only durable instruction a half-finished remedy had left.
  */
 object ConnectionIssues {
+    private val _changes = MutableStateFlow(0L)
+    val changes = _changes.asStateFlow()
 
     fun raise(context: Context, issue: ConnectionIssue) {
-        storeFor(context)?.let { raise(it, issue, System.currentTimeMillis()) }
+        storeFor(context)?.let {
+            raise(it, issue, System.currentTimeMillis())
+            _changes.update { version -> version + 1 }
+        }
     }
 
     fun raiseOnce(context: Context, issue: ConnectionIssue) {
-        storeFor(context)?.let { raiseOnce(it, issue, System.currentTimeMillis()) }
+        storeFor(context)?.takeIf { it.read(issue) == 0L }?.let {
+            raiseOnce(it, issue, System.currentTimeMillis())
+            _changes.update { version -> version + 1 }
+        }
     }
 
     fun clear(context: Context, issue: ConnectionIssue) {
-        storeFor(context)?.let { clear(it, issue) }
+        storeFor(context)?.takeIf { it.read(issue) != 0L }?.let {
+            clear(it, issue)
+            _changes.update { version -> version + 1 }
+        }
     }
 
     fun standing(context: Context): List<StandingIssue> =
@@ -248,6 +265,7 @@ object ConnectionIssues {
         override fun read(issue: ConnectionIssue): Long = try {
             when (issue) {
                 ConnectionIssue.BLUETOOTH_SENT_NO_DATA -> settings.connectionIssueBluetoothSilentAtEpochMs
+                ConnectionIssue.BLUETOOTH_RADIO_UNAVAILABLE -> settings.connectionIssueBluetoothUnavailableAtEpochMs
                 ConnectionIssue.BSSID_UNAVAILABLE -> settings.connectionIssueBssidAtEpochMs
                 ConnectionIssue.HOTSPOT_CONFIG_UNREADABLE -> settings.connectionIssueHotspotConfigAtEpochMs
                 ConnectionIssue.HOTSPOT_NOT_RUNNING -> settings.connectionIssueHotspotOffAtEpochMs
@@ -272,6 +290,7 @@ object ConnectionIssues {
             try {
                 when (issue) {
                     ConnectionIssue.BLUETOOTH_SENT_NO_DATA -> settings.connectionIssueBluetoothSilentAtEpochMs = atEpochMs
+                    ConnectionIssue.BLUETOOTH_RADIO_UNAVAILABLE -> settings.connectionIssueBluetoothUnavailableAtEpochMs = atEpochMs
                     ConnectionIssue.BSSID_UNAVAILABLE -> settings.connectionIssueBssidAtEpochMs = atEpochMs
                     ConnectionIssue.HOTSPOT_CONFIG_UNREADABLE -> settings.connectionIssueHotspotConfigAtEpochMs = atEpochMs
                     ConnectionIssue.HOTSPOT_NOT_RUNNING -> settings.connectionIssueHotspotOffAtEpochMs = atEpochMs

@@ -20,6 +20,7 @@ object ConnectionIssueBannerPolicy {
      */
     private val EITHER_NATIVE_TRANSPORT = setOf(
         ConnectionIssue.BLUETOOTH_SENT_NO_DATA,
+        ConnectionIssue.BLUETOOTH_RADIO_UNAVAILABLE,
         ConnectionIssue.VIDEO_LINK_TOO_SLOW,
         ConnectionIssue.HANDS_FREE_HELD_ELSEWHERE,
         ConnectionIssue.HANDS_FREE_RECORD_REFUSED,

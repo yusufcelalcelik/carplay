@@ -462,7 +462,7 @@ class WifiLauncherNative : WifiLauncher {
             // a wake that will not run.
             AppLog.i("AapService: automatic wake is paused by the session policy. Keeping listeners available.")
         } else if (!service.userExitedAA) {
-            if (handshakeManager?.reportsWake() != false) ConnectionStageTracker.report(ConnectionStage.WAKING_PHONE)
+            if (handshakeManager?.reportsWake() == true) ConnectionStageTracker.report(ConnectionStage.WAKING_PHONE)
             handshakeManager?.reportHctNetworkReady()
             handshakeManager?.triggerPoke()
         } else {

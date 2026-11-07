@@ -12,6 +12,8 @@ import androidx.core.content.ContextCompat
 import com.andrerinas.openheadunit.App
 import com.andrerinas.openheadunit.aap.AapService
 import com.andrerinas.openheadunit.connection.wifi.modes.nativeaa.DriverCandidatePolicy
+import com.andrerinas.openheadunit.connection.wifi.modes.nativeaa.ExternalBtTransportPolicy
+import com.andrerinas.openheadunit.connection.wifi.modes.nativeaa.NativeAaHandshakeManager
 import com.andrerinas.openheadunit.utils.ToastUtils
 import com.andrerinas.openheadunit.utils.BluetoothHelper
 import com.andrerinas.openheadunit.utils.bluetooth.BluetoothPeerDiscovery
@@ -116,6 +118,12 @@ object ProjectionPhonePicker {
 
     private fun connect(activity: FragmentActivity, mac: String, carPlay: Boolean) {
         if (carPlay && Build.VERSION.SDK_INT < 24) { message(activity, "CarPlay için Android 7.0 veya üzeri gerekli."); return }
+        if (!carPlay && NativeAaHandshakeManager.wifiButtonRoute(activity) == ExternalBtTransportPolicy.WifiButton.ANDROID_RADIO &&
+            !runCatching { BluetoothHelper.getBluetoothAdapter(activity)?.isEnabled == true }.getOrDefault(false)) {
+            activity.startActivity(Intent(activity, BluetoothSetupActivity::class.java)
+                .putExtra(BluetoothSetupActivity.EXTRA_NATIVE_PHONE, mac))
+            return
+        }
         val protocol = if (carPlay) "CARPLAY" else "ANDROID_AUTO"
         prefs(activity).edit().putString("protocol.$mac", protocol).putString("selected-protocol", protocol).apply()
         if (carPlay) launchCarPlay(activity, mac, false)

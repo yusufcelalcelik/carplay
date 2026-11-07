@@ -15,6 +15,16 @@
     <string name="fiorino_speed_boost">En fazla eklenecek ses kademesi</string>
     <string name="fiorino_speed_full_boost">Ses artışı için referans hız</string>
     <string name="fiorino_speed_kmh">%1$d km/sa</string>
+    <string name="fiorino_android_bt_unavailable">Teybin Android Bluetooth’u açılamadı. Fabrika CAR-KIT bağlantısı ayrı bir modülden geliyor olabilir. Hata ayıklama günlüğünde Bluetooth denetimi kaydedildi.</string>
+    <string name="fiorino_android_bt_canceled">Android Bluetooth açma onayı tamamlanmadı. Kablosuz eşleştirmeyi yeniden deneyebilirsin.</string>
+    <string name="fiorino_android_bt_banner">Kablosuz Android Auto Bluetooth’u açamadı. Açma ve eşleştirme ayarları için dokun.</string>
+    <string name="fiorino_microntek_detected">Microntek Android Auto arayüzü bulundu. Native alıcıyı etkinleştirerek bu yolu dene.</string>
+    <string name="fiorino_microntek_unavailable">Bu yazılımda erişilebilir bir Microntek Android Auto arayüzü doğrulanamadı.</string>
+    <string name="fiorino_receiver_name">Alıcı adını Fiorino Auto yap</string>
+    <string name="fiorino_receiver_name_set">Android Auto ve Android Bluetooth adı Fiorino Auto olarak ayarlandı.</string>
+    <string name="fiorino_receiver_name_projection_only">Android Auto adı kaydedildi. Bu teybin Bluetooth adı fabrika Bluetooth ayarlarından yönetiliyor olabilir.</string>
+    <string name="fiorino_data_only_bluetooth">Bluetooth bağlantısında yalnız veri</string>
+    <string name="fiorino_data_only_bluetooth_help">Sonraki kablosuz başlangıçta uygulamanın yardımcı görüşme profili ve Bluetooth uyandırması kapalı olur. Teybin kendi görüşme bağlantıları Android tarafından yönetilir.</string>
     <string name="fiorino_auto_microphone">Mikrofon girişini otomatik seç</string>
     <string name="fiorino_mic_source">Mikrofon girişi</string>
     <string name="fiorino_mic_rate">Örnekleme hızı</string>

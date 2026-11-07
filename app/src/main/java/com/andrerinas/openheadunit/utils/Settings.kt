@@ -123,6 +123,10 @@ class Settings(private val context: Context) {
         get() = prefs.getInt("fiorino-speed-volume-full-boost-kmh", 90).coerceIn(30, 150)
         set(value) { prefs.edit().putInt("fiorino-speed-volume-full-boost-kmh", value.coerceIn(30, 150)).apply() }
 
+    var fiorinoDataOnlyBluetooth: Boolean
+        get() = prefs.getBoolean("fiorino-data-only-bluetooth", false)
+        set(value) { prefs.edit().putBoolean("fiorino-data-only-bluetooth", value).apply() }
+
     var adaptiveVideoQuality: Boolean
         get() = prefs.getBoolean("fiorino-adaptive-video", false)
         set(value) { prefs.edit().putBoolean("fiorino-adaptive-video", value).apply() }
@@ -2755,6 +2759,10 @@ class Settings(private val context: Context) {
     var connectionIssueBluetoothSilentAtEpochMs: Long
         get() = prefs.getLong("connection-issue-bt-silent", 0L)
         set(value) = prefs.edit().putLong("connection-issue-bt-silent", value).apply()
+
+    var connectionIssueBluetoothUnavailableAtEpochMs: Long
+        get() = prefs.getLong("connection-issue-bt-unavailable", 0L)
+        set(value) = prefs.edit().putLong("connection-issue-bt-unavailable", value).apply()
 
     /** No usable BSSID, which the WiFi Direct route aborts on rather than sending. */
     var connectionIssueBssidAtEpochMs: Long

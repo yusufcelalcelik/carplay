@@ -6,6 +6,8 @@ Bu dosya Fiorino Auto geliştirmesini izler. Türetilen projenin özgün geçmi�
 
 - Hıza göre teyp sesinde 30–150 km/sa arası referans hız ve 0–6 ek ses kademesi ayrı ayarlanabilir. Kayıtlı ayarlarda varsayılan referans 90 km/sa olarak korunur.
 - Hata ayıklama günlüğü, hız telafisinde istenen ve teybin Android medya kanalında okunan ses seviyesini gösterir.
+- Native Android Auto, Android Bluetooth kapalıysa sistem onayını ister. Bluetooth açılamazsa ana ekranda bağlantı uyarısı ve ayarlara geçiş gösterir. Microntek arayüzünün denetim sonucu günlüğe eklenir.
+- Telefon ve bağlantı ayarlarından Android Auto araç adı ve erişilebilir Android Bluetooth adı Fiorino Auto yapılabilir. İsteğe bağlı yalnız veri ayarı, uygulamanın yardımcı görüşme profilini ve Bluetooth uyandırmasını kapatır.
 
 ## 1.5.0 Preview — 6 Kasım 2026
 

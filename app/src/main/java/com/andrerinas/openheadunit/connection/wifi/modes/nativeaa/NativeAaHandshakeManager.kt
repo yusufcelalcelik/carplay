@@ -164,6 +164,15 @@ class NativeAaHandshakeManager(
             )
         }
 
+        internal fun logBluetoothPreflight(context: Context) {
+            val adapterState = runCatching { BluetoothHelper.getBluetoothAdapter(context)?.state }
+                .getOrNull()?.toString() ?: "unavailable"
+            val hct = HctServiceObserver.compatibilityFailure(context) ?: "service contract present"
+            AppLog.w("NativeAA: Bluetooth preflight model=${Build.MODEL}, board=${Build.BOARD}, " +
+                "Android=${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT}), " +
+                "adapterState=$adapterState, route=${transportRoute(context)}, HCT=$hct")
+        }
+
         /** What the main screen's WiFi button arms; read here so the screen and the service agree. */
         fun wifiButtonRoute(context: Context): ExternalBtTransportPolicy.WifiButton {
             val settings = App.provide(context).settings
@@ -254,6 +263,7 @@ class NativeAaHandshakeManager(
     // wakeDecision() only refuses while a link is actually up, so a radio that has a real hands-free
     // stack and no current link passes it, and driving a link from here would compete with it.
     @Volatile private var standingInForHfp = false
+    @Volatile private var dataOnlyBluetooth = false
     // Extra RFCOMM listeners opened on secondary Bluetooth radios (dual-Bluetooth head units).
     // Split by UUID so a successful handoff can close just the AA listeners (see
     // closeAaListeners()) without taking down the HFP ones too.
@@ -487,7 +497,7 @@ class NativeAaHandshakeManager(
      * Targets a specific driver device, ending the prompt window and waking only that device.
      */
     fun selectDriver(mac: String, explicit: Boolean) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        if (!dataOnlyBluetooth && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             (moduleCarrier as? HctWppOwner.Client)?.let { carrier ->
                 val accepted = carrier.requestWakeFor(mac, allowReplacePending = explicit) {
                     commitDriverSelection(mac, explicit)
@@ -919,6 +929,7 @@ class NativeAaHandshakeManager(
         // A measurement in flight calls start() itself when it ends; a second one would ask twice.
         if (isRunning || measuringDaemon) return
         if (!resumingMeasurement) {
+            dataOnlyBluetooth = settings.fiorinoDataOnlyBluetooth
             ZbtDiscovery.beginArming()
             ZjSocketProbe.beginArming()
             // Retain start()'s original fresh-arming reset: a cancellation from the previous
@@ -982,10 +993,14 @@ class NativeAaHandshakeManager(
         // opened must not be reported as up.
         // A saved Bluetooth relay wins like BLINK: the ESP32 owns Classic RFCOMM and BLE relays bytes.
         if (Esp32RelaySession.hasSavedEsp32Relay(context)) {
+            ConnectionIssues.clear(context, ConnectionIssue.BLUETOOTH_RADIO_UNAVAILABLE)
             startOverEsp32RelayModule()
             return
         }
         val selectedRoute = transportRoute(context, discovery)
+        if (selectedRoute != ExternalBtTransportPolicy.Route.NORMAL) {
+            ConnectionIssues.clear(context, ConnectionIssue.BLUETOOTH_RADIO_UNAVAILABLE)
+        }
         if (selectedRoute != ExternalBtTransportPolicy.Route.HCT) context.closeRetainedHct()
         when (selectedRoute) {
             // The raw Unix domain socket (/dev/socket/zj_bt_socket) carries the RFCOMM stream directly.
@@ -1042,14 +1057,17 @@ class NativeAaHandshakeManager(
             // Leave isRunning false — isActive() callers (e.g. AapService's BT auto-start
             // re-arm check) need to see this as genuinely stopped so they retry later,
             // instead of believing the listener sockets are up when nothing was ever opened.
-            notStartedReason = "this unit's Bluetooth is switched off or unavailable."
             AppLog.e("NativeAA: Bluetooth adapter not available or disabled")
+            logBluetoothPreflight(context)
+            ConnectionIssues.raise(context, ConnectionIssue.BLUETOOTH_RADIO_UNAVAILABLE)
             notStartedReason = "this unit's Bluetooth was off or unavailable when the mode was armed"
+            ConnectionStageTracker.reportWirelessWaiting()
             return
         }
 
         isRunning = true
         notStartedReason = null
+        ConnectionIssues.clear(context, ConnectionIssue.BLUETOOTH_RADIO_UNAVAILABLE)
         earlyWakeSpent = false
         aaListenersClosedForSession = false
         aaListenerLost = false
@@ -1292,7 +1310,7 @@ class NativeAaHandshakeManager(
     }
 
     /** Whether an automatic poke may run, or the phone is only listened for. */
-    fun wakesPhone(): Boolean = !wakeStoodDown &&
+    fun wakesPhone(): Boolean = !dataOnlyBluetooth && !wakeStoodDown &&
         (commManager.connectionState.value as? CommManager.ConnectionState.Disconnected)
             ?.holdsSettingsWake(SystemClock.elapsedRealtime()) != true
 
@@ -1300,7 +1318,7 @@ class NativeAaHandshakeManager(
      * Whether a wake here sends anything. False on a module that opens Android Auto by itself,
      * where reporting a wake would leave the pill claiming one that never runs.
      */
-    fun reportsWake(): Boolean = moduleCarrier?.sendsWake ?: true
+    fun reportsWake(): Boolean = isActive() && (moduleCarrier?.sendsWake ?: true)
 
     /** Credentials and carrier selection can complete in either order. Report readiness from both. */
     fun reportHctNetworkReady() {
@@ -1494,6 +1512,7 @@ class NativeAaHandshakeManager(
      * which is what this did unconditionally before. [HfpServiceRecordPolicy] holds the rule.
      */
     private fun shouldRegisterDummyHfp(adapter: BluetoothAdapter, radio: String): Boolean {
+        if (dataOnlyBluetooth) return false
         val uuids = try {
             when (val raw = adapter.javaClass.getMethod("getUuids").invoke(adapter)) {
                 is Array<*> -> raw.mapNotNull { it?.toString() }
@@ -2074,7 +2093,7 @@ class NativeAaHandshakeManager(
     private suspend fun pokeDevice(device: BluetoothDevice, holdMs: Long): BluetoothWakePolicy.WakeOutcome {
         // Credentials may queue this worker before the OEM carrier is selected. Never let
         // that stale Android-radio job compete with the manufacturer's HFP/AA connection.
-        if (usesHctCarrier()) return BluetoothWakePolicy.WakeOutcome.STOOD_DOWN
+        if (dataOnlyBluetooth || usesHctCarrier()) return BluetoothWakePolicy.WakeOutcome.STOOD_DOWN
         // A poke that connects takes the phone's single hands-free slot, and this unit's own client
         // is dropped to make room. The link reads are adapter-wide, so the policy is told which role
         // is up and what the target itself is doing, and says whose link it takes it to be.
@@ -2319,7 +2338,7 @@ class NativeAaHandshakeManager(
         }
         if (!wakesPhone()) {
             // Info for the same reason as the line above: it is the evidence the stand-down holds.
-            AppLog.i("NativeAA: the phone ended the last session itself — listening for it rather than waking it.")
+            AppLog.i("NativeAA: automatic Bluetooth wake is paused; listening for the phone.")
             return
         }
         if (isSelectionCanceled) {
@@ -2675,6 +2694,10 @@ class NativeAaHandshakeManager(
 
     /** The WiFi button on the module route: there is no Android device to name, only the module. */
     fun wakeOverModule(): Boolean {
+        if (dataOnlyBluetooth) {
+            ConnectionStageTracker.reportWirelessWaiting()
+            return true
+        }
         val carrier = moduleCarrier
         if (carrier == null) {
             // The route is still being measured; hold the wake for the channel, as triggerPoke does.
@@ -2697,6 +2720,10 @@ class NativeAaHandshakeManager(
      * Start a manual poke (wakeup) for a specific Bluetooth device.
      */
     fun manualPoke(address: String) {
+        if (dataOnlyBluetooth) {
+            ConnectionStageTracker.reportWirelessWaiting()
+            return
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             (moduleCarrier as? HctWppOwner.Client)?.let {
                 wakeStoodDown = false

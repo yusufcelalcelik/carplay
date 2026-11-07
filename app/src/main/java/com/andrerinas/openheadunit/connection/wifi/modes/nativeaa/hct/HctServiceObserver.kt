@@ -422,12 +422,24 @@ internal class HctServiceObserver(
         private const val SENDER_PERMISSION = "android.permission.SERIAL_PORT"
 
         /** Metadata only: opening the shared native socket as a probe can evict another client. */
-        fun available(context: Context): Boolean = Build.VERSION.SDK_INT >= 21 && runCatching {
-            @Suppress("DEPRECATION")
-            val service = context.packageManager.getServiceInfo(COMPONENT, 0)
-            val method = BluetoothSocket::class.java.getMethod("connectRfcom")
-            method.returnType == Void.TYPE && canBind(context, service)
-        }.getOrDefault(false)
+        fun available(context: Context): Boolean = compatibilityFailure(context) == null
+
+        internal fun compatibilityFailure(context: Context): String? {
+            if (Build.VERSION.SDK_INT < 21) return "Android API below 21"
+            val service = try {
+                @Suppress("DEPRECATION")
+                context.packageManager.getServiceInfo(COMPONENT, 0)
+            } catch (e: PackageManager.NameNotFoundException) {
+                return "Microntek Bluetooth service absent"
+            } catch (e: Exception) {
+                return "Microntek service query failed (${e.javaClass.simpleName})"
+            }
+            return runCatching {
+                if (!canBind(context, service)) return "Microntek Bluetooth service inaccessible"
+                val method = BluetoothSocket::class.java.getMethod("connectRfcom")
+                if (method.returnType == Void.TYPE) null else "unexpected connectRfcom signature"
+            }.getOrElse { "Microntek RFCOMM check failed (${it.javaClass.simpleName})" }
+        }
 
         internal fun canBind(context: Context, service: ServiceInfo): Boolean =
             service.enabled && service.exported && service.applicationInfo.enabled &&

@@ -607,6 +607,11 @@ class MainActivity : BaseActivity() {
                 ConnectionStageTracker.stage.collect { renderStagePill(it) }
             }
         }
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                ConnectionIssues.changes.collect { updateConnectionIssueBanner() }
+            }
+        }
         // It does not move the tracker, so the pill has to be asked again when it changes.
         viewModel.homeShowsBringUp.observe(this) { renderStagePill(ConnectionStageTracker.stage.value) }
         // Nor does a session going live or ending: the tracker can hold the same step across both.
@@ -1440,6 +1445,7 @@ class MainActivity : BaseActivity() {
         text?.setText(
             when (issue) {
                 ConnectionIssue.BLUETOOTH_SENT_NO_DATA -> R.string.connection_issue_banner_bt_silent
+                ConnectionIssue.BLUETOOTH_RADIO_UNAVAILABLE -> R.string.fiorino_android_bt_banner
                 ConnectionIssue.BSSID_UNAVAILABLE -> R.string.connection_issue_banner_bssid
                 ConnectionIssue.HOTSPOT_CONFIG_UNREADABLE -> R.string.connection_issue_banner_hotspot_config
                 ConnectionIssue.HOTSPOT_NOT_RUNNING -> R.string.connection_issue_banner_hotspot_off
@@ -1529,6 +1535,10 @@ class MainActivity : BaseActivity() {
      */
     private fun openRemedyFor(issue: ConnectionIssue) {
         val query = when (issue) {
+            ConnectionIssue.BLUETOOTH_RADIO_UNAVAILABLE -> {
+                startActivity(Intent(this, com.andrerinas.openheadunit.fiorino.BluetoothSetupActivity::class.java))
+                return
+            }
             // The remedy is on the phone, so there is no row here to send anyone to.
             ConnectionIssue.HEADUNIT_SERVER_NOT_ANSWERING -> return
             // The remedy is the cable.
