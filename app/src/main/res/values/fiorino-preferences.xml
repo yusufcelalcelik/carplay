@@ -15,6 +15,11 @@
     <string name="fiorino_speed_boost">En fazla eklenecek ses kademesi</string>
     <string name="fiorino_speed_full_boost">Ses artışı için referans hız</string>
     <string name="fiorino_speed_kmh">%1$d km/sa</string>
+    <string name="fiorino_speed_output_microntek">Ses çıkışı Microntek servisi</string>
+    <string name="fiorino_speed_output_android">Ses çıkışı Android medya</string>
+    <string name="fiorino_speed_output_unavailable">Ses kontrolü erişilemiyor</string>
+    <string name="fiorino_speed_output_waiting">Android Auto oturumu bekleniyor</string>
+    <string name="fiorino_speed_gps_waiting">Teybin GPS hızı bekleniyor</string>
     <string name="fiorino_android_bt_unavailable">Teybin Android Bluetooth’u açılamadı. Fabrika CAR-KIT bağlantısı ayrı bir modülden geliyor olabilir. Hata ayıklama günlüğünde Bluetooth denetimi kaydedildi.</string>
     <string name="fiorino_android_bt_canceled">Android Bluetooth açma onayı tamamlanmadı. Kablosuz eşleştirmeyi yeniden deneyebilirsin.</string>
     <string name="fiorino_android_bt_banner">Kablosuz Android Auto Bluetooth’u açamadı. Açma ve eşleştirme ayarları için dokun.</string>

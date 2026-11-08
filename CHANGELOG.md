@@ -2,6 +2,11 @@
 
 Bu dosya Fiorino Auto geliştirmesini izler. Türetilen projenin özgün geçmişi, yazar atıflarıyla [CHANGELOG_UPSTREAM.md](CHANGELOG_UPSTREAM.md) dosyasında korunur.
 
+## 1.5.2 Preview — 8 Kasım 2026
+
+- Android Auto'da hıza göre ses artışı, uyumlu Microntek carservice varsa teybin amfi komutunu kullanır. Ses kademesi, üst sınır ve sessiz durum doğrulandıktan sonra ayar yapılır.
+- Ses ayarlarında GPS hızı ve kullanılan ses yolu gösterilir. Eski GPS sürücüsü monoton zaman damgası vermediğinde güncel konum ölçümünün saat damgası kullanılır.
+
 ## 1.5.1 Preview — 7 Kasım 2026
 
 - Hıza göre teyp sesinde 30–150 km/sa arası referans hız ve 0–6 ek ses kademesi ayrı ayarlanabilir. Kayıtlı ayarlarda varsayılan referans 90 km/sa olarak korunur.

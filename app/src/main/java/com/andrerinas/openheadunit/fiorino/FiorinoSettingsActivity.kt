@@ -32,6 +32,15 @@ class FiorinoSettingsActivity : VehiclePreferencesActivity() {
         updatePreferences()
     }
 
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == 60 && Build.VERSION.SDK_INT >= 23 &&
+            checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
+            App.provide(this).commManager.isConnected) {
+            startService(com.andrerinas.openheadunit.location.GpsLocationService.intent(this))
+        }
+    }
+
     private fun updatePreferences() {
         val items = mutableListOf<SettingItem>()
         items.add(SettingItem.CategoryHeader("connection", R.string.fiorino_connection))
@@ -56,7 +65,24 @@ class FiorinoSettingsActivity : VehiclePreferencesActivity() {
             settings.speechMediaPercent = it.toInt()
         })
         items.add(SettingItem.ToggleSettingEntry("speedVolume", R.string.fiorino_speed_volume,
-            R.string.fiorino_speed_description, settings.speedVolumeEnabled) { settings.speedVolumeEnabled = it })
+            R.string.fiorino_speed_description, settings.speedVolumeEnabled) {
+            settings.speedVolumeEnabled = it
+            if (it && Build.VERSION.SDK_INT >= 23 &&
+                checkSelfPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION,
+                    android.Manifest.permission.ACCESS_COARSE_LOCATION), 60)
+            }
+        })
+        val volumeOutput = when (SpeedVolumeController.output) {
+            SpeedVolumeController.Output.MICRONTEK -> R.string.fiorino_speed_output_microntek
+            SpeedVolumeController.Output.ANDROID -> R.string.fiorino_speed_output_android
+            SpeedVolumeController.Output.UNAVAILABLE -> R.string.fiorino_speed_output_unavailable
+            null -> R.string.fiorino_speed_output_waiting
+        }
+        val speedStatus = VehicleSpeed.current()?.let { getString(R.string.fiorino_speed_kmh, it.toInt()) }
+            ?: getString(R.string.fiorino_speed_gps_waiting)
+        items.add(SettingItem.InfoBanner("speedStatus", R.string.fiorino_speed_volume,
+            "${getString(volumeOutput)} · $speedStatus"))
         items.add(SettingItem.SliderSettingEntry("speedBoost", R.string.fiorino_speed_boost,
             "${settings.speedVolumeBoost}", settings.speedVolumeBoost.toFloat(), 0f, 6f, 1f) {
             settings.speedVolumeBoost = it.toInt()

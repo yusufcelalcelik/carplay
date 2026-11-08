@@ -1207,7 +1207,7 @@ class AapService : Service() {
     }
 
     private val speedVolume by lazy {
-        com.andrerinas.openheadunit.fiorino.SpeedVolumeController(this, App.provide(this).settings)
+        com.andrerinas.openheadunit.fiorino.SpeedVolumeController(this, App.provide(this).settings, serviceScope)
     }
 
     override fun onCreate() {
