@@ -2,6 +2,12 @@
 
 Bu dosya Fiorino Auto geliştirmesini izler. Türetilen projenin özgün geçmişi, yazar atıflarıyla [CHANGELOG_UPSTREAM.md](CHANGELOG_UPSTREAM.md) dosyasında korunur.
 
+## 1.5.3 Preview — 9 Kasım 2026
+
+- HCT PX3 Android 7.1.2'de takılan sistem Bluetooth penceresinin yerine uygulama içinde onay ve en fazla sekiz saniye bekleme. Fabrika CAR-KIT bağlantısı ve Android Auto'nun Bluetooth servisi ayrı ayrı açıklanır.
+- Native Android Auto, Wi-Fi ağ bilgileri hazır olduğunda hazırlık adımından çıkar. Android Bluetooth kaydı ilk denemede açılmazsa sınırlı yeniden deneme yapılır; kayıt yine açılamazsa ana ekranda uyarı gösterilir.
+- Fiziksel PX3'te kablolu bağlantı önceki sürümde doğrulandı. Bu sürümün kablosuz bağlantısı araçta yeniden denenmeli.
+
 ## 1.5.2 Preview — 8 Kasım 2026
 
 - Android Auto'da hıza göre ses artışı, uyumlu Microntek carservice varsa teybin amfi komutunu kullanır. Ses kademesi, üst sınır ve sessiz durum doğrulandıktan sonra ayar yapılır.

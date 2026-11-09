@@ -39,6 +39,7 @@ class BluetoothSetupActivity : VehiclePreferencesActivity() {
     private var connectionMessage: String? = null
     private val pairingOwner = Any()
     private var pairingRequest: Job? = null
+    private var legacyEnableRequest: Job? = null
     private var pendingBluetoothAction: BluetoothAction? = null
     private var pendingPhone: String? = null
     private val enableConsent = registerForActivityResult(
@@ -137,12 +138,25 @@ class BluetoothSetupActivity : VehiclePreferencesActivity() {
     }.getOrDefault(false)
 
     private fun requestBluetooth(action: BluetoothAction, phone: String? = null) {
-        if (pendingBluetoothAction != null || !permitted()) return
+        if (pendingBluetoothAction != null || legacyEnableRequest?.isActive == true ||
+            !permitted() || App.provide(this).commManager.isConnected) return
         val moduleRoute = NativeAaHandshakeManager.wifiButtonRoute(this) == ExternalBtTransportPolicy.WifiButton.MODULE ||
             com.andrerinas.openheadunit.connection.wifi.modes.nativeaa.esp32.Esp32RelaySession.hasSavedEsp32Relay(this)
         if (androidRadioEnabled() ||
             (action == BluetoothAction.START && moduleRoute)) {
             runBluetoothAction(action, phone)
+            return
+        }
+        // The system consent activity on the tested HCT PX3 can stay on "Turning on"
+        // indefinitely. Keep consent and the wait inside this app on that firmware.
+        if (Build.VERSION.SDK_INT == 25 && Build.MODEL.contains("px3", ignoreCase = true) &&
+            Build.BOARD.equals("rk30sdk", ignoreCase = true) &&
+            Build.DISPLAY.contains("eng.hct.", ignoreCase = true)) {
+            MaterialAlertDialogBuilder(this)
+                .setMessage(R.string.fiorino_px3_bt_enable)
+                .setNegativeButton(android.R.string.cancel, null)
+                .setPositiveButton(R.string.fiorino_px3_bt_try) { _, _ -> tryPx3Bluetooth(action, phone) }
+                .show()
             return
         }
         pendingBluetoothAction = action
@@ -157,6 +171,30 @@ class BluetoothSetupActivity : VehiclePreferencesActivity() {
             pendingBluetoothAction = null
             pendingPhone = null
             reportBluetoothUnavailable()
+        }
+    }
+
+    @Suppress("DEPRECATION") // Only the Android 7.1 HCT profile above reaches this path.
+    private fun tryPx3Bluetooth(action: BluetoothAction, phone: String?) {
+        if (legacyEnableRequest?.isActive == true || App.provide(this).commManager.isConnected) return
+        legacyEnableRequest = lifecycleScope.launch {
+            connectionMessage = getString(R.string.fiorino_px3_bt_checking)
+            updatePreferences()
+            val accepted = runCatching {
+                val adapter = BluetoothHelper.getBluetoothAdapter(this@BluetoothSetupActivity)
+                    ?: return@runCatching false
+                when (adapter.state) {
+                    BluetoothAdapter.STATE_ON, BluetoothAdapter.STATE_TURNING_ON -> true
+                    BluetoothAdapter.STATE_OFF -> adapter.enable()
+                    else -> false
+                }
+            }.getOrDefault(false)
+            val enabled = accepted && withTimeoutOrNull(8000) {
+                while (!androidRadioEnabled()) delay(150)
+                true
+            } == true
+            if (App.provide(this@BluetoothSetupActivity).commManager.isConnected) return@launch
+            if (enabled) runBluetoothAction(action, phone) else reportBluetoothUnavailable()
         }
     }
 
