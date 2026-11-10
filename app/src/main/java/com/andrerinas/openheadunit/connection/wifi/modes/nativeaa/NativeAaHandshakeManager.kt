@@ -52,6 +52,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import android.os.Build
 import android.os.SystemClock
+import com.andrerinas.openheadunit.utils.bluetooth.BluetoothCapabilityPolicy
 import android.content.pm.PackageManager
 import androidx.core.content.ContextCompat
 import com.andrerinas.openheadunit.App
@@ -168,7 +169,18 @@ class NativeAaHandshakeManager(
             val adapterState = runCatching { BluetoothHelper.getBluetoothAdapter(context)?.state }
                 .getOrNull()?.toString() ?: "unavailable"
             val hct = HctServiceObserver.compatibilityFailure(context) ?: "service contract present"
+            val pm = context.packageManager
+            val vendor = runCatching {
+                @Suppress("DEPRECATION")
+                pm.getInstalledPackages(0).map { it.packageName }
+                    .filter { n -> listOf("microntek", "hct", "syu", "fyt", "zlink", "zjinnova").any { it in n } }
+                    .take(12).joinToString(",")
+            }.getOrDefault("?")
             AppLog.w("NativeAA: Bluetooth preflight model=${Build.MODEL}, board=${Build.BOARD}, " +
+                "device=${Build.DEVICE}, display=${Build.DISPLAY}, " +
+                "btFeature=${pm.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH)}, " +
+                "p2pFeature=${pm.hasSystemFeature(PackageManager.FEATURE_WIFI_DIRECT)}, " +
+                "verdict=${App.provide(context).settings.bluetoothVerdict ?: "none"}, vendorPackages=[$vendor], " +
                 "Android=${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT}), " +
                 "adapterState=$adapterState, route=${transportRoute(context)}, HCT=$hct")
         }
@@ -1058,6 +1070,7 @@ class NativeAaHandshakeManager(
             // re-arm check) need to see this as genuinely stopped so they retry later,
             // instead of believing the listener sockets are up when nothing was ever opened.
             AppLog.e("NativeAA: Bluetooth adapter not available or disabled")
+            if (adapter == null) settings.bluetoothVerdict = BluetoothCapabilityPolicy.Verdict.NO_ADAPTER.name
             logBluetoothPreflight(context)
             ConnectionIssues.raise(context, ConnectionIssue.BLUETOOTH_RADIO_UNAVAILABLE)
             notStartedReason = "this unit's Bluetooth was off or unavailable when the mode was armed"
@@ -1171,6 +1184,7 @@ class NativeAaHandshakeManager(
                 openedAt = SystemClock.elapsedRealtime()
                 if (serviceName == null) {
                     aaServerSocket = server
+                    settings.bluetoothVerdict = BluetoothCapabilityPolicy.Verdict.WORKING.name
                     ConnectionIssues.clear(context, ConnectionIssue.BLUETOOTH_RADIO_UNAVAILABLE)
                     AppLog.i("NativeAA: ACTIVELY LISTENING on Android Auto UUID ($AA_UUID) on radio [$radioName]... Waiting for phone to connect back!")
                     // A stood-down wake has nothing to show: the pill would claim an attempt that
@@ -1287,6 +1301,12 @@ class NativeAaHandshakeManager(
                     if (!enabled) continue
                     if (extraAaServerSockets.isEmpty()) {
                         ConnectionIssues.raiseOnce(context, ConnectionIssue.BLUETOOTH_RADIO_UNAVAILABLE)
+                        // The radio is on and still will not publish a record: a property of the
+                        // unit, not a transient. Kept so the setup screen can say so.
+                        settings.bluetoothVerdict = BluetoothCapabilityPolicy.classify(
+                            adapterPresent = true, reachedOn = true, listenFailures = aaReopenAttempts,
+                            maxListenFailures = AaListenerRecoveryPolicy.MAX_REOPEN_ATTEMPTS
+                        ).takeIf { it != BluetoothCapabilityPolicy.Verdict.UNKNOWN }?.name ?: settings.bluetoothVerdict
                     }
                     AppLog.w(
                         "NativeAA: the Android Auto listener would not reopen after " +

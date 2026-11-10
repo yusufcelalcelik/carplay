@@ -29,6 +29,10 @@
     <string name="fiorino_log_viewer_help">Bilgisayar ve teyp aynı ağdayken tarayıcıdan açılır. Yalnızca log okur, 30 dakika sonra kendiliğinden kapanır.</string>
     <string name="fiorino_usb_log">Logu USB flash belleğe yaz</string>
     <string name="fiorino_usb_log_help">Flash bellek otomatik bulunur ve FiorinoLogs klasörüne yazılır. Çıkarmadan önce anahtarı kapat.</string>
+    <string name="fiorino_bt_verdict_no_adapter">Bu teypte Android’in kullanabildiği bir Bluetooth yok. Fabrika CAR-KIT ayrı bir modülde çalışıyor olabilir; Android Auto ona doğrudan erişemez.</string>
+    <string name="fiorino_bt_verdict_never_on">Teybin Android Bluetooth’u açma isteğini kabul ediyor ama hiç açılmıyor. Bu, Bluetooth’un Android’e değil ayrı bir seri modüle bağlı olduğu teyplerde görülür. Her denemede aynı oluyorsa tekrar denemek sonucu değiştirmez.</string>
+    <string name="fiorino_bt_verdict_no_server">Teybin Bluetooth’u açık ama Android Auto için dinleme kaydı açmayı reddediyor. Bu teybin Bluetooth katmanı sunucu bağlantısını desteklemiyor olabilir.</string>
+    <string name="fiorino_bt_advice_usb_bridge">Kablosuz kullanım için önerilen yol: eski bir telefonu “USB köprü” olarak bağlamak (bu ekranın en üstündeki seçenek). Kablolu Android Auto da çalışır.</string>
     <string name="fiorino_px3_bt_try">Bluetooth’u dene</string>
     <string name="fiorino_px3_bt_checking">Teybin Android Bluetooth servisi kontrol ediliyor…</string>
     <string name="fiorino_microntek_detected">Microntek Android Auto arayüzü bulundu. Native alıcıyı etkinleştirerek bu yolu dene.</string>

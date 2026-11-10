@@ -128,6 +128,16 @@ class Settings(private val context: Context) {
         get() = prefs.getBoolean("fiorino-usb-log", false)
         set(value) { prefs.edit().putBoolean("fiorino-usb-log", value).apply() }
 
+    /** What was last observed of this unit's Android Bluetooth; a BluetoothCapabilityPolicy.Verdict name. */
+    var bluetoothVerdict: String?
+        get() = prefs.getString("bluetooth-verdict", null)
+        set(value) { prefs.edit().putString("bluetooth-verdict", value).apply() }
+
+    /** The system "turn on Bluetooth" activity has failed here before, so the app asks itself. */
+    var bluetoothSystemConsentFailed: Boolean
+        get() = prefs.getBoolean("bluetooth-system-consent-failed", false)
+        set(value) { prefs.edit().putBoolean("bluetooth-system-consent-failed", value).apply() }
+
     var fiorinoDataOnlyBluetooth: Boolean
         get() = prefs.getBoolean("fiorino-data-only-bluetooth", false)
         set(value) { prefs.edit().putBoolean("fiorino-data-only-bluetooth", value).apply() }

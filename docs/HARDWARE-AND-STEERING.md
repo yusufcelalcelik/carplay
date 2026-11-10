@@ -18,6 +18,8 @@ Fotoğrafın tamamı ve kişiye özgü seri numarası bu belgeye eklenmedi.
 
 7 Kasım 2026 tarihli cihaz ekranı fotoğraflarında **MTCD_MX_V2.59_1** MCU, **Android 7.1.2 / API 25** ve `px3-userdebug 7.1.2 NHG47L eng.hct.20170731.181950 test-keys` derlemesi okunuyor. Ekran dört Cortex-A9 çekirdeği, 1,6 GHz ve 2048 MB RAM gösteriyor. Çekirdek `3.0.101+`, güvenlik yaması 5 Mayıs 2017. MCU ekranındaki tarih 3 Ağustos 2017.
 
+**Bluetooth için çalışma varsayımı (doğrulanmadı):** MTCD sınıfı Microntek/HCT teyplerde telefon bağlantısı genellikle MCU'nun sürdüğü ayrı bir seri Bluetooth modülündedir ve fabrika CAR-KIT uygulaması onu kullanır. Android yine bir Bluetooth adaptörü nesnesi verir, ama arkasında denetleyici olmadığı için adaptör açılmaz veya RFCOMM dinleme kaydı açamaz. Bu ünitede görülen "Turning on" ekranında takılma ve "adaptör kapalı veya erişilemez" kaydı bu varsayımla uyumludur. Kesin tanı için 1.5.6'daki USB flash günlüğünde `Bluetooth preflight` ve `Bluetooth capability` satırları gerekir. Varsayım doğruysa bu donanımda Android Bluetooth üzerinden kablosuz Android Auto kurulamaz; seçenekler Microntek servis yolu (bu 2017 yazılımında varlığı bilinmiyor), eski telefonla USB köprü veya kablolu bağlantıdır.
+
 Araç üzerinde kablolu Android Auto açıldı. Kablosuz denemede Wi-Fi Direct grubu oluştu ve telefonun kayıtlarında fabrika CAR-KIT eşleşmesi görüldü. Teyp günlüğünde uygulamanın kullandığı Android Bluetooth adaptörü kapalı veya erişilemez olduğu için Android Auto dinleyicisi açılamadı. 1.5.1 sistemin Bluetooth açma onayını ve ana ekranda hata uyarısını ekler. Bu ROM'da Microntek yoluyla native kablosuz bağlantı ayrıca doğrulanmalıdır.
 
 ## Model hakkında elde edilen kanıt

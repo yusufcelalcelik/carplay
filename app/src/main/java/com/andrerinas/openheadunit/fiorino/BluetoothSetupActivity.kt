@@ -25,6 +25,7 @@ import com.andrerinas.openheadunit.connection.wifi.modes.nativeaa.NativeAaHandsh
 import com.andrerinas.openheadunit.connection.wifi.modes.nativeaa.hct.HctServiceObserver
 import com.andrerinas.openheadunit.utils.BluetoothHelper
 import com.andrerinas.openheadunit.utils.ToastUtils
+import com.andrerinas.openheadunit.utils.bluetooth.BluetoothCapabilityPolicy
 import com.andrerinas.openheadunit.utils.bluetooth.BluetoothPeerDiscovery
 
 /** The system owns pairing consent. Native AA owns reconnection after a saved phone is selected. */
@@ -57,7 +58,13 @@ class BluetoothSetupActivity : VehiclePreferencesActivity() {
                 }
             }
             if (androidRadioEnabled()) runBluetoothAction(action, phone)
-            else reportBluetoothUnavailable(result.resultCode == Activity.RESULT_CANCELED)
+            else {
+                // The system activity did not deliver a radio. Next time the app asks and waits
+                // itself, which also covers firmwares that leave that activity on "Turning on".
+                settings.bluetoothSystemConsentFailed = true
+                if (result.resultCode == Activity.RESULT_OK) noteVerdict(enableAccepted = true, reachedOn = false)
+                reportBluetoothUnavailable(result.resultCode == Activity.RESULT_CANCELED)
+            }
         }
     }
     private val discoveryConsent = registerForActivityResult(
@@ -152,8 +159,10 @@ class BluetoothSetupActivity : VehiclePreferencesActivity() {
             return
         }
         // The system consent activity on the tested HCT PX3 can stay on "Turning on"
-        // indefinitely. Keep consent and the wait inside this app on that firmware.
-        if (usesInAppBluetoothEnable()) {
+        // indefinitely. Keep consent and the wait inside this app there, and on any unit where
+        // that activity has already failed once.
+        if (BluetoothCapabilityPolicy.enablesInApp(
+                Build.VERSION.SDK_INT, knownHangingFirmware(), settings.bluetoothSystemConsentFailed)) {
             if (px3Dialog?.isShowing == true) return
             px3Dialog = MaterialAlertDialogBuilder(this)
                 .setMessage(R.string.fiorino_px3_bt_enable)
@@ -182,7 +191,7 @@ class BluetoothSetupActivity : VehiclePreferencesActivity() {
      * family, HCT builds) is matched by any of its own markers, on any Android level, so a
      * different PX3 firmware does not fall back to the hanging system dialog.
      */
-    private fun usesInAppBluetoothEnable(): Boolean {
+    private fun knownHangingFirmware(): Boolean {
         val px3 = Build.MODEL.contains("px3", ignoreCase = true) ||
             Build.PRODUCT.contains("px3", ignoreCase = true) ||
             Build.DEVICE.contains("px3", ignoreCase = true)
@@ -198,6 +207,9 @@ class BluetoothSetupActivity : VehiclePreferencesActivity() {
         legacyEnableRequest = lifecycleScope.launch {
             connectionMessage = getString(R.string.fiorino_px3_bt_checking)
             updatePreferences()
+            val adapterPresent = runCatching {
+                BluetoothHelper.getBluetoothAdapter(this@BluetoothSetupActivity) != null
+            }.getOrDefault(false)
             val accepted = runCatching {
                 val adapter = BluetoothHelper.getBluetoothAdapter(this@BluetoothSetupActivity)
                     ?: return@runCatching false
@@ -223,15 +235,35 @@ class BluetoothSetupActivity : VehiclePreferencesActivity() {
                 updatePreferences()
                 return@launch
             }
+            if (!enabled) noteVerdict(adapterPresent, enableAccepted = accepted, reachedOn = false)
             if (enabled) runBluetoothAction(action, phone) else reportBluetoothUnavailable()
         }
     }
 
+    /** Records what this attempt showed about the unit's radio, for the message and the next attempt. */
+    private fun noteVerdict(adapterPresent: Boolean = true, enableAccepted: Boolean?, reachedOn: Boolean?) {
+        val observed = BluetoothCapabilityPolicy.classify(adapterPresent, enableAccepted, reachedOn)
+        val merged = BluetoothCapabilityPolicy.merge(BluetoothCapabilityPolicy.parse(settings.bluetoothVerdict), observed)
+        settings.bluetoothVerdict = merged.name
+        com.andrerinas.openheadunit.utils.AppLog.w("Bluetooth capability: adapter=$adapterPresent, " +
+            "enableAccepted=$enableAccepted, reachedOn=$reachedOn -> $merged")
+    }
+
     private fun reportBluetoothUnavailable(canceled: Boolean = false) {
         NativeAaHandshakeManager.logBluetoothPreflight(this)
-        val notice = getString(if (canceled) R.string.fiorino_android_bt_canceled else R.string.fiorino_android_bt_unavailable)
-        val moduleStatus = if (HctServiceObserver.available(this)) R.string.fiorino_microntek_detected
-            else R.string.fiorino_microntek_unavailable
+        val moduleAvailable = HctServiceObserver.available(this)
+        val verdict = BluetoothCapabilityPolicy.parse(settings.bluetoothVerdict)
+        val notice = getString(when {
+            canceled -> R.string.fiorino_android_bt_canceled
+            verdict == BluetoothCapabilityPolicy.Verdict.NO_ADAPTER -> R.string.fiorino_bt_verdict_no_adapter
+            verdict == BluetoothCapabilityPolicy.Verdict.NEVER_TURNS_ON -> R.string.fiorino_bt_verdict_never_on
+            verdict == BluetoothCapabilityPolicy.Verdict.NO_RFCOMM_SERVER -> R.string.fiorino_bt_verdict_no_server
+            else -> R.string.fiorino_android_bt_unavailable
+        })
+        val moduleStatus = when (BluetoothCapabilityPolicy.advice(verdict, moduleAvailable)) {
+            BluetoothCapabilityPolicy.Advice.USB_BRIDGE -> R.string.fiorino_bt_advice_usb_bridge
+            else -> if (moduleAvailable) R.string.fiorino_microntek_detected else R.string.fiorino_microntek_unavailable
+        }
         connectionMessage = "$notice\n${getString(moduleStatus)}"
         updatePreferences()
         message(notice)

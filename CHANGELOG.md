@@ -2,6 +2,12 @@
 
 Bu dosya Fiorino Auto geliştirmesini izler. Türetilen projenin özgün geçmişi, yazar atıflarıyla [CHANGELOG_UPSTREAM.md](CHANGELOG_UPSTREAM.md) dosyasında korunur.
 
+## 1.5.7 Preview — 10 Kasım 2026
+
+- Teybin Android Bluetooth'u artık model adına göre değil, gözlenen davranışa göre sınıflandırılıyor: adaptör yok, açma isteği kabul edilip hiç açılmıyor, açık ama dinleme kaydı açmıyor, çalışıyor. Sonuç saklanır ve kurulum ekranı buna göre açıklama ile öneri (Microntek yolu veya USB köprü) gösterir.
+- Sistem Bluetooth açma penceresi bir teypte bir kez başarısız olursa, sonraki denemelerde uygulama içi onay ve bekleme kullanılır. Bu yol artık yalnızca PX3'e özel değil; Android 13 ve sonrasında sistem penceresi kullanılmaya devam eder.
+- Bluetooth ön kontrol günlüğü; cihaz, derleme, Bluetooth/Wi-Fi Direct özellik bayrakları, kayıtlı sonuç ve üretici paketlerini de yazar.
+
 ## 1.5.6 Preview — 10 Kasım 2026
 
 - Ayarlar → Teşhis altına "Logu USB flash belleğe yaz" eklendi. Flash bellek takılınca otomatik bulunur (USB_DISK, usbotg, udisk ve /storage altındaki sürücüler), loglar flash'taki FiorinoLogs klasörüne yazılır; her saniye diske işlenir. Flash çıkarılıp takılırsa yazma yeni sürücüde devam eder. En fazla 10 MB'lık 5 dosya tutulur. Ayar açıksa uygulama açılışından itibaren yazılır.
