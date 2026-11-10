@@ -38,8 +38,7 @@ object LogViewerServer {
         val code = "%06d".format(SecureRandom().nextInt(1_000_000))
         pin = code
         auth = LogViewerAuth(code)
-        LogRing.clear()
-        LogRing.enabled = true
+        LogRing.acquire()
         server = socket
         val deadline = System.currentTimeMillis() + AUTO_STOP_MS
         Thread({ acceptLoop(socket, deadline) }, "LogViewer-accept").apply { isDaemon = true }.start()
@@ -53,8 +52,7 @@ object LogViewerServer {
         server = null
         pin = null
         auth = null
-        LogRing.enabled = false
-        LogRing.clear()
+        LogRing.release()
         try { s.close() } catch (_: Exception) {}
     }
 

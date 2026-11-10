@@ -65,6 +65,17 @@ class FiorinoSettingsActivity : VehiclePreferencesActivity() {
             if (!ok) ToastUtils.showToast(this, "Log görüntüleyici açılamadı. Port kullanımda olabilir.", Toast.LENGTH_LONG, force = true)
             updatePreferences()
         })
+        items.add(SettingItem.ToggleSettingEntry("usbLog", R.string.fiorino_usb_log, R.string.fiorino_usb_log_help,
+            settings.fiorinoUsbLog) { on ->
+            settings.fiorinoUsbLog = on
+            if (on) com.andrerinas.openheadunit.utils.UsbLogWriter.start(this)
+            else com.andrerinas.openheadunit.utils.UsbLogWriter.stop()
+            updatePreferences()
+        })
+        if (settings.fiorinoUsbLog) {
+            items.add(SettingItem.InfoBanner("usbLogInfo", R.string.fiorino_usb_log,
+                com.andrerinas.openheadunit.utils.UsbLogWriter.status))
+        }
         if (com.andrerinas.openheadunit.utils.LogViewerServer.running) {
             val viewer = com.andrerinas.openheadunit.utils.LogViewerServer
             val urls = viewer.addresses().ifEmpty { listOf("Ağ bağlantısı bulunamadı") }

@@ -13,6 +13,8 @@ object LogRing {
     private const val MAX_LINE = 4000
 
     @Volatile var enabled = false
+        private set
+    private var users = 0
 
     private val lock = Any()
     private val lines = ArrayDeque<String>()
@@ -36,7 +38,14 @@ object LogRing {
         lastSeq to lines.drop(skip)
     }
 
-    fun clear() = synchronized(lock) { lines.clear(); lastSeq = 0L }
+    /** Capture runs while anyone holds it: the Wi-Fi viewer, the USB flash writer, or both. */
+    fun acquire() = synchronized(lock) {
+        if (users++ == 0) { lines.clear(); lastSeq = 0L; enabled = true }
+    }
+
+    fun release() = synchronized(lock) {
+        if (users > 0 && --users == 0) { enabled = false; lines.clear(); lastSeq = 0L }
+    }
 
     private fun level(priority: Int) = when (priority) {
         2 -> 'V'; 3 -> 'D'; 4 -> 'I'; 5 -> 'W'; 6 -> 'E'; else -> '?'

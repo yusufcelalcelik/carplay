@@ -2,6 +2,10 @@
 
 Bu dosya Fiorino Auto geliştirmesini izler. Türetilen projenin özgün geçmişi, yazar atıflarıyla [CHANGELOG_UPSTREAM.md](CHANGELOG_UPSTREAM.md) dosyasında korunur.
 
+## 1.5.6 Preview — 10 Kasım 2026
+
+- Ayarlar → Teşhis altına "Logu USB flash belleğe yaz" eklendi. Flash bellek takılınca otomatik bulunur (USB_DISK, usbotg, udisk ve /storage altındaki sürücüler), loglar flash'taki FiorinoLogs klasörüne yazılır; her saniye diske işlenir. Flash çıkarılıp takılırsa yazma yeni sürücüde devam eder. En fazla 10 MB'lık 5 dosya tutulur. Ayar açıksa uygulama açılışından itibaren yazılır.
+
 ## 1.5.5 Preview — 10 Kasım 2026
 
 - Ayarlar → Teşhis altına Wi-Fi log görüntüleyici eklendi. Açılınca ekranda adres ve 6 haneli PIN çıkar; aynı ağdaki bilgisayarın tarayıcısından canlı log izlenir ve indirilir. Varsayılan kapalıdır, yalnızca log okur, 30 dakika sonra kendiliğinden kapanır, yanlış PIN denemeleri kilitlenir.

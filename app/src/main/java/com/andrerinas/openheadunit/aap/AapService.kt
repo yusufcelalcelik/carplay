@@ -1212,6 +1212,7 @@ class AapService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        if (Settings(this).fiorinoUsbLog) com.andrerinas.openheadunit.utils.UsbLogWriter.start(this)
         AppLog.i("AapService creating...")
         instance = this
         // A dark screen is not evidence that the car is on.

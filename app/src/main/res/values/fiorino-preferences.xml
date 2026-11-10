@@ -27,6 +27,8 @@
     <string name="fiorino_diagnostics">Teşhis</string>
     <string name="fiorino_log_viewer">Log görüntüleyici (Wi-Fi)</string>
     <string name="fiorino_log_viewer_help">Bilgisayar ve teyp aynı ağdayken tarayıcıdan açılır. Yalnızca log okur, 30 dakika sonra kendiliğinden kapanır.</string>
+    <string name="fiorino_usb_log">Logu USB flash belleğe yaz</string>
+    <string name="fiorino_usb_log_help">Flash bellek otomatik bulunur ve FiorinoLogs klasörüne yazılır. Çıkarmadan önce anahtarı kapat.</string>
     <string name="fiorino_px3_bt_try">Bluetooth’u dene</string>
     <string name="fiorino_px3_bt_checking">Teybin Android Bluetooth servisi kontrol ediliyor…</string>
     <string name="fiorino_microntek_detected">Microntek Android Auto arayüzü bulundu. Native alıcıyı etkinleştirerek bu yolu dene.</string>

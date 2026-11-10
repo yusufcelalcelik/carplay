@@ -123,6 +123,11 @@ class Settings(private val context: Context) {
         get() = prefs.getInt("fiorino-speed-volume-full-boost-kmh", 90).coerceIn(30, 150)
         set(value) { prefs.edit().putInt("fiorino-speed-volume-full-boost-kmh", value.coerceIn(30, 150)).apply() }
 
+    /** Writes the app log to a USB flash drive when one is plugged in, for units with no adb. */
+    var fiorinoUsbLog: Boolean
+        get() = prefs.getBoolean("fiorino-usb-log", false)
+        set(value) { prefs.edit().putBoolean("fiorino-usb-log", value).apply() }
+
     var fiorinoDataOnlyBluetooth: Boolean
         get() = prefs.getBoolean("fiorino-data-only-bluetooth", false)
         set(value) { prefs.edit().putBoolean("fiorino-data-only-bluetooth", value).apply() }

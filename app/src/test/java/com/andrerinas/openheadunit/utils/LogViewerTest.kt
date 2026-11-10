@@ -5,7 +5,7 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class LogViewerTest {
-    @After fun reset() { LogRing.enabled = false; LogRing.clear() }
+    @After fun reset() { while (LogRing.enabled) LogRing.release() }
 
     @Test fun `ring ignores lines while off`() {
         LogRing.offer(4, "x")
@@ -13,7 +13,7 @@ class LogViewerTest {
     }
 
     @Test fun `ring returns only lines after the sequence`() {
-        LogRing.enabled = true
+        LogRing.acquire()
         LogRing.offer(4, "a"); LogRing.offer(5, "b"); LogRing.offer(6, "c")
         val (seq, all) = LogRing.since(0)
         assertEquals(3L, seq); assertEquals(3, all.size)
@@ -23,7 +23,7 @@ class LogViewerTest {
     }
 
     @Test fun `ring is bounded and keeps the newest`() {
-        LogRing.enabled = true
+        LogRing.acquire()
         repeat(LogRing.CAPACITY + 10) { LogRing.offer(4, "l$it") }
         val (seq, lines) = LogRing.since(0)
         assertEquals(LogRing.CAPACITY, lines.size)
