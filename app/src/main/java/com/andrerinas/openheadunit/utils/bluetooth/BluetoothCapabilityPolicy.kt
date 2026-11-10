@@ -55,9 +55,16 @@ object BluetoothCapabilityPolicy {
         else -> Verdict.UNKNOWN
     }
 
-    /** A later success always wins; a failure never downgrades a unit that has worked to unknown. */
-    fun merge(previous: Verdict, observed: Verdict): Verdict =
-        if (observed == Verdict.UNKNOWN) previous else observed
+    /**
+     * Unknown keeps what was known; a success always wins; a single failure never overwrites a
+     * unit that has had a working listener.
+     */
+    fun merge(previous: Verdict, observed: Verdict): Verdict = when {
+        observed == Verdict.UNKNOWN -> previous
+        observed == Verdict.WORKING -> Verdict.WORKING
+        previous == Verdict.WORKING -> Verdict.WORKING
+        else -> observed
+    }
 
     fun advice(verdict: Verdict, moduleServiceAvailable: Boolean): Advice = when (verdict) {
         Verdict.UNKNOWN, Verdict.WORKING -> Advice.NONE

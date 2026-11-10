@@ -2808,6 +2808,11 @@ class Settings(private val context: Context) {
         get() = prefs.getLong("connection-issue-p2p-stuck", 0L)
         set(value) = prefs.edit().putLong("connection-issue-p2p-stuck", value).apply()
 
+    /** This unit has no WiFi Direct feature or P2P service, so no group can be formed. */
+    var connectionIssueWifiDirectUnsupportedAtEpochMs: Long
+        get() = prefs.getLong("connection-issue-p2p-unsupported", 0L)
+        set(value) = prefs.edit().putLong("connection-issue-p2p-unsupported", value).apply()
+
     /** This unit's WiFi was off and this Android would not let the app switch it on. */
     var connectionIssueWifiRadioOffAtEpochMs: Long
         get() = prefs.getLong("connection-issue-wifi-radio-off", 0L)

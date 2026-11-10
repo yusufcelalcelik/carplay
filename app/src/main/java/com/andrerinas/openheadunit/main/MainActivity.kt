@@ -1455,6 +1455,8 @@ class MainActivity : BaseActivity() {
                     R.string.connection_issue_banner_wifi_direct_cycled
                 ConnectionIssue.WIFI_DIRECT_STACK_STUCK ->
                     R.string.connection_issue_banner_wifi_direct_stuck
+                ConnectionIssue.WIFI_DIRECT_UNSUPPORTED ->
+                    R.string.connection_issue_banner_wifi_direct_unsupported
                 ConnectionIssue.WIFI_RADIO_OFF ->
                     R.string.connection_issue_banner_wifi_radio_off
                 ConnectionIssue.VIDEO_LINK_TOO_SLOW ->
@@ -1570,6 +1572,7 @@ class MainActivity : BaseActivity() {
             ConnectionIssue.HOTSPOT_NOT_RUNNING -> getString(R.string.auto_enable_hotspot)
             ConnectionIssue.WIFI_DIRECT_GROUP_REFUSED -> getString(R.string.native_ap_transport)
             ConnectionIssue.WIFI_DIRECT_STACK_CYCLED -> getString(R.string.native_ap_transport)
+            ConnectionIssue.WIFI_DIRECT_UNSUPPORTED -> getString(R.string.native_ap_transport)
             ConnectionIssue.WIFI_RADIO_OFF -> getString(R.string.native_ap_transport)
             ConnectionIssue.VIDEO_LINK_TOO_SLOW -> getString(R.string.fps_limit)
             ConnectionIssue.FIVE_GHZ_CHANNEL_REFUSED -> getString(R.string.wifi_direct_band)

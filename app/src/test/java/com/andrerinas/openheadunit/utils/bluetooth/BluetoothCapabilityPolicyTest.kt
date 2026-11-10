@@ -49,6 +49,16 @@ class BluetoothCapabilityPolicyTest {
         assertEquals(Verdict.WORKING, BluetoothCapabilityPolicy.merge(Verdict.NEVER_TURNS_ON, Verdict.WORKING))
     }
 
+    @Test fun `a single failure never overwrites working`() {
+        for (f in listOf(Verdict.NO_ADAPTER, Verdict.NEVER_TURNS_ON, Verdict.NO_RFCOMM_SERVER)) {
+            assertEquals(Verdict.WORKING, BluetoothCapabilityPolicy.merge(Verdict.WORKING, f))
+            assertEquals(f, BluetoothCapabilityPolicy.merge(Verdict.UNKNOWN, f))
+            assertEquals(f, BluetoothCapabilityPolicy.merge(Verdict.NO_RFCOMM_SERVER, f))
+        }
+        assertEquals(Verdict.WORKING, BluetoothCapabilityPolicy.merge(Verdict.WORKING, Verdict.UNKNOWN))
+        assertEquals(Verdict.WORKING, BluetoothCapabilityPolicy.merge(Verdict.UNKNOWN, Verdict.WORKING))
+    }
+
     @Test fun `system consent is the default and in-app enable needs a reason`() {
         assertFalse(BluetoothCapabilityPolicy.enablesInApp(25, knownHangingFirmware = false, systemConsentFailedBefore = false))
         assertTrue(BluetoothCapabilityPolicy.enablesInApp(25, knownHangingFirmware = true, systemConsentFailedBefore = false))

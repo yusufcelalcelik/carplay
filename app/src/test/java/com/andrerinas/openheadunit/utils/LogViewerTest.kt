@@ -62,4 +62,22 @@ class LogViewerTest {
         } finally { LogViewerServer.stop() }
         assertFalse(LogViewerServer.running)
     }
+
+    @Test fun `an oversized header line gets no log and the server keeps serving`() {
+        assertTrue(LogViewerServer.start(0))
+        try {
+            LogRing.offer(4, "secret-line")
+            val big = "A".repeat(20_000)
+            val reply = java.net.Socket("127.0.0.1", LogViewerServer.boundPort).use { c ->
+                c.soTimeout = 8000
+                try {
+                    c.getOutputStream().write("GET /log?since=0 HTTP/1.1\r\nX-Pin: ${LogViewerServer.pin}\r\nX-Big: $big\r\n\r\n".toByteArray())
+                } catch (_: java.io.IOException) {}
+                try { c.getInputStream().readBytes().toString(Charsets.UTF_8) } catch (_: java.io.IOException) { "" }
+            }
+            assertFalse(reply.contains("secret-line"))
+            assertFalse(reply.startsWith("HTTP/1.1 200"))
+            assertTrue(get("/").startsWith("HTTP/1.1 200"))
+        } finally { LogViewerServer.stop() }
+    }
 }

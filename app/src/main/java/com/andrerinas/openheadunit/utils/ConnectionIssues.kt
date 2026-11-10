@@ -66,6 +66,15 @@ enum class ConnectionIssue {
     WIFI_DIRECT_STACK_STUCK,
 
     /**
+     * This unit has no WiFi Direct at all, so no group can ever be formed on it.
+     *
+     * Distinct from [WIFI_DIRECT_GROUP_REFUSED]: that is a radio that was asked and said no, this
+     * is a unit with no WiFi Direct feature or no P2P service to ask. The user's levers are the
+     * hotspot transport or a cable.
+     */
+    WIFI_DIRECT_UNSUPPORTED,
+
+    /**
      * This unit's WiFi is off, and this Android will not let an app switch it on.
      *
      * Separate from [WIFI_DIRECT_GROUP_REFUSED], which is a radio that was asked and said no: here
@@ -272,6 +281,7 @@ object ConnectionIssues {
                 ConnectionIssue.WIFI_DIRECT_GROUP_REFUSED -> settings.connectionIssueWifiDirectRefusedAtEpochMs
                 ConnectionIssue.WIFI_DIRECT_STACK_CYCLED -> settings.connectionIssueWifiDirectCycledAtEpochMs
                 ConnectionIssue.WIFI_DIRECT_STACK_STUCK -> settings.connectionIssueWifiDirectStuckAtEpochMs
+                ConnectionIssue.WIFI_DIRECT_UNSUPPORTED -> settings.connectionIssueWifiDirectUnsupportedAtEpochMs
                 ConnectionIssue.WIFI_RADIO_OFF -> settings.connectionIssueWifiRadioOffAtEpochMs
                 ConnectionIssue.VIDEO_LINK_TOO_SLOW -> settings.connectionIssueVideoLinkTooSlowAtEpochMs
                 ConnectionIssue.FIVE_GHZ_CHANNEL_REFUSED -> settings.connectionIssueFiveGhzChannelRefusedAtEpochMs
@@ -297,6 +307,7 @@ object ConnectionIssues {
                     ConnectionIssue.WIFI_DIRECT_GROUP_REFUSED -> settings.connectionIssueWifiDirectRefusedAtEpochMs = atEpochMs
                     ConnectionIssue.WIFI_DIRECT_STACK_CYCLED -> settings.connectionIssueWifiDirectCycledAtEpochMs = atEpochMs
                     ConnectionIssue.WIFI_DIRECT_STACK_STUCK -> settings.connectionIssueWifiDirectStuckAtEpochMs = atEpochMs
+                    ConnectionIssue.WIFI_DIRECT_UNSUPPORTED -> settings.connectionIssueWifiDirectUnsupportedAtEpochMs = atEpochMs
                     ConnectionIssue.WIFI_RADIO_OFF -> settings.connectionIssueWifiRadioOffAtEpochMs = atEpochMs
                     ConnectionIssue.VIDEO_LINK_TOO_SLOW -> settings.connectionIssueVideoLinkTooSlowAtEpochMs = atEpochMs
                     ConnectionIssue.FIVE_GHZ_CHANNEL_REFUSED -> settings.connectionIssueFiveGhzChannelRefusedAtEpochMs = atEpochMs

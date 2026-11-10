@@ -6,6 +6,9 @@ Bu dosya Fiorino Auto geliştirmesini izler. Türetilen projenin özgün geçmi�
 
 - Teybin Android Bluetooth'u artık model adına göre değil, gözlenen davranışa göre sınıflandırılıyor: adaptör yok, açma isteği kabul edilip hiç açılmıyor, açık ama dinleme kaydı açmıyor, çalışıyor. Sonuç saklanır ve kurulum ekranı buna göre açıklama ile öneri (Microntek yolu veya USB köprü) gösterir.
 - Sistem Bluetooth açma penceresi bir teypte bir kez başarısız olursa, sonraki denemelerde uygulama içi onay ve bekleme kullanılır. Bu yol artık yalnızca PX3'e özel değil; Android 13 ve sonrasında sistem penceresi kullanılmaya devam eder.
+- Wi-Fi Direct'i hiç sunmayan teyplerde artık ana ekranda uyarı çıkar; önceden ekran "ağ hazırlanıyor"da kalıyordu.
+- Log görüntüleyici sağlamlaştırıldı: istek başlığı 8 KB ile, okuma 5 saniye ile sınırlandı; süre ve PIN kilidi saat sıçramalarından etkilenmez. Flash'a log yazma kapatılırken arayüzü bekletmez, yeni dosyada eski satırları tekrar yazmaz.
+- Bluetooth onayını iptal etmek veya yavaş açılan bir radyo, cihazı artık kalıcı olarak "Bluetooth açılmıyor" diye işaretlemez; çalıştığı görülmüş bir radyo tek bir hatayla yeniden etiketlenmez.
 - Bluetooth ön kontrol günlüğü; cihaz, derleme, Bluetooth/Wi-Fi Direct özellik bayrakları, kayıtlı sonuç ve üretici paketlerini de yazar.
 
 ## 1.5.6 Preview — 10 Kasım 2026

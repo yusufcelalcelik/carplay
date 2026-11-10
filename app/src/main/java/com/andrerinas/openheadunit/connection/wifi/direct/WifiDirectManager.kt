@@ -2122,9 +2122,11 @@ class WifiDirectManager(private val context: Context) : WifiP2pManager.Connectio
                     mgr = newManager
                     ch = newChannel
                     AppLog.i("WifiDirectManager: Re-init successful and fields updated.")
+                    ConnectionIssues.clear(context, ConnectionIssue.WIFI_DIRECT_UNSUPPORTED)
                     registerReceiverIfNeeded()
                 } else {
                     AppLog.e("WifiDirectManager: Re-init failed. Cannot start Quiet Host.")
+                    ConnectionIssues.raiseOnce(context, ConnectionIssue.WIFI_DIRECT_UNSUPPORTED)
                     isGroupCreatingOrCreated = false
                     releaseNativeCreateWindow("the P2P manager could not be re-initialised")
                     return

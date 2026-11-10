@@ -32,28 +32,31 @@ object UsbLogWriter {
     fun start(context: Context) {
         if (thread != null) return
         val app = context.applicationContext
-        LogRing.acquire()
         status = "Flash bellek bekleniyor"
-        thread = Thread({ loop(app) }, "UsbLogWriter").apply { isDaemon = true; start() }
+        // Each thread owns exactly one LogRing acquire/release pair, so a quick stop() then
+        // start() can neither double-acquire nor double-release.
+        LogRing.acquire()
+        val t = Thread({ loop(app) }, "UsbLogWriter").apply { isDaemon = true }
+        thread = t
+        t.start()
     }
 
+    /** Does not wait: the thread releases [LogRing] and sets the final status when it exits. */
     @Synchronized
     fun stop() {
         val t = thread ?: return
         thread = null
         t.interrupt()
-        try { t.join(2000) } catch (_: InterruptedException) {}
-        LogRing.release()
-        status = "Kapalı"
     }
 
     private fun loop(context: Context) {
+        val me = Thread.currentThread()
         var writer: BufferedWriter? = null
         var written = 0L
         var seq = 0L
         var sinceProbe = 5
         try {
-            while (!Thread.currentThread().isInterrupted) {
+            while (!me.isInterrupted) {
                 if (writer == null && ++sinceProbe >= 5) {
                     sinceProbe = 0
                     val dir = findDirectory(context)
@@ -61,7 +64,6 @@ object UsbLogWriter {
                         try {
                             writer = open(dir)
                             written = 0L
-                            seq = 0L
                             status = "Yazıyor: ${dir.path}"
                         } catch (e: Exception) { status = "Flash açılamadı: ${e.message}" }
                     }
@@ -70,7 +72,10 @@ object UsbLogWriter {
                 if (w != null) {
                     try {
                         val (last, lines) = LogRing.since(seq)
-                        for (line in lines) { w.write(line); w.write("\n"); written += line.length + 1 }
+                        for (line in lines) {
+                            w.write(line); w.write("\n")
+                            written += line.toByteArray(Charsets.UTF_8).size + 1
+                        }
                         seq = last
                         w.flush()
                         if (written > MAX_FILE_BYTES) { w.close(); writer = null; sinceProbe = 5 }
@@ -86,6 +91,11 @@ object UsbLogWriter {
         } catch (_: InterruptedException) {
         } finally {
             try { writer?.flush(); writer?.close() } catch (_: Exception) {}
+            LogRing.release()
+            // A newer start() may already own the status; only the current thread, or none, resets it.
+            synchronized(this) {
+                if (thread == null) status = "Kapalı"
+            }
         }
     }
 

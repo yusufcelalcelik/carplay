@@ -1303,10 +1303,13 @@ class NativeAaHandshakeManager(
                         ConnectionIssues.raiseOnce(context, ConnectionIssue.BLUETOOTH_RADIO_UNAVAILABLE)
                         // The radio is on and still will not publish a record: a property of the
                         // unit, not a transient. Kept so the setup screen can say so.
-                        settings.bluetoothVerdict = BluetoothCapabilityPolicy.classify(
+                        val observed = BluetoothCapabilityPolicy.classify(
                             adapterPresent = true, reachedOn = true, listenFailures = aaReopenAttempts,
                             maxListenFailures = AaListenerRecoveryPolicy.MAX_REOPEN_ATTEMPTS
-                        ).takeIf { it != BluetoothCapabilityPolicy.Verdict.UNKNOWN }?.name ?: settings.bluetoothVerdict
+                        )
+                        settings.bluetoothVerdict = BluetoothCapabilityPolicy.merge(
+                            BluetoothCapabilityPolicy.parse(settings.bluetoothVerdict), observed
+                        ).name
                     }
                     AppLog.w(
                         "NativeAA: the Android Auto listener would not reopen after " +

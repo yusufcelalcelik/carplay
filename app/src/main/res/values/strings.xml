@@ -1469,6 +1469,7 @@
     <string name="connection_issue_banner_hotspot_off">This unit\'s hotspot is off, so your phone had no network to join. Turn it on, or tap to let the app switch it on.</string>
     <string name="connection_issue_banner_hotspot_config">This unit will not share its hotspot name and password with the app. Tap to enter them by hand.</string>
     <string name="connection_issue_banner_wifi_direct_stuck">WiFi Direct on this unit is stuck and only a WiFi restart frees it. Tap to restart WiFi.</string>
+    <string name="connection_issue_banner_wifi_direct_unsupported">This unit does not offer WiFi Direct, so wireless Android Auto over WiFi Direct cannot start here. Use the hotspot transport or a cable.</string>
     <string name="wifi_restart_running">Restarting WiFi…</string>
     <string name="wifi_restart_failed">Could not restart WiFi. Switch it off and on here.</string>
     <string name="auto_restart_wifi_title">Restart WiFi when WiFi Direct gets stuck</string>

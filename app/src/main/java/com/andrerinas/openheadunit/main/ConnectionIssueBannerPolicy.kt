@@ -87,6 +87,7 @@ object ConnectionIssueBannerPolicy {
                 ConnectionIssue.WIFI_DIRECT_GROUP_REFUSED,
                 ConnectionIssue.WIFI_DIRECT_STACK_CYCLED,
                 ConnectionIssue.WIFI_DIRECT_STACK_STUCK,
+                ConnectionIssue.WIFI_DIRECT_UNSUPPORTED,
                 ConnectionIssue.WIFI_RADIO_OFF,
                 ConnectionIssue.FIVE_GHZ_CHANNEL_REFUSED,
                 ConnectionIssue.HOME_WIFI_REJOINED_BESIDE_GROUP

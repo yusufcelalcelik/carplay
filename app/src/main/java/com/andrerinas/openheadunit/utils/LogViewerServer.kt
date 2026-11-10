@@ -6,7 +6,9 @@ import java.net.NetworkInterface
 import java.net.ServerSocket
 import java.net.Socket
 import java.security.SecureRandom
-import java.util.concurrent.Executors
+import java.util.concurrent.ArrayBlockingQueue
+import java.util.concurrent.ThreadPoolExecutor
+import java.util.concurrent.TimeUnit
 
 /**
  * Read-only log page for diagnosing a head unit that has no adb. Off until switched on in settings,
@@ -16,12 +18,17 @@ object LogViewerServer {
     const val PORT = 8765
     const val AUTO_STOP_MS = 30 * 60_000L
     private const val MAX_HEADER_BYTES = 8192
+    private const val READ_DEADLINE_MS = 5000L
 
     @Volatile var pin: String? = null
         private set
     @Volatile private var server: ServerSocket? = null
     @Volatile private var auth: LogViewerAuth? = null
-    private val pool by lazy { Executors.newFixedThreadPool(4) { r -> Thread(r, "LogViewer").apply { isDaemon = true } } }
+    private val pool by lazy {
+        ThreadPoolExecutor(4, 4, 0L, TimeUnit.MILLISECONDS, ArrayBlockingQueue(8)) { r ->
+            Thread(r, "LogViewer").apply { isDaemon = true }
+        }
+    }
 
     val running: Boolean get() = server != null
     val boundPort: Int get() = server?.localPort ?: PORT
@@ -35,12 +42,12 @@ object LogViewerServer {
             AppLog.w("LogViewer: could not open port $port: ${e.message}")
             return false
         }
-        val code = "%06d".format(SecureRandom().nextInt(1_000_000))
+        val code = String.format(java.util.Locale.ROOT, "%06d", SecureRandom().nextInt(1_000_000))
         pin = code
         auth = LogViewerAuth(code)
         LogRing.acquire()
         server = socket
-        val deadline = System.currentTimeMillis() + AUTO_STOP_MS
+        val deadline = System.nanoTime() + AUTO_STOP_MS * 1_000_000L
         Thread({ acceptLoop(socket, deadline) }, "LogViewer-accept").apply { isDaemon = true }.start()
         AppLog.i("LogViewer: started on port ${socket.localPort}")
         return true
@@ -66,24 +73,50 @@ object LogViewerServer {
     } catch (_: Exception) { emptyList() }
 
     private fun acceptLoop(socket: ServerSocket, deadline: Long) {
-        while (server === socket && System.currentTimeMillis() < deadline) {
-            val client = try { socket.accept() } catch (_: java.net.SocketTimeoutException) { continue } catch (_: Exception) { break }
-            try { pool.execute { handle(client) } } catch (_: Exception) { try { client.close() } catch (_: Exception) {} }
+        try {
+            while (server === socket && System.nanoTime() - deadline < 0) {
+                val client = try { socket.accept() } catch (_: java.net.SocketTimeoutException) { continue } catch (_: Exception) { break }
+                try { pool.execute { handle(client) } } catch (_: Exception) { try { client.close() } catch (_: Exception) {} }
+            }
+        } finally {
+            if (server === socket) stop()
         }
-        if (server === socket) stop()
+    }
+
+    /**
+     * Reads the request line and headers, at most [MAX_HEADER_BYTES] counted as they arrive and at
+     * most [READ_DEADLINE_MS] in all. Returns the lines, or null when a limit was hit.
+     */
+    private fun readHead(c: Socket): List<String>? {
+        val input = c.getInputStream()
+        val end = System.nanoTime() + READ_DEADLINE_MS * 1_000_000L
+        val head = java.io.ByteArrayOutputStream()
+        var tail = 0
+        while (true) {
+            val remainingMs = (end - System.nanoTime()) / 1_000_000L
+            if (remainingMs <= 0) return null
+            c.soTimeout = remainingMs.toInt().coerceAtLeast(1)
+            val b = input.read()
+            if (b < 0) break
+            if (head.size() >= MAX_HEADER_BYTES) return null
+            head.write(b)
+            if (b == '\n'.code) {
+                // Empty line: a lone \n or \r\n right after the previous line ends the head.
+                tail = if (tail == 1) 2 else 1
+                if (tail == 2) break
+            } else if (b != '\r'.code) tail = 0
+        }
+        return String(head.toByteArray(), Charsets.ISO_8859_1).split('\n').map { it.trimEnd('\r') }
     }
 
     private fun handle(client: Socket) = client.use { c ->
         try {
-            c.soTimeout = 5000
-            val input = c.getInputStream().bufferedReader(Charsets.ISO_8859_1)
-            val request = input.readLine() ?: return
+            val lines = try { readHead(c) } catch (_: java.net.SocketTimeoutException) { return }
+            if (lines == null) return respond(c, 431, "text/plain", "Header too large")
+            val request = lines.firstOrNull()?.takeIf { it.isNotEmpty() } ?: return
             var pinHeader: String? = null
-            var read = request.length
-            while (true) {
-                val line = input.readLine() ?: break
-                read += line.length
-                if (line.isEmpty() || read > MAX_HEADER_BYTES) break
+            for (line in lines.drop(1)) {
+                if (line.isEmpty()) break
                 if (line.startsWith("X-Pin:", ignoreCase = true)) pinHeader = line.substring(6).trim()
             }
             val parts = request.split(' ')
@@ -92,7 +125,7 @@ object LogViewerServer {
             val query = parts[1].substringAfter('?', "")
             if (path == "/") return respond(c, 200, "text/html; charset=utf-8", PAGE)
             val attempt = pinHeader ?: query.split('&').firstOrNull { it.startsWith("pin=") }?.substring(4)
-            if (auth?.check(attempt, System.currentTimeMillis()) != true) return respond(c, 403, "text/plain", "PIN")
+            if (auth?.check(attempt, System.nanoTime() / 1_000_000) != true) return respond(c, 403, "text/plain", "PIN")
             when (path) {
                 "/log" -> {
                     val after = query.split('&').firstOrNull { it.startsWith("since=") }?.substring(6)?.toLongOrNull() ?: 0L

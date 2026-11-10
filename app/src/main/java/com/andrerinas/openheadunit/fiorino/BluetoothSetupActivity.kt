@@ -4,6 +4,7 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import android.Manifest
 import android.app.Activity
@@ -53,16 +54,19 @@ class BluetoothSetupActivity : VehiclePreferencesActivity() {
         pendingPhone = null
         lifecycleScope.launch {
             if (result.resultCode == Activity.RESULT_OK) {
-                withTimeoutOrNull(4000) {
+                withTimeoutOrNull(8000) {
                     while (!androidRadioEnabled()) delay(150)
                 }
             }
-            if (androidRadioEnabled()) runBluetoothAction(action, phone)
-            else {
-                // The system activity did not deliver a radio. Next time the app asks and waits
-                // itself, which also covers firmwares that leave that activity on "Turning on".
-                settings.bluetoothSystemConsentFailed = true
-                if (result.resultCode == Activity.RESULT_OK) noteVerdict(enableAccepted = true, reachedOn = false)
+            if (androidRadioEnabled()) {
+                if (result.resultCode == Activity.RESULT_OK) settings.bluetoothSystemConsentFailed = false
+                runBluetoothAction(action, phone)
+            } else {
+                // A cancel is the user's choice, not a fault of the unit. Only an OK that still
+                // delivered no radio after the full wait marks the system consent as failed, so
+                // next time the app asks and waits itself (firmwares that stay on "Turning on").
+                // No verdict is recorded here: this path alone cannot tell the cause.
+                if (result.resultCode == Activity.RESULT_OK) settings.bluetoothSystemConsentFailed = true
                 reportBluetoothUnavailable(result.resultCode == Activity.RESULT_CANCELED)
             }
         }
@@ -225,17 +229,21 @@ class BluetoothSetupActivity : VehiclePreferencesActivity() {
                     }
                     else -> false
                 }
-            }.getOrDefault(false)
-            val enabled = accepted && withTimeoutOrNull(8000) {
+            }.getOrElse { if (it is kotlinx.coroutines.CancellationException) throw it else false }
+            val waitResult = if (accepted) withTimeoutOrNull(8000) {
                 while (!androidRadioEnabled()) delay(150)
                 true
-            } == true
+            } else null
+            val enabled = waitResult == true
+            val fullWaitElapsed = accepted && waitResult == null
             if (App.provide(this@BluetoothSetupActivity).commManager.isConnected) {
                 connectionMessage = null
                 updatePreferences()
                 return@launch
             }
-            if (!enabled) noteVerdict(adapterPresent, enableAccepted = accepted, reachedOn = false)
+            if (!enabled && fullWaitElapsed && adapterPresent && kotlinx.coroutines.currentCoroutineContext().isActive) {
+                noteVerdict(adapterPresent, enableAccepted = accepted, reachedOn = false)
+            }
             if (enabled) runBluetoothAction(action, phone) else reportBluetoothUnavailable()
         }
     }
