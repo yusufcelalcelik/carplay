@@ -57,6 +57,20 @@ class FiorinoSettingsActivity : VehiclePreferencesActivity() {
                 }.show()
         })
         items.add(SettingItem.InfoBanner("applyInfo", R.string.fiorino_apply_info))
+        items.add(SettingItem.CategoryHeader("diagnostics", R.string.fiorino_diagnostics))
+        items.add(SettingItem.ToggleSettingEntry("logViewer", R.string.fiorino_log_viewer, R.string.fiorino_log_viewer_help,
+            com.andrerinas.openheadunit.utils.LogViewerServer.running) { on ->
+            val ok = if (on) com.andrerinas.openheadunit.utils.LogViewerServer.start()
+                else { com.andrerinas.openheadunit.utils.LogViewerServer.stop(); true }
+            if (!ok) ToastUtils.showToast(this, "Log görüntüleyici açılamadı. Port kullanımda olabilir.", Toast.LENGTH_LONG, force = true)
+            updatePreferences()
+        })
+        if (com.andrerinas.openheadunit.utils.LogViewerServer.running) {
+            val viewer = com.andrerinas.openheadunit.utils.LogViewerServer
+            val urls = viewer.addresses().ifEmpty { listOf("Ağ bağlantısı bulunamadı") }
+            items.add(SettingItem.InfoBanner("logViewerInfo", R.string.fiorino_log_viewer,
+                "${urls.joinToString("\n")}\nPIN: ${viewer.pin}"))
+        }
         items.add(SettingItem.CategoryHeader("sound", R.string.fiorino_sound))
         items.add(SettingItem.ToggleSettingEntry("speechDucking", R.string.fiorino_ducking, null,
             settings.automaticSpeechDucking) { settings.automaticSpeechDucking = it })

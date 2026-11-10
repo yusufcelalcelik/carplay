@@ -267,6 +267,7 @@ object AppLog {
     }
 
     private fun log(priority: Int, msg: String) {
+        LogRing.offer(priority, msg)
         LOGGER.println(priority, TAG, msg)
     }
 
@@ -282,7 +283,9 @@ object AppLog {
      */
     private fun loge(message: String, tr: Throwable?) {
         val trace = if (tr != null) Log.getStackTraceString(tr) else ""
-        LOGGER.println(Log.ERROR, TAG, if (trace.isEmpty()) message else "$message\n$trace")
+        val full = if (trace.isEmpty()) message else "$message\n$trace"
+        LogRing.offer(Log.ERROR, full)
+        LOGGER.println(Log.ERROR, TAG, full)
     }
 
     private fun closeAppLogFileLogger() {

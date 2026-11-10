@@ -24,6 +24,9 @@
     <string name="fiorino_android_bt_canceled">Android Bluetooth açma onayı tamamlanmadı. Kablosuz eşleştirmeyi yeniden deneyebilirsin.</string>
     <string name="fiorino_android_bt_banner">Kablosuz Android Auto, teybin Bluetooth servisini başlatamadı. Ayrıntılar için dokun.</string>
     <string name="fiorino_px3_bt_enable">Kablosuz Android Auto için teybin Android Bluetooth servisi denenecek. Fabrika CAR-KIT açık olsa da bu servis hazır olmayabilir. Deneme en fazla 8 saniye sürer.</string>
+    <string name="fiorino_diagnostics">Teşhis</string>
+    <string name="fiorino_log_viewer">Log görüntüleyici (Wi-Fi)</string>
+    <string name="fiorino_log_viewer_help">Bilgisayar ve teyp aynı ağdayken tarayıcıdan açılır. Yalnızca log okur, 30 dakika sonra kendiliğinden kapanır.</string>
     <string name="fiorino_px3_bt_try">Bluetooth’u dene</string>
     <string name="fiorino_px3_bt_checking">Teybin Android Bluetooth servisi kontrol ediliyor…</string>
     <string name="fiorino_microntek_detected">Microntek Android Auto arayüzü bulundu. Native alıcıyı etkinleştirerek bu yolu dene.</string>
