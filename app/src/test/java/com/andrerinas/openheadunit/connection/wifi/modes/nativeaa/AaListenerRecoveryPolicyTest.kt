@@ -38,4 +38,11 @@ class AaListenerRecoveryPolicyTest {
         assertTrue(AaListenerRecoveryPolicy.mayReopen(true, AaListenerRecoveryPolicy.MAX_REOPEN_ATTEMPTS - 1))
         assertFalse(AaListenerRecoveryPolicy.mayReopen(true, AaListenerRecoveryPolicy.MAX_REOPEN_ATTEMPTS))
     }
+
+    @Test
+    fun `only a listener that stayed up earns a fresh budget`() {
+        assertFalse(AaListenerRecoveryPolicy.wasStable(0L))
+        assertFalse(AaListenerRecoveryPolicy.wasStable(AaListenerRecoveryPolicy.STABLE_LISTEN_MS - 1))
+        assertTrue(AaListenerRecoveryPolicy.wasStable(AaListenerRecoveryPolicy.STABLE_LISTEN_MS))
+    }
 }

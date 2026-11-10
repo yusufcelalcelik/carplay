@@ -16,6 +16,11 @@ object AaListenerRecoveryPolicy {
     /** How long to wait before each attempt; the radio takes a moment to come back after a bounce. */
     const val REOPEN_DELAY_MS = 2_000L
 
+    /** A listener that served at least this long before dying has earned a fresh retry budget. */
+    const val STABLE_LISTEN_MS = 30_000L
+
+    fun wasStable(servedMs: Long): Boolean = servedMs >= STABLE_LISTEN_MS
+
     /** Why the accept loop stopped serving. */
     enum class Exit {
         /** The handoff closed it on purpose; the session owns what happens next. */

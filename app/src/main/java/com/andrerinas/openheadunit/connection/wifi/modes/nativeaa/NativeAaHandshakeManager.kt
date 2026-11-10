@@ -293,7 +293,7 @@ class NativeAaHandshakeManager(
     // because the two need opposite repairs and the manager is still running through both.
     @Volatile private var aaListenerLost = false
     private var aaReopenJob: Job? = null
-    private var aaReopenAttempts = 0
+    @Volatile private var aaReopenAttempts = 0
     // The phone ended the last session itself, so it is listened for rather than woken. Lifted by
     // the phone coming back, a manual poke, or a start(), never by time.
     @Volatile private var wakeStoodDown = false
@@ -1164,12 +1164,13 @@ class NativeAaHandshakeManager(
             val label = if (serviceName == null) "AA Server socket" else "Secondary AA server"
             val suffix = if (serviceName == null) "" else " ['$serviceName' $radioName]"
             var openedSocket: BluetoothServerSocket? = null
+            var openedAt = 0L
             try {
                 val server = listenOnAaUuid(adapter)
                 openedSocket = server
+                openedAt = SystemClock.elapsedRealtime()
                 if (serviceName == null) {
                     aaServerSocket = server
-                    aaReopenAttempts = 0
                     ConnectionIssues.clear(context, ConnectionIssue.BLUETOOTH_RADIO_UNAVAILABLE)
                     AppLog.i("NativeAA: ACTIVELY LISTENING on Android Auto UUID ($AA_UUID) on radio [$radioName]... Waiting for phone to connect back!")
                     // A stood-down wake has nothing to show: the pill would claim an attempt that
@@ -1216,6 +1217,12 @@ class NativeAaHandshakeManager(
                         AppLog.d("NativeAA: $label closed cleanly$suffix.")
                     AaListenerRecoveryPolicy.Exit.FAILED -> {
                         AppLog.e("NativeAA: $label error$suffix: ${e.message}", e)
+                        // Only a listener that stayed up earns a fresh retry budget. Resetting on
+                        // every successful listen let a socket that dies inside accept() retry forever.
+                        if (serviceName == null && openedAt != 0L &&
+                            AaListenerRecoveryPolicy.wasStable(SystemClock.elapsedRealtime() - openedAt)) {
+                            aaReopenAttempts = 0
+                        }
                         if (serviceName == null) onAaListenerLost()
                     }
                 }
@@ -1276,10 +1283,11 @@ class NativeAaHandshakeManager(
                 val adapter = BluetoothHelper.getBluetoothAdapter(context)
                 val enabled = try { adapter != null && adapter.isEnabled } catch (e: Exception) { false }
                 if (!AaListenerRecoveryPolicy.mayReopen(enabled, aaReopenAttempts)) {
+                    // A radio that is merely off is the routine bounce: wait for it silently.
+                    if (!enabled) continue
                     if (extraAaServerSockets.isEmpty()) {
                         ConnectionIssues.raiseOnce(context, ConnectionIssue.BLUETOOTH_RADIO_UNAVAILABLE)
                     }
-                    if (!enabled) continue
                     AppLog.w(
                         "NativeAA: the Android Auto listener would not reopen after " +
                             "$aaReopenAttempts attempts; waiting for this unit's Bluetooth to come back."
@@ -1303,9 +1311,13 @@ class NativeAaHandshakeManager(
         aaListenerLost = false
         AppLog.i("NativeAA: reopening the Android Auto listener $why.")
         val primary = launchAaAcceptLoop(adapter, localRadioName)
-        secondaryRadioHandles().forEach {
-            val radioName = try { it.adapter.name ?: "?" } catch (e: Exception) { "?" }
-            launchAaAcceptLoop(it.adapter, radioName, it.serviceName)
+        // Only the primary was lost. Secondaries that are still listening must not get a duplicate
+        // record on the same UUID.
+        if (extraAaServerSockets.isEmpty()) {
+            secondaryRadioHandles().forEach {
+                val radioName = try { it.adapter.name ?: "?" } catch (e: Exception) { "?" }
+                launchAaAcceptLoop(it.adapter, radioName, it.serviceName)
+            }
         }
         return primary
     }
@@ -1335,7 +1347,7 @@ class NativeAaHandshakeManager(
      * Whether a wake here sends anything. False on a module that opens Android Auto by itself,
      * where reporting a wake would leave the pill claiming one that never runs.
      */
-    fun reportsWake(): Boolean = isActive() && (moduleCarrier?.sendsWake ?: (aaServerSocket != null))
+    fun reportsWake(): Boolean = isActive() && (moduleCarrier?.sendsWake ?: true)
 
     /** Credentials and carrier selection can complete in either order. Report readiness from both. */
     fun reportHctNetworkReady() {

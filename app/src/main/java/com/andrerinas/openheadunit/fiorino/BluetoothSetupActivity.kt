@@ -40,6 +40,7 @@ class BluetoothSetupActivity : VehiclePreferencesActivity() {
     private val pairingOwner = Any()
     private var pairingRequest: Job? = null
     private var legacyEnableRequest: Job? = null
+    private var px3Dialog: androidx.appcompat.app.AlertDialog? = null
     private var pendingBluetoothAction: BluetoothAction? = null
     private var pendingPhone: String? = null
     private val enableConsent = registerForActivityResult(
@@ -138,8 +139,11 @@ class BluetoothSetupActivity : VehiclePreferencesActivity() {
     }.getOrDefault(false)
 
     private fun requestBluetooth(action: BluetoothAction, phone: String? = null) {
-        if (pendingBluetoothAction != null || legacyEnableRequest?.isActive == true ||
-            !permitted() || App.provide(this).commManager.isConnected) return
+        if (pendingBluetoothAction != null || legacyEnableRequest?.isActive == true || !permitted()) return
+        if (App.provide(this).commManager.isConnected) {
+            message("Bağlantı zaten açık. Kurulum için önce oturumu kapat.")
+            return
+        }
         val moduleRoute = NativeAaHandshakeManager.wifiButtonRoute(this) == ExternalBtTransportPolicy.WifiButton.MODULE ||
             com.andrerinas.openheadunit.connection.wifi.modes.nativeaa.esp32.Esp32RelaySession.hasSavedEsp32Relay(this)
         if (androidRadioEnabled() ||
@@ -149,10 +153,9 @@ class BluetoothSetupActivity : VehiclePreferencesActivity() {
         }
         // The system consent activity on the tested HCT PX3 can stay on "Turning on"
         // indefinitely. Keep consent and the wait inside this app on that firmware.
-        if (Build.VERSION.SDK_INT == 25 && Build.MODEL.contains("px3", ignoreCase = true) &&
-            Build.BOARD.equals("rk30sdk", ignoreCase = true) &&
-            Build.DISPLAY.contains("eng.hct.", ignoreCase = true)) {
-            MaterialAlertDialogBuilder(this)
+        if (usesInAppBluetoothEnable()) {
+            if (px3Dialog?.isShowing == true) return
+            px3Dialog = MaterialAlertDialogBuilder(this)
                 .setMessage(R.string.fiorino_px3_bt_enable)
                 .setNegativeButton(android.R.string.cancel, null)
                 .setPositiveButton(R.string.fiorino_px3_bt_try) { _, _ -> tryPx3Bluetooth(action, phone) }
@@ -174,7 +177,22 @@ class BluetoothSetupActivity : VehiclePreferencesActivity() {
         }
     }
 
-    @Suppress("DEPRECATION") // Only the Android 7.1 HCT profile above reaches this path.
+    /**
+     * Head units whose system enable consent can stay on "Turning on" for good. PX3 (RK3188/rk30sdk
+     * family, HCT builds) is matched by any of its own markers, on any Android level, so a
+     * different PX3 firmware does not fall back to the hanging system dialog.
+     */
+    private fun usesInAppBluetoothEnable(): Boolean {
+        val px3 = Build.MODEL.contains("px3", ignoreCase = true) ||
+            Build.PRODUCT.contains("px3", ignoreCase = true) ||
+            Build.DEVICE.contains("px3", ignoreCase = true)
+        val hct = Build.BOARD.equals("rk30sdk", ignoreCase = true) ||
+            Build.DISPLAY.contains("hct", ignoreCase = true) ||
+            Build.MANUFACTURER.contains("hct", ignoreCase = true)
+        return px3 && hct
+    }
+
+    @Suppress("DEPRECATION") // Reached only on head units that hang the system consent.
     private fun tryPx3Bluetooth(action: BluetoothAction, phone: String?) {
         if (legacyEnableRequest?.isActive == true || App.provide(this).commManager.isConnected) return
         legacyEnableRequest = lifecycleScope.launch {
@@ -186,6 +204,13 @@ class BluetoothSetupActivity : VehiclePreferencesActivity() {
                 when (adapter.state) {
                     BluetoothAdapter.STATE_ON, BluetoothAdapter.STATE_TURNING_ON -> true
                     BluetoothAdapter.STATE_OFF -> adapter.enable()
+                    BluetoothAdapter.STATE_TURNING_OFF -> {
+                        // A bounce in progress: let it finish, then switch the radio back on.
+                        withTimeoutOrNull(4000) {
+                            while (adapter.state != BluetoothAdapter.STATE_OFF) delay(150)
+                        }
+                        adapter.state == BluetoothAdapter.STATE_OFF && adapter.enable()
+                    }
                     else -> false
                 }
             }.getOrDefault(false)
@@ -193,7 +218,11 @@ class BluetoothSetupActivity : VehiclePreferencesActivity() {
                 while (!androidRadioEnabled()) delay(150)
                 true
             } == true
-            if (App.provide(this@BluetoothSetupActivity).commManager.isConnected) return@launch
+            if (App.provide(this@BluetoothSetupActivity).commManager.isConnected) {
+                connectionMessage = null
+                updatePreferences()
+                return@launch
+            }
             if (enabled) runBluetoothAction(action, phone) else reportBluetoothUnavailable()
         }
     }
@@ -338,6 +367,8 @@ class BluetoothSetupActivity : VehiclePreferencesActivity() {
     }
     override fun onDestroy() {
         AapService.instance?.onNativePairingWindow(pairingOwner, false)
+        px3Dialog?.dismiss()
+        px3Dialog = null
         super.onDestroy()
     }
     private fun message(text: String) = ToastUtils.showToast(this, text, Toast.LENGTH_LONG, force = true)

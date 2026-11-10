@@ -2,6 +2,13 @@
 
 Bu dosya Fiorino Auto geliştirmesini izler. Türetilen projenin özgün geçmişi, yazar atıflarıyla [CHANGELOG_UPSTREAM.md](CHANGELOG_UPSTREAM.md) dosyasında korunur.
 
+## 1.5.4 Preview — 10 Kasım 2026
+
+- Android Auto Bluetooth dinleyicisi yeniden açılırken deneme sınırı artık gerçekten işliyor: dinleyici en az 30 saniye ayakta kalmadıkça deneme hakkı yenilenmiyor.
+- Birincil dinleyici düşünce hâlâ açık olan ikincil radyo dinleyicileri tekrar başlatılmıyor. Bluetooth kapalıyken uyarı yalnızca deneme hakkı bittiğinde çıkıyor; rutin Bluetooth sıfırlamasında banner görünmüyor.
+- PX3 uygulama içi Bluetooth açma yolu artık yalnızca tek bir yazılım parmak izine bağlı değil (PX3 + HCT işaretleri). Bluetooth kapanırken açma isteği bekleyip yeniden deniyor, "kontrol ediliyor" mesajı takılı kalmıyor, çift diyalog açılmıyor.
+- Bluetooth açıldıktan sonra kablosuz mod, eski bir uyarı kaydına bakmadan yeniden başlatılıyor.
+
 ## 1.5.3 Preview — 9 Kasım 2026
 
 - HCT PX3 Android 7.1.2'de takılan sistem Bluetooth penceresinin yerine uygulama içinde onay ve en fazla sekiz saniye bekleme. Fabrika CAR-KIT bağlantısı ve Android Auto'nun Bluetooth servisi ayrı ayrı açıklanır.

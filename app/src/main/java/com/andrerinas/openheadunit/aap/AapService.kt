@@ -3655,11 +3655,10 @@ class AapService : Service() {
             // The P2P launcher can already be active even when its Bluetooth listener never
             // started. After the user enables Bluetooth, reuse the existing network.
             val handshake = (wifiLauncherManager.active as? WifiLauncherNative)?.handshakeManager
-            if (!commManager.isBusy && handshake?.isStarted() == false &&
-                settings.connectionIssueBluetoothUnavailableAtEpochMs != 0L &&
+            if (!commManager.isBusy && !userExitedAA && handshake?.isStarted() == false &&
                 runCatching { BluetoothHelper.getBluetoothAdapter(this)?.isEnabled == true }.getOrDefault(false)) {
                 handshake.start()
-                if (handshake.isStarted() && !userExitedAA) handshake.triggerPoke()
+                if (handshake.isStarted()) handshake.triggerPoke()
             }
         }
     }
