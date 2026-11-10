@@ -56,6 +56,24 @@ class FiorinoSettingsActivity : VehiclePreferencesActivity() {
                     updatePreferences()
                 }.show()
         })
+        val wirelessMethod = WirelessMethodPolicy.current(settings.wifiConnectionMode)
+        items.add(SettingItem.SettingEntry("wirelessMethod", R.string.fiorino_wireless_method,
+            getString(when (wirelessMethod) {
+                WirelessMethodPolicy.Method.NATIVE -> R.string.fiorino_wireless_method_native
+                WirelessMethodPolicy.Method.HEADUNIT_SERVER -> R.string.fiorino_wireless_method_server
+                WirelessMethodPolicy.Method.OTHER -> R.string.fiorino_wireless_method_other
+            })) {
+            MaterialAlertDialogBuilder(this).setTitle(R.string.fiorino_wireless_method)
+                .setItems(arrayOf(getString(R.string.fiorino_wireless_method_native),
+                    getString(R.string.fiorino_wireless_method_server))) { _, index ->
+                    if (index == 0) settings.configureNativeReceiver() else settings.configureHeadunitServerReceiver()
+                    com.andrerinas.openheadunit.aap.AapService.applyWirelessSettings(this, startWireless = true)
+                    updatePreferences()
+                }.show()
+        })
+        if (wirelessMethod == WirelessMethodPolicy.Method.HEADUNIT_SERVER) {
+            items.add(SettingItem.InfoBanner("headunitServerInfo", R.string.fiorino_headunit_server_steps))
+        }
         items.add(SettingItem.InfoBanner("applyInfo", R.string.fiorino_apply_info))
         items.add(SettingItem.CategoryHeader("diagnostics", R.string.fiorino_diagnostics))
         items.add(SettingItem.ToggleSettingEntry("logViewer", R.string.fiorino_log_viewer, R.string.fiorino_log_viewer_help,

@@ -55,4 +55,10 @@
     <string name="fiorino_wireless_profile">Kablosuz bağlantı profili</string>
     <string name="fiorino_density_override">Seçtiğim DPI boyutunu uygula</string>
     <string name="fiorino_density_override_hint">480p görüntüde büyük DPI normalde sınırlandırılır. Açarsan seçimin uygulanır; ekranda daha az içerik veya farklı menü düzeni görünebilir. Sonraki bağlantıda geçerli.</string>
+    <string name="fiorino_wireless_method">Kablosuz bağlantı yöntemi</string>
+    <string name="fiorino_wireless_method_native">Native (teybin Bluetooth’u ile, telefonda ek adım yok)</string>
+    <string name="fiorino_wireless_method_server">Headunit Server (Bluetooth gerekmez)</string>
+    <string name="fiorino_wireless_method_other">Diğer (gelişmiş ayarlardan seçildi)</string>
+    <string name="fiorino_headunit_server_steps">Headunit Server kurulumu:\n(a) Bir kez: Telefonda Android Auto ayarlarını aç, sürüm satırına 10 kez dokunarak geliştirici ayarlarını etkinleştir.\n(b) Bir kez: Telefonun hotspot’unu 2,4 GHz olarak ayarla ve teybin Wi-Fi’sini bu hotspot’a bağla.\n(c) Her yolculukta: Telefonun hotspot’unu aç, sonra Android Auto’nun üç nokta menüsünden “Start head unit server” (Başlat) seçeneğini seç. Teyp telefonu kendisi bulur.</string>
+    <string name="fiorino_bt_advice_headunit_server">Bluetooth gerektirmeyen kablosuz bir seçenek de var: Ayarlar → Kablosuz bağlantı yöntemi → Headunit Server.</string>
 </resources>

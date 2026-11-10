@@ -111,6 +111,19 @@ class Settings(private val context: Context) {
         }
     }
 
+    /** Wireless without Android Bluetooth on the head unit: the unit dials the phone's "head unit server" on the shared network. */
+    fun configureHeadunitServerReceiver() {
+        wifiConnectionMode = WifiLauncherMode.AUTO
+        primaryConnection = ConnectionKind.WIFI
+        connectionModes = setOf(ConnectionMode.WIFI, ConnectionMode.USB)
+        autoStartOnBoot = true
+        autoStartOnScreenOn = true
+        autoConnectLastSession = true
+        autoStartSelfMode = false
+        rawReopenOnReconnection = true
+        rawKillOnDisconnect = false
+    }
+
     var speedVolumeEnabled: Boolean
         get() = prefs.getBoolean("fiorino-speed-volume", true)
         set(value) { prefs.edit().putBoolean("fiorino-speed-volume", value).apply() }

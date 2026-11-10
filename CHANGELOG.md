@@ -2,6 +2,11 @@
 
 Bu dosya Fiorino Auto geliştirmesini izler. Türetilen projenin özgün geçmişi, yazar atıflarıyla [CHANGELOG_UPSTREAM.md](CHANGELOG_UPSTREAM.md) dosyasında korunur.
 
+## 1.5.8 Preview — 10 Kasım 2026
+
+- Ayarlar'a "Kablosuz bağlantı yöntemi" eklendi: Native veya Headunit Server. Headunit Server, teypte Bluetooth gerektirmez: telefon ve teyp aynı ağdayken (genelde telefonun hotspot'u) teyp telefonu kendisi bulur. Telefonda her yolculukta Android Auto'nun "Start head unit server" seçeneği başlatılır; adımlar ekranda yazılıdır.
+- Teybin Bluetooth'u kullanılamıyorsa kurulum ekranı bu seçeneği de önerir.
+
 ## 1.5.7 Preview — 10 Kasım 2026
 
 - Teybin Android Bluetooth'u artık model adına göre değil, gözlenen davranışa göre sınıflandırılıyor: adaptör yok, açma isteği kabul edilip hiç açılmıyor, açık ama dinleme kaydı açmıyor, çalışıyor. Sonuç saklanır ve kurulum ekranı buna göre açıklama ile öneri (Microntek yolu veya USB köprü) gösterir.

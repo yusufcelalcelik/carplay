@@ -272,7 +272,9 @@ class BluetoothSetupActivity : VehiclePreferencesActivity() {
             BluetoothCapabilityPolicy.Advice.USB_BRIDGE -> R.string.fiorino_bt_advice_usb_bridge
             else -> if (moduleAvailable) R.string.fiorino_microntek_detected else R.string.fiorino_microntek_unavailable
         }
-        connectionMessage = "$notice\n${getString(moduleStatus)}"
+        val headunitServerHint = if (BluetoothCapabilityPolicy.advice(verdict, moduleAvailable) ==
+            BluetoothCapabilityPolicy.Advice.USB_BRIDGE) "\n${getString(R.string.fiorino_bt_advice_headunit_server)}" else ""
+        connectionMessage = "$notice\n${getString(moduleStatus)}$headunitServerHint"
         updatePreferences()
         message(notice)
     }
